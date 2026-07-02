@@ -3,6 +3,7 @@ import type { WorkspaceLayout } from '@shared/types'
 import {
   CURRENT_LAYOUT_VERSION,
   defaultLayout,
+  defaultPanelConfig,
   normalizeLayout,
   placeNewItem,
   PANELS
@@ -11,22 +12,24 @@ import reducer, {
   gridChanged,
   panelAdded,
   panelRemoved,
+  panelConfigChanged,
   layoutReset,
   type WorkspaceState
 } from './workspaceSlice'
 
 describe('defaultLayout', () => {
-  it('is valid under its own normalizer and mirrors the three-zone UX', () => {
+  it('is valid under its own normalizer and carries panel config', () => {
     const layout = defaultLayout()
     expect(normalizeLayout(layout)).toEqual(layout)
-    expect(layout.items.map((i) => i.type)).toEqual(['filters', 'torrent-list', 'detail'])
+    expect(layout.items.map((i) => i.type)).toEqual(['torrent-list', 'detail'])
+    expect(layout.items[0].config).toEqual(defaultPanelConfig())
     const ids = new Set(layout.items.map((i) => i.i))
-    expect(ids.size).toBe(3)
+    expect(ids.size).toBe(2)
   })
 })
 
-describe('normalizeLayout', () => {
-  it('rejects unknown versions outright', () => {
+describe('normalizeLayout migrations', () => {
+  it('rejects future versions outright', () => {
     const layout = { ...defaultLayout(), version: CURRENT_LAYOUT_VERSION + 1 }
     expect(normalizeLayout(layout)).toBeNull()
   })
@@ -37,6 +40,26 @@ describe('normalizeLayout', () => {
     expect(normalizeLayout({ version: CURRENT_LAYOUT_VERSION, items: [] })).toBeNull()
   })
 
+  it('migrates a v1 layout: drops the retired filters panel, stamps config, seeds sort', () => {
+    const v1 = {
+      version: 1,
+      items: [
+        { i: 'a', type: 'filters', x: 0, y: 0, w: 2, h: 14 },
+        { i: 'b', type: 'torrent-list', x: 2, y: 0, w: 7, h: 14 },
+        { i: 'c', type: 'detail', x: 9, y: 0, w: 3, h: 14 }
+      ]
+    }
+    const result = normalizeLayout(v1, { key: 'name', desc: false })
+    expect(result).not.toBeNull()
+    expect(result!.version).toBe(CURRENT_LAYOUT_VERSION)
+    expect(result!.items.map((i) => i.type)).toEqual(['torrent-list', 'detail'])
+    const list = result!.items[0]
+    expect(list.config?.servers).toBe('default')
+    expect(list.config?.sort).toEqual({ key: 'name', desc: false })
+    expect(list.config?.filters.status).toBe('all')
+    expect(result!.items[1].config).toBeUndefined()
+  })
+
   it('drops unknown panel types item-by-item, keeping the rest', () => {
     const good = defaultLayout()
     const layout = {
@@ -44,7 +67,29 @@ describe('normalizeLayout', () => {
       items: [...good.items, { i: 'x', type: 'geo-map', x: 0, y: 0, w: 2, h: 2 }]
     }
     const result = normalizeLayout(layout)
-    expect(result?.items).toHaveLength(3)
+    expect(result?.items).toHaveLength(2)
+  })
+
+  it('fills partial configs from defaults', () => {
+    const layout = {
+      version: CURRENT_LAYOUT_VERSION,
+      items: [
+        {
+          i: 'b',
+          type: 'torrent-list',
+          x: 0,
+          y: 0,
+          w: 9,
+          h: 14,
+          config: { servers: ['p1'], filters: { status: 'seeding' } }
+        }
+      ]
+    }
+    const cfg = normalizeLayout(layout)!.items[0].config!
+    expect(cfg.servers).toEqual(['p1'])
+    expect(cfg.filters).toEqual({ status: 'seeding', tracker: null, label: null, search: '' })
+    expect(cfg.view).toBe('cards')
+    expect(cfg.sort).toEqual({ key: 'addedDate', desc: true })
   })
 })
 
@@ -56,6 +101,12 @@ describe('placeNewItem', () => {
     expect(it.x).toBe(0)
     expect(it.w).toBe(PANELS.stats.w)
     expect(it.h).toBe(PANELS.stats.h)
+    expect(it.config).toBeUndefined()
+  })
+
+  it('stamps default config onto new torrent-list panels', () => {
+    const it = placeNewItem('torrent-list', [])
+    expect(it.config).toEqual(defaultPanelConfig())
   })
 })
 
@@ -64,7 +115,7 @@ describe('workspaceSlice', () => {
 
   it('adds and removes panels', () => {
     let s = reducer(state(), panelAdded('stats'))
-    expect(s.layout?.items).toHaveLength(4)
+    expect(s.layout?.items).toHaveLength(3)
     const statsId = s.layout!.items.find((i) => i.type === 'stats')!.i
     s = reducer(s, panelRemoved(statsId))
     expect(s.layout?.items.map((i) => i.type)).not.toContain('stats')
@@ -79,10 +130,23 @@ describe('workspaceSlice', () => {
     expect(s.layout!.items[1]).toEqual(s0.layout!.items[1])
   })
 
+  it('patches panel config in place', () => {
+    const s0 = state()
+    const listId = s0.layout!.items[0].i
+    const s = reducer(
+      s0,
+      panelConfigChanged({ id: listId, patch: { servers: ['a', 'b'], view: 'table' } })
+    )
+    const cfg = s.layout!.items[0].config!
+    expect(cfg.servers).toEqual(['a', 'b'])
+    expect(cfg.view).toBe('table')
+    expect(cfg.filters.status).toBe('all')
+  })
+
   it('reset restores the default arrangement', () => {
     let s = reducer(state(), panelRemoved(state().layout!.items[0].i))
     s = reducer(s, layoutReset())
-    expect(s.layout?.items).toHaveLength(3)
+    expect(s.layout?.items).toHaveLength(2)
   })
 })
 

@@ -55,7 +55,7 @@ export function Workspace(): React.JSX.Element {
           {(layout.items ?? []).map((it) => (
             <div key={it.i}>
               <PanelChrome id={it.i} title={PANELS[it.type].title}>
-                {PANEL_COMPONENTS[it.type]()}
+                {PANEL_COMPONENTS[it.type](it)}
               </PanelChrome>
             </div>
           ))}

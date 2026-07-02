@@ -4,10 +4,9 @@
  * plain function of (torrents, options), which is what makes it directly
  * unit-testable (see derive.test.ts) and safe to memoize in components.
  */
-import type { SortPref } from '@shared/types'
+import type { SortPref, StatusFilter } from '@shared/types'
 import { TorrentStatus, type Torrent } from '@shared/transmission'
 import { trackerHost } from '@/lib/format'
-import type { StatusFilter } from '@/features/ui/uiSlice'
 
 export function matchesStatusFilter(t: Torrent, filter: StatusFilter): boolean {
   switch (filter) {
@@ -42,6 +41,19 @@ export function filterTorrents(torrents: Torrent[], opts: FilterOptions): Torren
     if (opts.labelFilter && !t.labels.includes(opts.labelFilter)) return false
     if (q && !t.name.toLowerCase().includes(q)) return false
     return true
+  })
+}
+
+/** PanelFilters (persisted per Torrents panel) adapter over filterTorrents. */
+export function applyPanelFilters(
+  torrents: Torrent[],
+  f: { status: StatusFilter; tracker: string | null; label: string | null; search: string }
+): Torrent[] {
+  return filterTorrents(torrents, {
+    statusFilter: f.status,
+    trackerFilter: f.tracker,
+    labelFilter: f.label,
+    search: f.search
   })
 }
 

@@ -94,16 +94,54 @@ export interface TorrentFilePayload {
   base64: string
 }
 
-/** Panel type identifiers for the flexible workspace (ADR-0002). */
+/** Panel type identifiers for the flexible workspace (ADR-0002).
+ * 'filters' existed in layout schema v1 and was retired in v2 (filters moved
+ * into each Torrents panel) — migrations drop it. */
 export type PanelTypeId =
   | 'torrent-list'
-  | 'filters'
   | 'detail'
   | 'detail-general'
   | 'detail-files'
   | 'detail-peers'
   | 'detail-trackers'
   | 'stats'
+
+/** Coarse status groups used by list filtering (see derive.ts for the mapping). */
+export type StatusFilter = 'all' | 'downloading' | 'seeding' | 'paused' | 'checking' | 'error'
+
+/** Table-view column identifiers for Torrents panels. */
+export type ColumnKey =
+  | 'name'
+  | 'size'
+  | 'progress'
+  | 'status'
+  | 'downSpeed'
+  | 'upSpeed'
+  | 'ratio'
+  | 'eta'
+  | 'added'
+  | 'labels'
+
+export interface PanelFilters {
+  status: StatusFilter
+  tracker: string | null
+  label: string | null
+  search: string
+}
+
+/**
+ * Per-instance configuration of a Torrents panel (ADR-0003): which servers it
+ * shows ('default' follows the toolbar's Default Server), its own filters and
+ * sort, and view preferences. Persisted inside the workspace layout.
+ */
+export interface TorrentsPanelConfig {
+  servers: 'default' | string[]
+  filters: PanelFilters
+  sort: SortPref
+  view: 'cards' | 'table'
+  visibleColumns?: ColumnKey[]
+  collapsedServers?: string[]
+}
 
 /** One panel instance placed on the workspace grid. `i` is a UUID, never an index. */
 export interface WorkspaceItem {
@@ -113,6 +151,8 @@ export interface WorkspaceItem {
   y: number
   w: number
   h: number
+  /** Present on 'torrent-list' panels (stamped by migration/creation). */
+  config?: TorrentsPanelConfig
 }
 
 /**

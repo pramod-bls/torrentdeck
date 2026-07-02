@@ -6,7 +6,7 @@
 import * as Tabs from '@radix-ui/react-tabs'
 import { MousePointerClick } from 'lucide-react'
 import type { TorrentDetail } from '@shared/transmission'
-import { useAppDispatch, useAppSelector, useActiveProfileId, usePollingInterval } from '@/app/hooks'
+import { useAppDispatch, useAppSelector, usePollingInterval } from '@/app/hooks'
 import { useGetTorrentDetailQuery } from '@/services/rpcApi'
 import { setDetailTab, type UiState } from '@/features/ui/uiSlice'
 import { GeneralTab } from './detail/GeneralTab'
@@ -31,26 +31,32 @@ function EmptyState({ hint }: { hint: string }): React.JSX.Element {
   )
 }
 
-/** Fetches detail for the currently selected torrent; null when nothing is selected. */
-function useSelectedTorrentDetail(): { detailId: number | null; torrent: TorrentDetail | undefined } {
-  const profileId = useActiveProfileId()!
+/**
+ * Fetches detail for the currently selected torrent. The target is
+ * server-qualified (ADR-0003): selection in ANY panel drives this, no matter
+ * which daemon the torrent lives on.
+ */
+function useSelectedTorrentDetail(): {
+  target: { profileId: string; id: number } | null
+  torrent: TorrentDetail | undefined
+} {
   const pollingInterval = usePollingInterval()
-  const detailId = useAppSelector((s) => s.ui.detailId)
+  const target = useAppSelector((s) => s.ui.detailTarget)
   const { data: torrent } = useGetTorrentDetailQuery(
-    { profileId, id: detailId ?? 0 },
-    { pollingInterval, skip: detailId === null }
+    { profileId: target?.profileId ?? '', id: target?.id ?? 0 },
+    { pollingInterval, skip: target === null }
   )
-  return { detailId, torrent }
+  return { target, torrent }
 }
 
 /** The classic tabbed detail view, as workspace panel content. */
 export function DetailTabsPanel(): React.JSX.Element {
   const dispatch = useAppDispatch()
-  const profileId = useActiveProfileId()!
   const tab = useAppSelector((s) => s.ui.detailTab)
-  const { detailId, torrent } = useSelectedTorrentDetail()
+  const { target, torrent } = useSelectedTorrentDetail()
 
-  if (detailId === null) return <EmptyState hint="Select a torrent to inspect it" />
+  if (target === null) return <EmptyState hint="Select a torrent to inspect it" />
+  const profileId = target.profileId
 
   return (
     <Tabs.Root
@@ -105,10 +111,10 @@ export function SingleDetailTab({
 }: {
   tab: 'general' | 'files' | 'peers' | 'trackers'
 }): React.JSX.Element {
-  const profileId = useActiveProfileId()!
-  const { detailId, torrent } = useSelectedTorrentDetail()
+  const { target, torrent } = useSelectedTorrentDetail()
 
-  if (detailId === null) return <EmptyState hint="Select a torrent to inspect it" />
+  if (target === null) return <EmptyState hint="Select a torrent to inspect it" />
+  const profileId = target.profileId
   if (!torrent) {
     return (
       <div className="flex h-full items-center justify-center text-sm text-neutral-500">

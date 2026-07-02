@@ -5,30 +5,27 @@ import {
   Play,
   Pause,
   Trash2,
-  ArrowDownUp,
+  Tag,
   Server,
   Settings2,
   Plus,
   Pencil,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Keyboard
 } from 'lucide-react'
-import type { SortKey } from '@shared/types'
 import { useAppDispatch, useAppSelector, useActiveProfileId } from '@/app/hooks'
 import { setActiveProfile } from '@/features/connection/connectionSlice'
 import {
   openAddTorrent,
+  openLabelsEditor,
   openProfileEditor,
   openRemoveConfirm,
   setPrefsOpen,
-  setSearch,
   setSessionSettingsOpen,
-  setSort
+  setShortcutsOpen
 } from '@/features/ui/uiSlice'
-import { AddPanelMenu } from '@/components/workspace/AddPanelMenu'
-import { profileSortSaved } from '@/features/connection/connectionSlice'
 import { useTorrentActionMutation } from '@/services/rpcApi'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,37 +34,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown'
+import { AddPanelMenu } from '@/components/workspace/AddPanelMenu'
 
-const SORT_LABELS: Record<SortKey, string> = {
-  name: 'Name',
-  totalSize: 'Size',
-  percentDone: 'Progress',
-  status: 'Status',
-  rateDownload: 'Download speed',
-  rateUpload: 'Upload speed',
-  uploadRatio: 'Ratio',
-  eta: 'ETA',
-  addedDate: 'Date added',
-  queuePosition: 'Queue position'
-}
-
+/**
+ * Global chrome. The server switcher selects the DEFAULT server (add-torrent
+ * target, session settings, stats, and the scope of 'default'-scoped panels);
+ * individual Torrents panels may scope themselves to other servers. Bulk
+ * action buttons operate on the current (server-qualified) selection.
+ */
 export function Toolbar(): React.JSX.Element {
   const dispatch = useAppDispatch()
-  const profileId = useActiveProfileId()!
+  const defaultProfileId = useActiveProfileId()
   const profiles = useAppSelector((s) => s.connection.profiles)
-  const active = profiles.find((p) => p.id === profileId)
-  const search = useAppSelector((s) => s.ui.search)
-  const sort = useAppSelector((s) => s.ui.sort)
-  const selectedIds = useAppSelector((s) => s.ui.selectedIds)
+  const active = profiles.find((p) => p.id === defaultProfileId)
+  const selection = useAppSelector((s) => s.ui.selection)
   const [torrentAction] = useTorrentActionMutation()
 
-  const hasSelection = selectedIds.length > 0
+  const hasSelection = selection !== null && selection.ids.length > 0
 
-  const pickSort = (key: SortKey): void => {
-    const next = sort.key === key ? { key, desc: !sort.desc } : { key, desc: false }
-    dispatch(setSort(next))
-    dispatch(profileSortSaved({ id: profileId, sort: next }))
-    void window.api.profiles.setSort(profileId, next)
+  const act = (action: 'torrent-start' | 'torrent-stop') => () => {
+    if (selection) void torrentAction({ profileId: selection.profileId, action, ids: selection.ids })
   }
 
   const addFiles = async (): Promise<void> => {
@@ -95,30 +81,27 @@ export function Toolbar(): React.JSX.Element {
 
       <div className="mx-1 h-5 w-px bg-neutral-300 dark:bg-neutral-600" />
 
-      <Button
-        variant="ghost"
-        size="icon"
-        aria-label="Start selected"
-        disabled={!hasSelection}
-        onClick={() => void torrentAction({ profileId, action: 'torrent-start', ids: selectedIds })}
-      >
+      <Button variant="ghost" size="icon" aria-label="Start selected" disabled={!hasSelection} onClick={act('torrent-start')}>
         <Play size={15} />
+      </Button>
+      <Button variant="ghost" size="icon" aria-label="Pause selected" disabled={!hasSelection} onClick={act('torrent-stop')}>
+        <Pause size={15} />
       </Button>
       <Button
         variant="ghost"
         size="icon"
-        aria-label="Pause selected"
+        aria-label="Set labels for selected"
         disabled={!hasSelection}
-        onClick={() => void torrentAction({ profileId, action: 'torrent-stop', ids: selectedIds })}
+        onClick={() => selection && dispatch(openLabelsEditor(selection))}
       >
-        <Pause size={15} />
+        <Tag size={15} />
       </Button>
       <Button
         variant="ghost"
         size="icon"
         aria-label="Remove selected"
         disabled={!hasSelection}
-        onClick={() => dispatch(openRemoveConfirm(selectedIds))}
+        onClick={() => selection && dispatch(openRemoveConfirm(selection))}
       >
         <Trash2 size={15} />
       </Button>
@@ -128,39 +111,14 @@ export function Toolbar(): React.JSX.Element {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="secondary" size="sm">
-            <ArrowDownUp size={13} />
-            {SORT_LABELS[sort.key]} {sort.desc ? '↓' : '↑'}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Sort by</DropdownMenuLabel>
-          {(Object.keys(SORT_LABELS) as SortKey[]).map((key) => (
-            <DropdownMenuItem key={key} onSelect={() => pickSort(key)}>
-              <span className="w-3 text-xs">{sort.key === key ? (sort.desc ? '↓' : '↑') : ''}</span>
-              {SORT_LABELS[key]}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <Input
-        value={search}
-        onChange={(e) => dispatch(setSearch(e.target.value))}
-        placeholder="Search torrents"
-        className="w-52"
-      />
-
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="secondary" size="sm">
             <Server size={13} /> {active?.name ?? 'Server'} <ChevronDown size={12} />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Servers</DropdownMenuLabel>
+          <DropdownMenuLabel>Default server</DropdownMenuLabel>
           {profiles.map((p) => (
             <DropdownMenuItem key={p.id} onSelect={() => void dispatch(setActiveProfile(p.id))}>
-              <span className="w-3 text-xs">{p.id === profileId ? '•' : ''}</span>
+              <span className="w-3 text-xs">{p.id === defaultProfileId ? '•' : ''}</span>
               {p.name}
             </DropdownMenuItem>
           ))}
@@ -168,9 +126,11 @@ export function Toolbar(): React.JSX.Element {
           <DropdownMenuItem onSelect={() => dispatch(openProfileEditor(null))}>
             <Plus size={14} /> Add server…
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => dispatch(openProfileEditor(profileId))}>
-            <Pencil size={14} /> Edit current server…
-          </DropdownMenuItem>
+          {defaultProfileId && (
+            <DropdownMenuItem onSelect={() => dispatch(openProfileEditor(defaultProfileId))}>
+              <Pencil size={14} /> Edit default server…
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -186,6 +146,9 @@ export function Toolbar(): React.JSX.Element {
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => dispatch(setPrefsOpen(true))}>
             <Settings2 size={14} /> Preferences…
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => dispatch(setShortcutsOpen(true))}>
+            <Keyboard size={14} /> Keyboard shortcuts
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -1,17 +1,19 @@
 /**
  * The component half of the panel registry: PanelTypeId → React component.
  * Metadata (titles, sizes, categories) lives in panels.ts; keep the two in
- * sync — TypeScript enforces it via the Record key type.
+ * sync — TypeScript enforces it via the Record key type. Components receive
+ * the WorkspaceItem so per-instance panels (Torrents) can read their config.
  */
-import type { PanelTypeId } from '@shared/types'
-import { TorrentList } from '@/components/TorrentList'
-import { Sidebar } from '@/components/Sidebar'
+import type { PanelTypeId, WorkspaceItem } from '@shared/types'
+import { TorrentsPanel } from '@/components/panels/TorrentsPanel'
 import { DetailTabsPanel, SingleDetailTab } from '@/components/DetailPanel'
 import { StatsPanel } from '@/components/panels/StatsPanel'
 
-export const PANEL_COMPONENTS: Record<PanelTypeId, () => React.JSX.Element> = {
-  'torrent-list': () => <TorrentList />,
-  filters: () => <Sidebar />,
+export const PANEL_COMPONENTS: Record<
+  PanelTypeId,
+  (item: WorkspaceItem) => React.JSX.Element
+> = {
+  'torrent-list': (item) => <TorrentsPanel item={item} />,
   detail: () => <DetailTabsPanel />,
   'detail-general': () => <SingleDetailTab tab="general" />,
   'detail-files': () => <SingleDetailTab tab="files" />,

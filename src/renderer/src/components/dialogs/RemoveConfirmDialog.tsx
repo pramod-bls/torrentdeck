@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useAppDispatch, useAppSelector, useActiveProfileId } from '@/app/hooks'
+import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { clearSelection, closeRemoveConfirm } from '@/features/ui/uiSlice'
 import { useRemoveTorrentMutation } from '@/services/rpcApi'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
@@ -8,36 +8,40 @@ import { LabeledCheckbox } from '@/components/ui/checkbox'
 
 export function RemoveConfirmDialog(): React.JSX.Element | null {
   const dispatch = useAppDispatch()
-  const ids = useAppSelector((s) => s.ui.removeConfirmIds)
-  const profileId = useActiveProfileId()
+  const target = useAppSelector((s) => s.ui.removeConfirm)
+  const serverName = useAppSelector(
+    (s) => s.connection.profiles.find((p) => p.id === target?.profileId)?.name
+  )
   const [removeTorrent, { isLoading }] = useRemoveTorrentMutation()
   const [deleteData, setDeleteData] = useState(false)
 
-  const open = ids !== null
+  const open = target !== null
   useEffect(() => {
     if (open) setDeleteData(false)
   }, [open])
 
-  if (!open || !profileId) return null
+  if (!open) return null
 
   const close = (): void => {
     dispatch(closeRemoveConfirm())
   }
 
   const confirm = async (): Promise<void> => {
-    await removeTorrent({ profileId, ids, deleteData })
+    await removeTorrent({ profileId: target.profileId, ids: target.ids, deleteData })
     dispatch(clearSelection())
     close()
   }
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && close()}>
-      <DialogContent title={ids.length === 1 ? 'Remove torrent' : `Remove ${ids.length} torrents`}>
+      <DialogContent
+        title={target.ids.length === 1 ? 'Remove torrent' : `Remove ${target.ids.length} torrents`}
+      >
         <div className="space-y-3">
           <p className="text-sm text-neutral-600 dark:text-neutral-300">
             {deleteData
-              ? 'The torrent and its downloaded files will be deleted from the server.'
-              : 'The torrent will be removed from the server. Downloaded files stay on disk.'}
+              ? `The torrent and its downloaded files will be deleted from ${serverName ?? 'the server'}.`
+              : `The torrent will be removed from ${serverName ?? 'the server'}. Downloaded files stay on disk.`}
           </p>
           <LabeledCheckbox
             checked={deleteData}

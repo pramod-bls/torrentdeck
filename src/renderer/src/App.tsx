@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { bootstrap } from '@/features/connection/connectionSlice'
-import { openAddTorrent, setSort } from '@/features/ui/uiSlice'
+import { openAddTorrent } from '@/features/ui/uiSlice'
 import { loadWorkspace } from '@/features/workspace/workspaceSlice'
 import { Toolbar } from '@/components/Toolbar'
 import { Workspace } from '@/components/workspace/Workspace'
@@ -12,6 +12,8 @@ import { ProfileDialog } from '@/components/dialogs/ProfileDialog'
 import { RemoveConfirmDialog } from '@/components/dialogs/RemoveConfirmDialog'
 import { SessionSettingsDialog } from '@/components/dialogs/SessionSettingsDialog'
 import { PrefsDialog } from '@/components/dialogs/PrefsDialog'
+import { LabelsDialog } from '@/components/dialogs/LabelsDialog'
+import { ShortcutsDialog } from '@/components/dialogs/ShortcutsDialog'
 
 /** Applies the theme pref by toggling `.dark` on <html>; tracks the OS scheme when set to "system". */
 function useTheme(): void {
@@ -80,12 +82,6 @@ export default function App(): React.JSX.Element {
     void dispatch(bootstrap())
   }, [dispatch])
 
-  const activeProfile = profiles.find((p) => p.id === activeProfileId)
-  const activeSort = activeProfile?.sort
-  useEffect(() => {
-    if (activeSort) dispatch(setSort(activeSort))
-  }, [dispatch, activeProfileId, activeSort])
-
   useEffect(() => {
     if (activeProfileId) void dispatch(loadWorkspace(activeProfileId))
   }, [dispatch, activeProfileId])
@@ -110,6 +106,8 @@ export default function App(): React.JSX.Element {
       <RemoveConfirmDialog />
       <SessionSettingsDialog />
       <PrefsDialog />
+      <LabelsDialog />
+      <ShortcutsDialog />
     </div>
   )
 }

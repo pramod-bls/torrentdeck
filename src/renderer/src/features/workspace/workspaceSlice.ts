@@ -12,7 +12,13 @@ import {
   isAnyOf,
   type PayloadAction
 } from '@reduxjs/toolkit'
-import type { PanelTypeId, WorkspaceItem, WorkspaceLayout } from '@shared/types'
+import type {
+  PanelTypeId,
+  ServerProfile,
+  TorrentsPanelConfig,
+  WorkspaceItem,
+  WorkspaceLayout
+} from '@shared/types'
 import { defaultLayout, normalizeLayout, placeNewItem } from './panels'
 
 export interface WorkspaceState {
@@ -26,9 +32,15 @@ const initialState: WorkspaceState = { layout: null, profileId: null }
 
 export const loadWorkspace = createAsyncThunk(
   'workspace/load',
-  async (profileId: string): Promise<{ profileId: string; layout: WorkspaceLayout }> => {
+  async (
+    profileId: string,
+    { getState }
+  ): Promise<{ profileId: string; layout: WorkspaceLayout }> => {
     const stored = await window.api.workspace.get(profileId)
-    return { profileId, layout: normalizeLayout(stored) ?? defaultLayout() }
+    // Seed migrated v1 panels with the profile's old global sort preference
+    const state = getState() as { connection: { profiles: ServerProfile[] } }
+    const seedSort = state.connection.profiles.find((p) => p.id === profileId)?.sort
+    return { profileId, layout: normalizeLayout(stored, seedSort) ?? defaultLayout() }
   }
 )
 
@@ -54,6 +66,14 @@ const workspaceSlice = createSlice({
       if (!state.layout) return
       state.layout.items = state.layout.items.filter((it) => it.i !== action.payload)
     },
+    panelConfigChanged(
+      state,
+      action: PayloadAction<{ id: string; patch: Partial<TorrentsPanelConfig> }>
+    ) {
+      if (!state.layout) return
+      const item = state.layout.items.find((it) => it.i === action.payload.id)
+      if (item?.config) item.config = { ...item.config, ...action.payload.patch }
+    },
     layoutReset(state) {
       state.layout = defaultLayout()
     }
@@ -66,7 +86,8 @@ const workspaceSlice = createSlice({
   }
 })
 
-export const { gridChanged, panelAdded, panelRemoved, layoutReset } = workspaceSlice.actions
+export const { gridChanged, panelAdded, panelRemoved, panelConfigChanged, layoutReset } =
+  workspaceSlice.actions
 export default workspaceSlice.reducer
 
 export function selectPanelInstances(items: WorkspaceItem[] | undefined): Set<PanelTypeId> {
@@ -79,7 +100,7 @@ export function selectPanelInstances(items: WorkspaceItem[] | undefined): Set<Pa
  */
 export const persistWorkspaceMiddleware = createListenerMiddleware()
 persistWorkspaceMiddleware.startListening({
-  matcher: isAnyOf(gridChanged, panelAdded, panelRemoved, layoutReset),
+  matcher: isAnyOf(gridChanged, panelAdded, panelRemoved, panelConfigChanged, layoutReset),
   effect: async (_action, api) => {
     const state = api.getState() as { workspace: WorkspaceState }
     const { layout, profileId } = state.workspace
