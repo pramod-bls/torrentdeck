@@ -49,3 +49,12 @@ General, Files, Peers, Trackers.
 ### Magnet Link
 A `magnet:` URI that adds a Torrent without a metainfo file. The app registers as the
 OS handler for these.
+
+### Panel
+A self-contained view (Torrent List, a Detail tab, filters, stats) that the user can
+add to, remove from, and rearrange within the Workspace. One Panel type may appear as
+several independent instances.
+
+### Workspace
+The user-composed arrangement of Panels in the main window, saved per Server Profile.
+The classic three-zone arrangement is just the default Workspace.

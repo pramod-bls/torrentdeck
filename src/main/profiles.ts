@@ -1,3 +1,12 @@
+/**
+ * Persistent app state: server profiles, encrypted passwords, the active
+ * profile id, and app preferences — all in one electron-store JSON file
+ * (passwords are never stored in plaintext: safeStorage encrypts with the OS
+ * keychain and only the resulting base64 blob is written to disk).
+ *
+ * This module is the single writer; the renderer sees profiles only through
+ * the IPC handlers in `ipc.ts`, and never receives password material.
+ */
 import Store from 'electron-store'
 import { safeStorage } from 'electron'
 import { randomUUID } from 'node:crypto'

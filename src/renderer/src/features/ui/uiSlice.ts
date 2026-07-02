@@ -1,3 +1,13 @@
+/**
+ * Ephemeral view state: filters, search, sort, selection, detail-panel state,
+ * and which dialog is open. Nothing here persists across restarts except
+ * sort, which components write through to the profile (profiles:setSort) —
+ * see Toolbar.pickSort and the restore effect in App.tsx.
+ *
+ * Dialog-state conventions: `addTorrent` null = closed; `profileEditorId`
+ * undefined = closed, null = "create new", string = edit that profile;
+ * `removeConfirmIds` null = closed.
+ */
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import type { SortPref } from '@shared/types'
 import type { TorrentFilePayload } from '@shared/types'

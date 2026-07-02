@@ -1,3 +1,16 @@
+/**
+ * Transmission RPC over HTTP, built on node:http/https rather than fetch so
+ * TLS trust (`rejectUnauthorized`) can be decided per request — global fetch
+ * offers no per-call escape hatch for a user's self-signed NAS certificate.
+ *
+ * Protocol notes (Transmission 4.x, rpc-version >= 17):
+ * - Every request is `POST {rpcPath}` with `{ method, arguments }` JSON.
+ * - The daemon issues a CSRF token via the `X-Transmission-Session-Id`
+ *   header and answers 409 when it's missing/rotated; the client retries
+ *   once with the fresh token and caches it for subsequent calls.
+ * - A 200 response can still be a failure: `result` carries the error text
+ *   and only the literal "success" means success.
+ */
 import http from 'node:http'
 import https from 'node:https'
 import type { RpcError, RpcResult } from '@shared/types'

@@ -1,3 +1,14 @@
+/**
+ * Shared contract between the main process, preload bridge, and renderer.
+ *
+ * This module (and `transmission.ts`) is the ONLY code imported by all three
+ * Electron worlds, so it must stay free of Electron/Node/React imports.
+ * Adding an IPC capability: extend `Api` here, implement the handler in
+ * `src/main/ipc.ts`, expose it in `src/preload/index.ts` — the compiler
+ * enforces the rest.
+ */
+
+/** Torrent-list sort dimensions; values are `Torrent` field names (see derive.ts comparators). */
 export type SortKey =
   | 'name'
   | 'totalSize'
@@ -15,6 +26,11 @@ export interface SortPref {
   desc: boolean
 }
 
+/**
+ * A saved daemon connection ("Server Profile" in CONTEXT.md) as seen by the
+ * renderer. Deliberately excludes the password — the renderer only learns
+ * `hasPassword`; the secret lives safeStorage-encrypted in the main process.
+ */
 export interface ServerProfile {
   id: string
   name: string
@@ -28,6 +44,7 @@ export interface ServerProfile {
   sort?: SortPref
 }
 
+/** Renderer→main payload for creating (`id` absent) or updating a profile. */
 export interface ProfileInput {
   id?: string
   name: string
@@ -41,6 +58,11 @@ export interface ProfileInput {
   password?: string
 }
 
+/**
+ * Failure classification for RPC calls. The UI branches on this:
+ * `auth`/`tls` are actionable by the user (fix credentials / trust the cert),
+ * `network`/`timeout` are transient, `rpc` is a daemon-reported method error.
+ */
 export type RpcErrorKind = 'network' | 'timeout' | 'auth' | 'tls' | 'http' | 'rpc' | 'unknown'
 
 export interface RpcError {
@@ -49,6 +71,11 @@ export interface RpcError {
   status?: number
 }
 
+/**
+ * Every RPC crosses the IPC boundary as this discriminated union — errors are
+ * values, never exceptions, because thrown errors lose their shape (and stack
+ * safety) when serialized across `ipcRenderer.invoke`.
+ */
 export type RpcResult<T = unknown> = { ok: true; data: T } | { ok: false; error: RpcError }
 
 export interface RpcRequest {
@@ -67,6 +94,11 @@ export interface TorrentFilePayload {
   base64: string
 }
 
+/**
+ * The renderer-facing API implemented by the preload bridge and exposed as
+ * `window.api`. Extending it: add the member here, handle the channel in
+ * `src/main/ipc.ts`, forward it in `src/preload/index.ts`.
+ */
 export interface Api {
   rpc: <T = unknown>(req: RpcRequest) => Promise<RpcResult<T>>
   testConnection: (input: ProfileInput) => Promise<RpcResult<{ version: string }>>

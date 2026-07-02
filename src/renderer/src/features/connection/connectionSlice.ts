@@ -1,3 +1,9 @@
+/**
+ * Mirrors main-process state (profiles, active profile, app prefs) into
+ * Redux. electron-store in the main process is the source of truth; every
+ * mutation here is a thunk that writes through `window.api` first and only
+ * updates the slice from the confirmed result.
+ */
 import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import type { AppPrefs, ProfileInput, ServerProfile } from '@shared/types'
 import { rpcApi } from '@/services/rpcApi'

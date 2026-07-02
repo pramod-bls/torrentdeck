@@ -1,3 +1,13 @@
+/**
+ * Preload bridge: the only doorway between the sandboxed renderer and the
+ * main process. Exposes `window.api` (typed by `Api` in shared/types.ts plus
+ * two preload-only helpers). Compiled to CJS (`index.cjs`) because sandboxed
+ * preloads cannot load ESM — see electron.vite.config.ts.
+ *
+ * `getPathForFile` exists because `File.path` was removed from Electron;
+ * `webUtils` is only reachable from a preload, so drag-and-drop path
+ * resolution has to live here.
+ */
 import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import type {
   Api,

@@ -1,3 +1,13 @@
+/**
+ * Main-process entry: window lifecycle, single-instance lock, auto-update,
+ * and OS handoff of magnet: links / .torrent files.
+ *
+ * Open events can arrive before the renderer exists (app launched BY a magnet
+ * click) or while it's already running (second-instance argv, macOS open-url).
+ * Both funnel into pending queues that are flushed once the renderer calls
+ * `app:rendererReady` — nothing is delivered into a window that can't yet
+ * listen.
+ */
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { join } from 'node:path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'

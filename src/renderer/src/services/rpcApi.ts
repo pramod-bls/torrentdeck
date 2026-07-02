@@ -1,3 +1,17 @@
+/**
+ * RTK Query service for the Transmission daemon, per ADR-0001: instead of
+ * fetching, the custom `ipcBaseQuery` forwards every request through
+ * `window.api.rpc` so the main process owns HTTP, auth, and TLS.
+ *
+ * Conventions:
+ * - Every endpoint arg includes `profileId`, so cache entries are naturally
+ *   keyed per server; switching servers additionally calls `resetApiState()`
+ *   (see connectionSlice) so stale daemon data can never be shown.
+ * - Mutations invalidate the `Torrents` list tag and per-id `Torrent` tags;
+ *   the next poll refetches. No optimistic updates in the MVP.
+ * - `torrent-get` uses Transmission 4.x `format: 'table'` (compact rows)
+ *   and re-hydrates objects via `tableToObjects`.
+ */
 import { createApi, type BaseQueryFn } from '@reduxjs/toolkit/query/react'
 import type { RpcError } from '@shared/types'
 import {

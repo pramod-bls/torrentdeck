@@ -1,3 +1,12 @@
+/**
+ * The complete IPC surface of the app — every `ipcMain.handle` channel the
+ * preload bridge can invoke. Channel names and payload shapes must stay in
+ * lockstep with `Api` in `src/shared/types.ts` and `src/preload/index.ts`.
+ *
+ * Clients are cached per profile so the Transmission CSRF session id survives
+ * across calls; editing a profile evicts its cache entry (credentials or TLS
+ * settings may have changed).
+ */
 import { dialog, ipcMain } from 'electron'
 import { readFile } from 'node:fs/promises'
 import { basename } from 'node:path'

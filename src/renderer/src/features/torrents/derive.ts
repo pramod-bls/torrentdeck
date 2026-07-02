@@ -1,3 +1,9 @@
+/**
+ * Pure torrent-list domain logic: status-group matching, filtering, sorting,
+ * and sidebar aggregation. No React/Redux imports — everything here is a
+ * plain function of (torrents, options), which is what makes it directly
+ * unit-testable (see derive.test.ts) and safe to memoize in components.
+ */
 import type { SortPref } from '@shared/types'
 import { TorrentStatus, type Torrent } from '@shared/transmission'
 import { trackerHost } from '@/lib/format'

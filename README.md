@@ -10,6 +10,13 @@ passwords are stored with the OS keychain via `safeStorage`.
 
 Requires a Transmission **4.x** daemon (RPC version 17+).
 
+## Documentation
+
+- [Product requirements (PRD)](docs/PRD.md) — problem, users, requirement tables with status, release plan
+- [Architecture](docs/ARCHITECTURE.md) — process model, data flow, state, security, testing
+- [Domain glossary](CONTEXT.md) — the canonical vocabulary used in code and UI
+- [Decision records](docs/adr/) — 0001 RPC-via-main-process, 0002 flexible panel workspace
+
 ## Features (MVP)
 
 - Multiple server profiles, one active at a time, quick switching

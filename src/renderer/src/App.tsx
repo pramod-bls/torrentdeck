@@ -14,6 +14,7 @@ import { RemoveConfirmDialog } from '@/components/dialogs/RemoveConfirmDialog'
 import { SessionSettingsDialog } from '@/components/dialogs/SessionSettingsDialog'
 import { PrefsDialog } from '@/components/dialogs/PrefsDialog'
 
+/** Applies the theme pref by toggling `.dark` on <html>; tracks the OS scheme when set to "system". */
 function useTheme(): void {
   const theme = useAppSelector((s) => s.connection.prefs.theme)
   useEffect(() => {
@@ -29,6 +30,11 @@ function useTheme(): void {
   }, [theme])
 }
 
+/**
+ * Subscribes to magnet/.torrent open events pushed from the main process and
+ * signals readiness — the main process queues any events that arrived before
+ * this ran (e.g. the app was launched by clicking a magnet link).
+ */
 function useOsOpenHandlers(): void {
   const dispatch = useAppDispatch()
   useEffect(() => {
