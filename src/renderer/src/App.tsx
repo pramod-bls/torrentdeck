@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { bootstrap } from '@/features/connection/connectionSlice'
 import { openAddTorrent } from '@/features/ui/uiSlice'
 import { loadWorkspace } from '@/features/workspace/workspaceSlice'
+import { useShortcuts } from '@/app/useShortcuts'
 import { Toolbar } from '@/components/Toolbar'
 import { Workspace } from '@/components/workspace/Workspace'
 import { StatusBar } from '@/components/StatusBar'
@@ -77,6 +78,7 @@ export default function App(): React.JSX.Element {
   useTheme()
   useOsOpenHandlers()
   useTorrentFileDrop()
+  useShortcuts()
 
   useEffect(() => {
     void dispatch(bootstrap())

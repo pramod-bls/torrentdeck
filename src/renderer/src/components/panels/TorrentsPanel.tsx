@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector, useActiveProfileId } from '@/app/hooks'
 import { rpcApi } from '@/services/rpcApi'
 import { panelConfigChanged } from '@/features/workspace/workspaceSlice'
 import { defaultPanelConfig } from '@/features/workspace/panels'
-import { clearSelection, setFocusedPanel } from '@/features/ui/uiSlice'
+import { clearSelection } from '@/features/ui/uiSlice'
 import type { RootState } from '@/app/store'
 import { FilterBar } from './FilterBar'
 import { ServerGroup } from './ServerGroup'
@@ -58,10 +58,7 @@ export function TorrentsPanel({ item }: { item: WorkspaceItem }): React.JSX.Elem
   }
 
   return (
-    <div
-      className="flex h-full flex-col"
-      onMouseDownCapture={() => dispatch(setFocusedPanel(item.i))}
-    >
+    <div className="flex h-full flex-col">
       <FilterBar
         config={config}
         patch={patch}

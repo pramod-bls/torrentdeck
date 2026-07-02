@@ -126,6 +126,7 @@ export function TorrentRowShell({
           role="row"
           aria-selected={selected}
           data-torrent-row
+          data-rowid={`${profileId}:${torrent.id}`}
           onClick={(e) => {
             e.stopPropagation()
             dispatch(selectTorrent({ profileId, id: torrent.id, additive: e.metaKey || e.ctrlKey }))
