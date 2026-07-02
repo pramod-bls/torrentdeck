@@ -25,6 +25,12 @@ export default defineConfig({
   },
   renderer: {
     plugins: [react(), tailwindcss()],
+    define: {
+      // react-draggable's debug logger dereferences process.env at runtime;
+      // there is no `process` in the sandboxed renderer, so every drag start
+      // would throw. Compile the reference away.
+      'process.env': '{}'
+    },
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src/renderer/src'),
