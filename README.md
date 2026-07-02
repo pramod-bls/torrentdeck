@@ -29,6 +29,9 @@ Requires a Transmission **4.x** daemon (RPC version 17+).
 - Session settings (speed limits, alt-speed turtle, seeding limits, encryption, port test)
 - Light/dark theme
 
+The app icon is derived from the [Transmission](https://github.com/transmission/transmission)
+project's GPL-licensed icon (recolored, remote badge added) — see `build/icon.svg`.
+
 ## Development
 
 ```sh

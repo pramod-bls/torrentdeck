@@ -112,6 +112,13 @@ if (!gotTheLock) {
 
   app.whenReady().then(() => {
     electronApp.setAppUserModelId('com.blacklightsurgical.transmission-remote')
+    if (!app.isPackaged) {
+      // Packaged builds get the icon from the installer; dev runs show
+      // Electron's default unless we set it explicitly.
+      if (process.platform === 'darwin') {
+        app.dock?.setIcon(join(app.getAppPath(), 'build/icon.png'))
+      }
+    }
     if (app.isPackaged) {
       app.setAsDefaultProtocolClient('magnet')
       electronUpdater.autoUpdater.checkForUpdatesAndNotify().catch(() => {
