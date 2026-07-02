@@ -1,4 +1,4 @@
-import { ArrowDownUp, Check, ChevronDown, Server, Search } from 'lucide-react'
+import { ArrowDownUp, Check, ChevronDown, LayoutList, Server, Search, Table2 } from 'lucide-react'
 import type { ServerProfile, SortKey, TorrentsPanelConfig } from '@shared/types'
 import type { Torrent } from '@shared/transmission'
 import type { StatusFilter } from '@shared/types'
@@ -181,6 +181,16 @@ export function FilterBar({
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <button
+        type="button"
+        aria-label={config.view === 'cards' ? 'Switch to table view' : 'Switch to card view'}
+        title={config.view === 'cards' ? 'Table view' : 'Card view'}
+        onClick={() => patch({ view: config.view === 'cards' ? 'table' : 'cards' })}
+        className="rounded p-1 text-neutral-400 hover:bg-neutral-200 hover:text-neutral-700 dark:hover:bg-neutral-700 dark:hover:text-neutral-200"
+      >
+        {config.view === 'cards' ? <Table2 size={13} /> : <LayoutList size={13} />}
+      </button>
 
       <span className="relative ml-auto">
         <Search

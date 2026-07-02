@@ -10,6 +10,7 @@ import { clearSelection, setFocusedPanel } from '@/features/ui/uiSlice'
 import type { RootState } from '@/app/store'
 import { FilterBar } from './FilterBar'
 import { ServerGroup } from './ServerGroup'
+import { TableHeader } from './TorrentTable'
 
 /**
  * The Torrents panel (ADR-0003): scoped to one or more servers via its
@@ -68,6 +69,7 @@ export function TorrentsPanel({ item }: { item: WorkspaceItem }): React.JSX.Elem
         scopedIds={scopedIds}
         aggregated={aggregated}
       />
+      {config.view === 'table' && <TableHeader config={config} patch={patch} />}
       <div
         className="min-h-0 flex-1 overflow-y-auto"
         data-panel-rows={item.i}

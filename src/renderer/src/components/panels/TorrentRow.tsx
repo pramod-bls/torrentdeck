@@ -86,17 +86,20 @@ function RowStats({ torrent }: { torrent: Torrent }): React.JSX.Element {
 }
 
 /**
- * One torrent as a card row, selection- and context-menu-aware. Selection is
- * server-qualified: clicking always associates the row with its profileId.
+ * Selection + context-menu wrapper shared by card rows and table rows.
+ * Selection is server-qualified: clicking always associates the row with its
+ * profileId (ADR-0003).
  */
-export function TorrentRow({
+export function TorrentRowShell({
   torrent,
   profileId,
-  onLabelClick
+  className,
+  children
 }: {
   torrent: Torrent
   profileId: string
-  onLabelClick?: (label: string) => void
+  className?: string
+  children: React.ReactNode
 }): React.JSX.Element {
   const dispatch = useAppDispatch()
   const selection = useAppSelector((s) => s.ui.selection)
@@ -122,6 +125,7 @@ export function TorrentRow({
         <div
           role="row"
           aria-selected={selected}
+          data-torrent-row
           onClick={(e) => {
             e.stopPropagation()
             dispatch(selectTorrent({ profileId, id: torrent.id, additive: e.metaKey || e.ctrlKey }))
@@ -130,18 +134,12 @@ export function TorrentRow({
             if (!selected) dispatch(selectTorrent({ profileId, id: torrent.id, additive: false }))
           }}
           className={cn(
-            'flex h-14 flex-col justify-center gap-1 border-b border-neutral-100 px-3 dark:border-neutral-800',
-            selected ? 'bg-blue-50 dark:bg-blue-950/40' : 'hover:bg-neutral-50 dark:hover:bg-neutral-800/50'
+            'border-b border-neutral-100 dark:border-neutral-800',
+            selected ? 'bg-blue-50 dark:bg-blue-950/40' : 'hover:bg-neutral-50 dark:hover:bg-neutral-800/50',
+            className
           )}
         >
-          <span className="flex items-center gap-2">
-            <span className={cn('min-w-0 flex-1 truncate text-sm', selected && 'font-medium')}>
-              {torrent.name}
-            </span>
-            <LabelChips labels={torrent.labels} onLabelClick={onLabelClick} />
-          </span>
-          <ProgressBar torrent={torrent} />
-          <RowStats torrent={torrent} />
+          {children}
         </div>
       </ContextMenu.Trigger>
       <ContextMenu.Portal>
@@ -174,5 +172,35 @@ export function TorrentRow({
         </ContextMenu.Content>
       </ContextMenu.Portal>
     </ContextMenu.Root>
+  )
+}
+
+/** One torrent as a card row (the default 'cards' view). */
+export function TorrentRow({
+  torrent,
+  profileId,
+  onLabelClick
+}: {
+  torrent: Torrent
+  profileId: string
+  onLabelClick?: (label: string) => void
+}): React.JSX.Element {
+  const selection = useAppSelector((s) => s.ui.selection)
+  const selected = selection?.profileId === profileId && selection.ids.includes(torrent.id)
+  return (
+    <TorrentRowShell
+      torrent={torrent}
+      profileId={profileId}
+      className="flex h-14 flex-col justify-center gap-1 px-3"
+    >
+      <span className="flex items-center gap-2">
+        <span className={cn('min-w-0 flex-1 truncate text-sm', selected && 'font-medium')}>
+          {torrent.name}
+        </span>
+        <LabelChips labels={torrent.labels} onLabelClick={onLabelClick} />
+      </span>
+      <ProgressBar torrent={torrent} />
+      <RowStats torrent={torrent} />
+    </TorrentRowShell>
   )
 }

@@ -4,6 +4,7 @@ import { useAppSelector, usePollingInterval } from '@/app/hooks'
 import { useGetTorrentsQuery } from '@/services/rpcApi'
 import { applyPanelFilters, sortTorrents } from '@/features/torrents/derive'
 import { TorrentRow } from './TorrentRow'
+import { TorrentTableRow } from './TorrentTable'
 import { cn } from '@/lib/cn'
 
 /**
@@ -80,9 +81,18 @@ export function ServerGroup({
             </p>
           ) : (
             <>
-              {visible.slice(0, ROW_RENDER_CAP).map((t) => (
-                <TorrentRow key={t.id} torrent={t} profileId={profileId} onLabelClick={onLabelClick} />
-              ))}
+              {visible.slice(0, ROW_RENDER_CAP).map((t) =>
+                config.view === 'table' ? (
+                  <TorrentTableRow
+                    key={t.id}
+                    torrent={t}
+                    profileId={profileId}
+                    visibleColumns={config.visibleColumns}
+                  />
+                ) : (
+                  <TorrentRow key={t.id} torrent={t} profileId={profileId} onLabelClick={onLabelClick} />
+                )
+              )}
               {visible.length > ROW_RENDER_CAP && (
                 <p className="px-3 py-2 text-center text-xs text-neutral-400">
                   Showing {ROW_RENDER_CAP} of {visible.length} — narrow the filters to see the rest
