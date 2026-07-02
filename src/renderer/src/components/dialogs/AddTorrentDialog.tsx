@@ -20,6 +20,7 @@ export function AddTorrentDialog(): React.JSX.Element | null {
 
   const [magnet, setMagnet] = useState('')
   const [dir, setDir] = useState('')
+  const [labels, setLabels] = useState('')
   const [paused, setPaused] = useState(false)
   const [unwanted, setUnwanted] = useState<Set<number>>(new Set())
   const [error, setError] = useState<string | null>(null)
@@ -37,6 +38,7 @@ export function AddTorrentDialog(): React.JSX.Element | null {
     if (open) {
       setMagnet(payload?.magnet ?? '')
       setDir(session?.['download-dir'] ?? '')
+      setLabels('')
       setPaused(false)
       setUnwanted(new Set())
       setError(null)
@@ -62,7 +64,16 @@ export function AddTorrentDialog(): React.JSX.Element | null {
 
   const submit = async (): Promise<void> => {
     setError(null)
-    const common = { profileId, downloadDir: dir || undefined, paused }
+    const labelList = labels
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+    const common = {
+      profileId,
+      downloadDir: dir || undefined,
+      paused,
+      labels: labelList.length ? labelList : undefined
+    }
     try {
       if (isMagnetMode) {
         if (!magnet.trim().startsWith('magnet:')) {
@@ -150,6 +161,10 @@ export function AddTorrentDialog(): React.JSX.Element | null {
               ))}
             </div>
           )}
+
+          <Field label="Labels (comma separated, optional)">
+            <Input value={labels} onChange={(e) => setLabels(e.target.value)} placeholder="isos, linux" />
+          </Field>
 
           <LabeledCheckbox checked={paused} onCheckedChange={setPaused} label="Add paused" />
 

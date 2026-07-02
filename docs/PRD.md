@@ -64,7 +64,7 @@ Status reflects the current build.
 | C4 | Per-profile trust of self-signed HTTPS certificates | P0 | ✅ |
 | C5 | "Test connection" with actionable error messages (auth vs TLS vs network) | P0 | ✅ |
 | C6 | Automatic CSRF (409 session-id) handling and retry | P0 | ✅ |
-| C7 | View several servers simultaneously (workspace panels per server) | P2 | — |
+| C7 | View several servers simultaneously (each Torrents panel scopes to one or more servers, grouped sections, per-server error isolation) | P2 | ✅ v0.3 |
 
 ### 4.2 Torrent list
 
@@ -73,11 +73,11 @@ Status reflects the current build.
 | L1 | Live-updating list (configurable 1–10 s polling), virtualized to thousands of rows | P0 | ✅ |
 | L2 | Row shows name, progress, status, speeds, ratio/ETA, peer counts | P0 | ✅ |
 | L3 | Sort by name, size, progress, status, ↓/↑ speed, ratio, ETA, added date, queue position; direction toggle; persisted per profile | P0 | ✅ |
-| L4 | Sidebar filters: status groups with counts, trackers, labels; combinable with text search | P0 | ✅ |
+| L4 | Filters: status groups with counts, trackers, labels; combinable with text search — per Torrents panel since v0.3 | P0 | ✅ |
 | L5 | Multi-select (⌘/Ctrl-click) with bulk actions | P0 | ✅ |
 | L6 | Context menu: start, start now, pause, verify, reannounce, remove | P0 | ✅ |
-| L7 | Optional multi-column table view (transgui-style spreadsheet) | P1 | — |
-| L8 | Keyboard navigation (arrows, space, delete) and shortcuts | P1 | — |
+| L7 | Optional multi-column table view (transgui-style spreadsheet): sortable headers, column show/hide, per panel | P1 | ✅ v0.3 |
+| L8 | Keyboard navigation (arrows, ⇧-extend, ⌘A, space, delete) and global shortcuts with cheat sheet | P1 | ✅ v0.3 |
 
 ### 4.3 Adding torrents
 
@@ -87,7 +87,7 @@ Status reflects the current build.
 | A2 | OS-level association: clicking a magnet link or .torrent anywhere opens the add dialog (app running or not) | P0 | ✅ |
 | A3 | Add dialog: destination folder with live free-space, start-paused, per-file selection (metainfo parsed locally) | P0 | ✅ |
 | A4 | Duplicate detection surfaced to the user | P0 | ✅ |
-| A5 | Set labels at add time | P1 | partial (API yes, UI no) |
+| A5 | Set labels at add time; bulk relabel via context menu; label chips with click-to-filter | P1 | ✅ v0.3 |
 
 ### 4.4 Torrent detail
 
@@ -155,7 +155,7 @@ Requirements:
 | W3 | Panels drag by handle and resize on a responsive grid; no overlap (compaction) | P1 | ✅ |
 | W4 | Layout persisted per Server Profile via the existing electron-store path; sensible default layout ships out of the box and is restorable ("Reset layout") | P1 | ✅ |
 | W5 | Layout schema carries a version number with a migration path (gap identified in the reference app) | P1 | ✅ |
-| W6 | Multiple instances of one panel type where meaningful (torrent list allows multiple instances today; per-instance filters and one-list-per-server → C7 still open) | P2 | partial |
+| W6 | Multiple instances of one panel type with per-instance state (each Torrents panel owns scope, filters, sort, view — see ADR-0003) | P2 | ✅ v0.3 |
 
 Design notes carried over from the reference implementation: UUID instance ids
 (never index-based), a single source of truth driving both the picker and
@@ -166,11 +166,12 @@ Decision record: [ADR-0002](adr/0002-flexible-panel-workspace.md).
 
 | Version | Contents |
 |---|---|
-| **0.1** (now) | MVP core (§4, all P0s) — built and verified against live daemons |
-| **0.2** | Flexible panel workspace (§6) ✅; files-as-tree (D6); keyboard shortcuts (L8); labels in add dialog (A5) |
-| **0.3** | Multi-column list view (L7); per-torrent limits (D7); tray (P4) |
-| **1.0** | Public launch: icon/branding, docs site, auto-update proven in the wild |
-| Post-1.0 | Multi-server simultaneous view (C7/W6), scheduler (S4), blocklists (S5), geo-IP peer info |
+| **0.1** ✅ | MVP core (§4, all P0s) — built and verified against live daemons |
+| **0.2** ✅ | Flexible panel workspace (§6) |
+| **0.3** ✅ | Multi-server Torrents panels with per-panel filters/sort/scope (C7/W6, ADR-0003); table view (L7); keyboard shortcuts (L8); labels everywhere (A5) |
+| **0.4** | Files-as-tree (D6); per-torrent limits (D7); tray (P4) |
+| **1.0** | Public launch: branding, docs site, auto-update proven in the wild |
+| Post-1.0 | Scheduler (S4), blocklists (S5), geo-IP peer info, RSS/watch folders |
 
 ## 8. Success criteria
 

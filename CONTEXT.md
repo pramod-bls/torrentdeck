@@ -11,11 +11,11 @@ A saved connection definition for one Transmission daemon: name, address, port, 
 settings, credentials, and per-profile UI preferences. A user may have many Server
 Profiles (home NAS, seedbox, …).
 
-### Active Server
-The single Server Profile the app is currently connected to. Exactly zero or one profile
-is active at a time; switching the Active Server replaces everything shown in the window.
-(Data is nevertheless always scoped per profile so that showing several servers at once
-can become possible later.)
+### Default Server
+The Server Profile picked in the toolbar (remembered across restarts). It is the target
+for adding torrents, the subject of session settings and the status bar, and what a
+Torrents Panel with "default" scope shows. Individual Panels may scope themselves to
+other servers — the Default Server is a convenience anchor, not a connection limit.
 
 ### Session
 The daemon-wide state of the Active Server: global speed limits, download directory,
@@ -31,16 +31,26 @@ queued to download, downloading, queued to seed, or seeding. The UI groups these
 the coarser Status Filters.
 
 ### Status Filter
-A sidebar grouping over Statuses: All, Downloading, Seeding, Paused, Error. Combines
-with the Tracker filter, Label filter, and Search to narrow the Torrent List.
+A grouping over Statuses: All, Downloading, Seeding, Paused, Verifying, Error. Together
+with the Tracker filter, Label filter, and Search it forms a Torrents Panel's filters —
+owned by each Panel individually, never global.
 
 ### Label
 A free-form tag stored on a Torrent by the daemon (Transmission "labels"). Used for
 user-defined grouping and filtering.
 
-### Torrent List
-The central view: one row per Torrent on the Active Server, filtered, searched, and
-sorted client-side.
+### Torrents Panel
+A Panel showing torrents from one or more servers (its Scope), grouped by server when
+several are shown. Each instance owns its filters, sort, search, and view mode
+(cards or table). Also called the Torrent List.
+
+### Scope
+The set of Server Profiles a Torrents Panel displays: either "default" (follow the
+Default Server) or an explicit list of servers.
+
+### Selection
+The torrents currently highlighted, always belonging to exactly one server
+(server-qualified). Bulk actions apply to the Selection and are sent to its server.
 
 ### Detail Panel
 The collapsible right-side panel inspecting the selected Torrent, with tabs:
