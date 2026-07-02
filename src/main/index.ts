@@ -1,0 +1,132 @@
+import { app, BrowserWindow, ipcMain, shell } from 'electron'
+import { join } from 'node:path'
+import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import electronUpdater from 'electron-updater'
+import { readFile } from 'node:fs/promises'
+import { basename } from 'node:path'
+import { registerIpc } from './ipc'
+import type { TorrentFilePayload } from '@shared/types'
+
+let mainWindow: BrowserWindow | null = null
+let rendererReady = false
+const pendingMagnets: string[] = []
+const pendingTorrentPaths: string[] = []
+
+function extractOpenArgs(argv: string[]): void {
+  for (const arg of argv) {
+    if (arg.startsWith('magnet:')) pendingMagnets.push(arg)
+    else if (arg.toLowerCase().endsWith('.torrent')) pendingTorrentPaths.push(arg)
+  }
+}
+
+async function flushPendingOpens(): Promise<void> {
+  if (!rendererReady || !mainWindow) return
+  while (pendingMagnets.length) {
+    mainWindow.webContents.send('open-magnet', pendingMagnets.shift())
+  }
+  if (pendingTorrentPaths.length) {
+    const paths = pendingTorrentPaths.splice(0)
+    const files: TorrentFilePayload[] = []
+    for (const p of paths) {
+      try {
+        files.push({ name: basename(p), base64: (await readFile(p)).toString('base64') })
+      } catch {
+        // ignore unreadable paths handed to us by the OS
+      }
+    }
+    if (files.length) mainWindow.webContents.send('open-torrent-files', files)
+  }
+}
+
+function createWindow(): void {
+  mainWindow = new BrowserWindow({
+    width: 1200,
+    height: 780,
+    minWidth: 800,
+    minHeight: 500,
+    show: false,
+    autoHideMenuBar: true,
+    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
+    webPreferences: {
+      preload: join(import.meta.dirname, '../preload/index.cjs'),
+      contextIsolation: true,
+      sandbox: true,
+      nodeIntegration: false
+    }
+  })
+
+  mainWindow.on('ready-to-show', () => mainWindow?.show())
+  mainWindow.on('closed', () => {
+    mainWindow = null
+    rendererReady = false
+  })
+
+  mainWindow.webContents.setWindowOpenHandler((details) => {
+    shell.openExternal(details.url)
+    return { action: 'deny' }
+  })
+
+  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
+    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
+  } else {
+    mainWindow.loadFile(join(import.meta.dirname, '../renderer/index.html'))
+  }
+}
+
+const gotTheLock = app.requestSingleInstanceLock()
+if (!gotTheLock) {
+  app.quit()
+} else {
+  extractOpenArgs(process.argv.slice(1))
+
+  app.on('second-instance', (_e, argv) => {
+    extractOpenArgs(argv.slice(1))
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore()
+      mainWindow.focus()
+    }
+    void flushPendingOpens()
+  })
+
+  app.on('open-url', (event, url) => {
+    event.preventDefault()
+    if (url.startsWith('magnet:')) pendingMagnets.push(url)
+    void flushPendingOpens()
+  })
+
+  app.on('open-file', (event, path) => {
+    event.preventDefault()
+    pendingTorrentPaths.push(path)
+    void flushPendingOpens()
+  })
+
+  app.whenReady().then(() => {
+    electronApp.setAppUserModelId('com.blacklightsurgical.transmission-remote')
+    if (app.isPackaged) {
+      app.setAsDefaultProtocolClient('magnet')
+      electronUpdater.autoUpdater.checkForUpdatesAndNotify().catch(() => {
+        // update check failures (offline, no release yet) are not fatal
+      })
+    }
+
+    app.on('browser-window-created', (_e, window) => {
+      optimizer.watchWindowShortcuts(window)
+    })
+
+    registerIpc()
+    ipcMain.handle('app:rendererReady', () => {
+      rendererReady = true
+      void flushPendingOpens()
+    })
+
+    createWindow()
+
+    app.on('activate', () => {
+      if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    })
+  })
+
+  app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') app.quit()
+  })
+}

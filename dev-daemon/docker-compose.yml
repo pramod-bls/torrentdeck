@@ -1,0 +1,18 @@
+services:
+  transmission:
+    image: linuxserver/transmission:latest
+    container_name: transmission-remote-dev
+    environment:
+      - PUID=506
+      - PGID=20
+      - TZ=Etc/UTC
+      - USER=dev
+      - PASS=devpass
+    volumes:
+      - ./config:/config
+      - ./downloads:/downloads
+    ports:
+      - '9091:9091'
+      - '51413:51413'
+      - '51413:51413/udp'
+    restart: unless-stopped

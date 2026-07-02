@@ -1,0 +1,121 @@
+import type { SortPref } from '@shared/types'
+import { TorrentStatus, type Torrent } from '@shared/transmission'
+import { trackerHost } from '@/lib/format'
+import type { StatusFilter } from '@/features/ui/uiSlice'
+
+export function matchesStatusFilter(t: Torrent, filter: StatusFilter): boolean {
+  switch (filter) {
+    case 'all':
+      return true
+    case 'downloading':
+      return t.status === TorrentStatus.Downloading || t.status === TorrentStatus.DownloadWait
+    case 'seeding':
+      return t.status === TorrentStatus.Seeding || t.status === TorrentStatus.SeedWait
+    case 'paused':
+      return t.status === TorrentStatus.Stopped
+    case 'checking':
+      return t.status === TorrentStatus.Checking || t.status === TorrentStatus.CheckWait
+    case 'error':
+      return t.error !== 0
+  }
+}
+
+export interface FilterOptions {
+  statusFilter: StatusFilter
+  trackerFilter: string | null
+  labelFilter: string | null
+  search: string
+}
+
+export function filterTorrents(torrents: Torrent[], opts: FilterOptions): Torrent[] {
+  const q = opts.search.trim().toLowerCase()
+  return torrents.filter((t) => {
+    if (!matchesStatusFilter(t, opts.statusFilter)) return false
+    if (opts.trackerFilter && !t.trackers.some((tr) => trackerHost(tr.announce) === opts.trackerFilter))
+      return false
+    if (opts.labelFilter && !t.labels.includes(opts.labelFilter)) return false
+    if (q && !t.name.toLowerCase().includes(q)) return false
+    return true
+  })
+}
+
+/** eta of -1/-2 (unknown / n-a) sorts to the end regardless of direction */
+function etaValue(t: Torrent): number {
+  return t.eta < 0 ? Number.MAX_SAFE_INTEGER : t.eta
+}
+
+const comparators: Record<SortPref['key'], (a: Torrent, b: Torrent) => number> = {
+  name: (a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base', numeric: true }),
+  totalSize: (a, b) => a.totalSize - b.totalSize,
+  percentDone: (a, b) => a.percentDone - b.percentDone,
+  status: (a, b) => a.status - b.status,
+  rateDownload: (a, b) => a.rateDownload - b.rateDownload,
+  rateUpload: (a, b) => a.rateUpload - b.rateUpload,
+  uploadRatio: (a, b) => a.uploadRatio - b.uploadRatio,
+  eta: (a, b) => etaValue(a) - etaValue(b),
+  addedDate: (a, b) => a.addedDate - b.addedDate,
+  queuePosition: (a, b) => a.queuePosition - b.queuePosition
+}
+
+export function sortTorrents(torrents: Torrent[], sort: SortPref): Torrent[] {
+  const cmp = comparators[sort.key]
+  const sorted = [...torrents].sort((a, b) => {
+    const c = cmp(a, b)
+    return c !== 0 ? (sort.desc ? -c : c) : a.id - b.id
+  })
+  return sorted
+}
+
+export interface SidebarCounts {
+  all: number
+  downloading: number
+  seeding: number
+  paused: number
+  checking: number
+  error: number
+  trackers: { host: string; count: number }[]
+  labels: { label: string; count: number }[]
+}
+
+export function deriveSidebar(torrents: Torrent[]): SidebarCounts {
+  const trackerMap = new Map<string, number>()
+  const labelMap = new Map<string, number>()
+  const counts = { all: torrents.length, downloading: 0, seeding: 0, paused: 0, checking: 0, error: 0 }
+  for (const t of torrents) {
+    if (matchesStatusFilter(t, 'downloading')) counts.downloading++
+    if (matchesStatusFilter(t, 'seeding')) counts.seeding++
+    if (matchesStatusFilter(t, 'paused')) counts.paused++
+    if (matchesStatusFilter(t, 'checking')) counts.checking++
+    if (matchesStatusFilter(t, 'error')) counts.error++
+    const hosts = new Set(t.trackers.map((tr) => trackerHost(tr.announce)))
+    for (const h of hosts) trackerMap.set(h, (trackerMap.get(h) ?? 0) + 1)
+    for (const l of t.labels) labelMap.set(l, (labelMap.get(l) ?? 0) + 1)
+  }
+  return {
+    ...counts,
+    trackers: [...trackerMap.entries()].map(([host, count]) => ({ host, count })).sort((a, b) => a.host.localeCompare(b.host)),
+    labels: [...labelMap.entries()].map(([label, count]) => ({ label, count })).sort((a, b) => a.label.localeCompare(b.label))
+  }
+}
+
+export function statusText(t: Torrent): string {
+  if (t.error !== 0) return t.errorString || 'Error'
+  switch (t.status) {
+    case TorrentStatus.Stopped:
+      return t.isFinished ? 'Finished' : 'Paused'
+    case TorrentStatus.CheckWait:
+      return 'Queued to verify'
+    case TorrentStatus.Checking:
+      return 'Verifying'
+    case TorrentStatus.DownloadWait:
+      return 'Queued'
+    case TorrentStatus.Downloading:
+      return 'Downloading'
+    case TorrentStatus.SeedWait:
+      return 'Queued to seed'
+    case TorrentStatus.Seeding:
+      return 'Seeding'
+    default:
+      return 'Unknown'
+  }
+}
