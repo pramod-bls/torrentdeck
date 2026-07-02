@@ -10,7 +10,7 @@
 import Store from 'electron-store'
 import { safeStorage } from 'electron'
 import { randomUUID } from 'node:crypto'
-import type { AppPrefs, ProfileInput, ServerProfile, SortPref } from '@shared/types'
+import type { AppPrefs, ProfileInput, ServerProfile, SortPref, WorkspaceLayout } from '@shared/types'
 
 interface StoreSchema {
   profiles: ServerProfile[]
@@ -18,6 +18,8 @@ interface StoreSchema {
   passwords: Record<string, string>
   activeProfileId: string | null
   prefs: AppPrefs
+  /** profile id -> panel workspace layout (opaque to main; renderer validates) */
+  workspaces: Record<string, WorkspaceLayout>
 }
 
 const store = new Store<StoreSchema>({
@@ -25,7 +27,8 @@ const store = new Store<StoreSchema>({
     profiles: [],
     passwords: {},
     activeProfileId: null,
-    prefs: { theme: 'system', pollingIntervalMs: 3000 }
+    prefs: { theme: 'system', pollingIntervalMs: 3000 },
+    workspaces: {}
   }
 })
 
@@ -78,7 +81,18 @@ export function deleteProfile(id: string): void {
   const passwords = store.get('passwords')
   delete passwords[id]
   store.set('passwords', passwords)
+  const workspaces = store.get('workspaces')
+  delete workspaces[id]
+  store.set('workspaces', workspaces)
   if (store.get('activeProfileId') === id) store.set('activeProfileId', null)
+}
+
+export function getWorkspace(profileId: string): WorkspaceLayout | null {
+  return store.get('workspaces')[profileId] ?? null
+}
+
+export function setWorkspace(profileId: string, layout: WorkspaceLayout): void {
+  store.set('workspaces', { ...store.get('workspaces'), [profileId]: layout })
 }
 
 export function getPassword(id: string): string | undefined {

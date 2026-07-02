@@ -131,14 +131,14 @@ Status reflects the current build.
 - **Compatibility:** Transmission 4.0+ (RPC 17+). Verified against 4.0.5 (user's
   NAS) and 4.1.3 (dev container).
 
-## 5. Current UI (v0.1)
+## 5. Current UI
 
-Fixed three-zone layout: toolbar (add, bulk actions, sort, search, server switcher,
-settings); left sidebar (status/tracker/label filters with counts); central torrent
-list; collapsible right detail panel (General/Files/Peers/Trackers); status bar
-(aggregate speeds, turtle toggle, torrent count, daemon version).
+Fixed chrome (toolbar with add/bulk actions/sort/search/server switcher/Panels menu;
+status bar with aggregate speeds, turtle toggle, torrent count, daemon version)
+around a flexible panel Workspace (§6). The default Workspace mirrors the classic
+three-zone arrangement: filters | torrent list | tabbed detail.
 
-## 6. Planned: flexible panel workspace (v0.2 theme)
+## 6. Flexible panel workspace (shipped in v0.2)
 
 Modeled on the panel system in the owner's FlimViewer app
 (`electron_frontend_for_fastapi_docker_server`), which proved the pattern:
@@ -148,14 +148,14 @@ the layout persisted per page through Redux middleware to electron-store.
 
 Requirements:
 
-| ID | Requirement | Pri |
-|----|-------------|-----|
-| W1 | Panel registry: every major view (torrent list, filter sidebar, each detail tab, session stats, speed graph) is a registered panel type, declaratively mapped to a component | P1 |
-| W2 | "Add panel" picker grouped by category; panels removable from a header control | P1 |
-| W3 | Panels drag by handle and resize on a responsive grid; no overlap (compaction) | P1 |
-| W4 | Layout persisted per Server Profile via the existing electron-store path; sensible default layout ships out of the box and is restorable ("Reset layout") | P1 |
-| W5 | Layout schema carries a version number with a migration path (gap identified in the reference app) | P1 |
-| W6 | Multiple instances of one panel type where meaningful (e.g. two torrent lists with different filters; later: one list per server → C7) | P2 |
+| ID | Requirement | Pri | Status |
+|----|-------------|-----|--------|
+| W1 | Panel registry: every major view (torrent list, filter sidebar, each detail tab, session stats) is a registered panel type, declaratively mapped to a component | P1 | ✅ |
+| W2 | "Add panel" picker grouped by category; panels removable from a header control | P1 | ✅ |
+| W3 | Panels drag by handle and resize on a responsive grid; no overlap (compaction) | P1 | ✅ |
+| W4 | Layout persisted per Server Profile via the existing electron-store path; sensible default layout ships out of the box and is restorable ("Reset layout") | P1 | ✅ |
+| W5 | Layout schema carries a version number with a migration path (gap identified in the reference app) | P1 | ✅ |
+| W6 | Multiple instances of one panel type where meaningful (torrent list allows multiple instances today; per-instance filters and one-list-per-server → C7 still open) | P2 | partial |
 
 Design notes carried over from the reference implementation: UUID instance ids
 (never index-based), a single source of truth driving both the picker and
@@ -167,7 +167,7 @@ Decision record: [ADR-0002](adr/0002-flexible-panel-workspace.md).
 | Version | Contents |
 |---|---|
 | **0.1** (now) | MVP core (§4, all P0s) — built and verified against live daemons |
-| **0.2** | Flexible panel workspace (§6); files-as-tree (D6); keyboard shortcuts (L8); labels in add dialog (A5) |
+| **0.2** | Flexible panel workspace (§6) ✅; files-as-tree (D6); keyboard shortcuts (L8); labels in add dialog (A5) |
 | **0.3** | Multi-column list view (L7); per-torrent limits (D7); tray (P4) |
 | **1.0** | Public launch: icon/branding, docs site, auto-update proven in the wild |
 | Post-1.0 | Multi-server simultaneous view (C7/W6), scheduler (S4), blocklists (S5), geo-IP peer info |

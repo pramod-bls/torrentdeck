@@ -79,7 +79,7 @@ export function TorrentList(): React.JSX.Element {
 
   if (error) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-1 p-8 text-center">
+      <div className="flex h-full flex-col items-center justify-center gap-1 p-8 text-center">
         <p className="text-sm font-medium text-red-600 dark:text-red-400">Can't reach the server</p>
         <p className="max-w-sm text-xs text-neutral-500">
           {'message' in error ? error.message : 'Connection failed'}
@@ -90,7 +90,7 @@ export function TorrentList(): React.JSX.Element {
 
   if (!isLoading && visible.length === 0) {
     return (
-      <div className="flex flex-1 items-center justify-center p-8">
+      <div className="flex h-full items-center justify-center p-8">
         <p className="text-sm text-neutral-500">
           {torrents.length === 0 ? 'No torrents on this server' : 'No torrents match the current filters'}
         </p>
@@ -102,7 +102,7 @@ export function TorrentList(): React.JSX.Element {
     void torrentAction({ profileId, action, ids })
 
   return (
-    <div ref={parentRef} className="min-w-0 flex-1 overflow-y-auto" onClick={() => dispatch(clearSelection())}>
+    <div ref={parentRef} className="h-full min-w-0 overflow-y-auto" onClick={() => dispatch(clearSelection())}>
       <div style={{ height: virtualizer.getTotalSize(), position: 'relative' }}>
         {virtualizer.getVirtualItems().map((row) => {
           const t = visible[row.index]

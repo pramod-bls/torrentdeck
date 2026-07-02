@@ -68,7 +68,7 @@ export function Sidebar(): React.JSX.Element {
   }
 
   return (
-    <div className="w-48 shrink-0 overflow-y-auto border-r border-neutral-200 bg-neutral-50 p-2 dark:border-neutral-700 dark:bg-neutral-800/40">
+    <div className="h-full w-full overflow-y-auto p-2">
       <Heading>Status</Heading>
       {STATUS_ITEMS.map(({ key, label }) => (
         <Row

@@ -2,10 +2,9 @@ import { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { bootstrap } from '@/features/connection/connectionSlice'
 import { openAddTorrent, setSort } from '@/features/ui/uiSlice'
+import { loadWorkspace } from '@/features/workspace/workspaceSlice'
 import { Toolbar } from '@/components/Toolbar'
-import { Sidebar } from '@/components/Sidebar'
-import { TorrentList } from '@/components/TorrentList'
-import { DetailPanel } from '@/components/DetailPanel'
+import { Workspace } from '@/components/workspace/Workspace'
 import { StatusBar } from '@/components/StatusBar'
 import { WelcomeScreen } from '@/components/WelcomeScreen'
 import { AddTorrentDialog } from '@/components/dialogs/AddTorrentDialog'
@@ -72,8 +71,6 @@ function useTorrentFileDrop(): void {
 export default function App(): React.JSX.Element {
   const dispatch = useAppDispatch()
   const { loaded, profiles, activeProfileId } = useAppSelector((s) => s.connection)
-  const detailCollapsed = useAppSelector((s) => s.ui.detailCollapsed)
-  const detailId = useAppSelector((s) => s.ui.detailId)
 
   useTheme()
   useOsOpenHandlers()
@@ -89,6 +86,10 @@ export default function App(): React.JSX.Element {
     if (activeSort) dispatch(setSort(activeSort))
   }, [dispatch, activeProfileId, activeSort])
 
+  useEffect(() => {
+    if (activeProfileId) void dispatch(loadWorkspace(activeProfileId))
+  }, [dispatch, activeProfileId])
+
   if (!loaded) return <div className="flex h-full items-center justify-center" />
 
   const showMain = profiles.length > 0 && activeProfileId
@@ -98,11 +99,7 @@ export default function App(): React.JSX.Element {
       {showMain ? (
         <>
           <Toolbar />
-          <div className="flex min-h-0 flex-1">
-            <Sidebar />
-            <TorrentList />
-            {!detailCollapsed && detailId !== null && <DetailPanel torrentId={detailId} />}
-          </div>
+          <Workspace />
           <StatusBar />
         </>
       ) : (

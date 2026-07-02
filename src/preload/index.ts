@@ -15,7 +15,8 @@ import type {
   ProfileInput,
   RpcRequest,
   SortPref,
-  TorrentFilePayload
+  TorrentFilePayload,
+  WorkspaceLayout
 } from '../shared/types'
 
 function subscribe<T>(channel: string, cb: (payload: T) => void): () => void {
@@ -38,6 +39,11 @@ const api: Api & { getPathForFile: (file: File) => string; rendererReady: () => 
   prefs: {
     get: () => ipcRenderer.invoke('prefs:get'),
     set: (prefs: Partial<AppPrefs>) => ipcRenderer.invoke('prefs:set', prefs)
+  },
+  workspace: {
+    get: (profileId: string) => ipcRenderer.invoke('workspace:get', profileId),
+    set: (profileId: string, layout: WorkspaceLayout) =>
+      ipcRenderer.invoke('workspace:set', profileId, layout)
   },
   pickTorrentFiles: () => ipcRenderer.invoke('dialog:pickTorrentFiles'),
   readDroppedTorrents: (paths: string[]) => ipcRenderer.invoke('fs:readDroppedTorrents', paths),

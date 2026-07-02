@@ -1,7 +1,7 @@
 # 0002 — Flexible panel workspace on react-grid-layout
 
 Date: 2026-07-02
-Status: accepted (implementation planned for v0.2)
+Status: accepted, implemented (v0.2 — `src/renderer/src/features/workspace/`)
 
 ## Context
 

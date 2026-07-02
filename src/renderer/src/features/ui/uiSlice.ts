@@ -27,7 +27,6 @@ export interface UiState {
   sort: SortPref
   selectedIds: number[]
   detailId: number | null
-  detailCollapsed: boolean
   detailTab: 'general' | 'files' | 'peers' | 'trackers'
   addTorrent: AddTorrentPayload | null
   profileEditorId: string | null | undefined
@@ -44,7 +43,6 @@ const initialState: UiState = {
   sort: { key: 'addedDate', desc: true },
   selectedIds: [],
   detailId: null,
-  detailCollapsed: false,
   detailTab: 'general',
   addTorrent: null,
   profileEditorId: undefined,
@@ -91,9 +89,6 @@ const uiSlice = createSlice({
       state.selectedIds = []
       state.detailId = null
     },
-    toggleDetailCollapsed(state) {
-      state.detailCollapsed = !state.detailCollapsed
-    },
     setDetailTab(state, action: PayloadAction<UiState['detailTab']>) {
       state.detailTab = action.payload
     },
@@ -133,7 +128,6 @@ export const {
   selectTorrent,
   selectMany,
   clearSelection,
-  toggleDetailCollapsed,
   setDetailTab,
   openAddTorrent,
   closeAddTorrent,

@@ -94,6 +94,37 @@ export interface TorrentFilePayload {
   base64: string
 }
 
+/** Panel type identifiers for the flexible workspace (ADR-0002). */
+export type PanelTypeId =
+  | 'torrent-list'
+  | 'filters'
+  | 'detail'
+  | 'detail-general'
+  | 'detail-files'
+  | 'detail-peers'
+  | 'detail-trackers'
+  | 'stats'
+
+/** One panel instance placed on the workspace grid. `i` is a UUID, never an index. */
+export interface WorkspaceItem {
+  i: string
+  type: PanelTypeId
+  x: number
+  y: number
+  w: number
+  h: number
+}
+
+/**
+ * A user's panel arrangement, persisted per Server Profile. `version` guards
+ * the schema: loaders must run migrations (or fall back to the default
+ * layout) rather than trust unknown versions — see normalizeLayout().
+ */
+export interface WorkspaceLayout {
+  version: number
+  items: WorkspaceItem[]
+}
+
 /**
  * The renderer-facing API implemented by the preload bridge and exposed as
  * `window.api`. Extending it: add the member here, handle the channel in
@@ -113,6 +144,10 @@ export interface Api {
   prefs: {
     get: () => Promise<AppPrefs>
     set: (prefs: Partial<AppPrefs>) => Promise<AppPrefs>
+  }
+  workspace: {
+    get: (profileId: string) => Promise<WorkspaceLayout | null>
+    set: (profileId: string, layout: WorkspaceLayout) => Promise<void>
   }
   pickTorrentFiles: () => Promise<TorrentFilePayload[]>
   readDroppedTorrents: (paths: string[]) => Promise<TorrentFilePayload[]>

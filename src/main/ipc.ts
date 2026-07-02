@@ -10,7 +10,14 @@
 import { dialog, ipcMain } from 'electron'
 import { readFile } from 'node:fs/promises'
 import { basename } from 'node:path'
-import type { ProfileInput, RpcRequest, RpcResult, SortPref, TorrentFilePayload } from '@shared/types'
+import type {
+  ProfileInput,
+  RpcRequest,
+  RpcResult,
+  SortPref,
+  TorrentFilePayload,
+  WorkspaceLayout
+} from '@shared/types'
 import { TransmissionClient, type RpcTarget } from './rpc/client'
 import * as profiles from './profiles'
 
@@ -96,6 +103,11 @@ export function registerIpc(): void {
 
   ipcMain.handle('prefs:get', () => profiles.getPrefs())
   ipcMain.handle('prefs:set', (_e, partial) => profiles.setPrefs(partial))
+
+  ipcMain.handle('workspace:get', (_e, profileId: string) => profiles.getWorkspace(profileId))
+  ipcMain.handle('workspace:set', (_e, profileId: string, layout: WorkspaceLayout) =>
+    profiles.setWorkspace(profileId, layout)
+  )
 
   ipcMain.handle('dialog:pickTorrentFiles', async (): Promise<TorrentFilePayload[]> => {
     const res = await dialog.showOpenDialog({

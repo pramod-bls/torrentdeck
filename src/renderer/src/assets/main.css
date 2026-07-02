@@ -21,6 +21,12 @@ textarea {
   user-select: text;
 }
 
+/* Workspace grid: drop-target ghost shown while dragging/resizing a panel */
+.react-grid-placeholder {
+  background: rgb(59 130 246 / 0.25) !important;
+  border-radius: 0.5rem;
+}
+
 /* macOS hiddenInset title bar: make the top strip draggable */
 .titlebar-drag {
   -webkit-app-region: drag;

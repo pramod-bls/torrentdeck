@@ -10,8 +10,7 @@ import {
   Settings2,
   Plus,
   Pencil,
-  SlidersHorizontal,
-  PanelRight
+  SlidersHorizontal
 } from 'lucide-react'
 import type { SortKey } from '@shared/types'
 import { useAppDispatch, useAppSelector, useActiveProfileId } from '@/app/hooks'
@@ -23,9 +22,9 @@ import {
   setPrefsOpen,
   setSearch,
   setSessionSettingsOpen,
-  setSort,
-  toggleDetailCollapsed
+  setSort
 } from '@/features/ui/uiSlice'
+import { AddPanelMenu } from '@/components/workspace/AddPanelMenu'
 import { profileSortSaved } from '@/features/connection/connectionSlice'
 import { useTorrentActionMutation } from '@/services/rpcApi'
 import { Button } from '@/components/ui/button'
@@ -191,14 +190,7 @@ export function Toolbar(): React.JSX.Element {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Button
-        variant="ghost"
-        size="icon"
-        aria-label="Toggle detail panel"
-        onClick={() => dispatch(toggleDetailCollapsed())}
-      >
-        <PanelRight size={15} />
-      </Button>
+      <AddPanelMenu />
     </div>
   )
 }
