@@ -64,23 +64,24 @@ export class DelugeAdapter implements TorrentClient {
   constructor(private readonly client: DelugeClient) {}
 
   async getCapabilities(): Promise<RpcResult<Capabilities>> {
-    if (!this.caps) {
-      // Label plugin presence → labels capability. get_enabled_plugins is cheap.
-      const plugins = await this.client.rpc<string[]>('core.get_enabled_plugins', [])
-      const hasLabel = plugins.ok && Array.isArray(plugins.data) && plugins.data.includes('Label')
-      this.caps = {
-        bandwidthGroups: false,
-        altSpeedScheduler: false,
-        blocklist: false,
-        sequentialDownload: true,
-        perPieceAvailability: false,
-        perTrackerSwarm: false,
-        labels: hasLabel,
-        renamePath: false,
-        portTest: false
-      }
+    if (this.caps) return { ok: true, data: this.caps }
+    // Label plugin presence → labels capability. get_enabled_plugins is cheap.
+    const plugins = await this.client.rpc<string[]>('core.get_enabled_plugins', [])
+    const base: Capabilities = {
+      bandwidthGroups: false,
+      altSpeedScheduler: false,
+      blocklist: false,
+      sequentialDownload: true,
+      perPieceAvailability: false,
+      perTrackerSwarm: false,
+      labels: plugins.ok && Array.isArray(plugins.data) && plugins.data.includes('Label'),
+      renamePath: false,
+      portTest: false
     }
-    return { ok: true, data: this.caps }
+    // Only cache once the probe actually succeeded, so a failure while the
+    // server is briefly unreachable doesn't pin `labels:false` forever.
+    if (plugins.ok) this.caps = base
+    return { ok: true, data: base }
   }
 
   async test(): Promise<RpcResult<{ version: string }>> {

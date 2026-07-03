@@ -177,6 +177,13 @@ export class DelugeClient {
       }
       res = await this.raw<T>(method, params)
     }
+    // A transport failure can mean the Web UI dropped its daemon binding while
+    // idle; drop the cached handshake so the NEXT call re-logs-in and re-binds.
+    // This lets a wedged connection self-heal on the next poll instead of
+    // needing an app restart. (Daemon-level 'rpc' errors leave the session intact.)
+    if (!res.ok && (res.error.kind === 'timeout' || res.error.kind === 'network' || res.error.kind === 'http')) {
+      this.ready = null
+    }
     return res
   }
 }
