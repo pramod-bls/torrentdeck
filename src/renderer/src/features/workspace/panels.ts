@@ -9,6 +9,7 @@ import type {
   PanelTypeId,
   SortPref,
   SpeedGraphConfig,
+  StatsPanelConfig,
   TorrentsPanelConfig,
   WorkspaceItem,
   WorkspaceLayout
@@ -172,6 +173,15 @@ export function defaultGraphConfig(): SpeedGraphConfig {
   return { server: 'default', windowSec: 300 }
 }
 
+export function defaultStatsConfig(): StatsPanelConfig {
+  return { server: 'default' }
+}
+
+/** Narrow a workspace item's config to the Session Stats shape. */
+export function getStatsConfig(item: WorkspaceItem): StatsPanelConfig {
+  return (item.config as StatsPanelConfig | undefined) ?? defaultStatsConfig()
+}
+
 /** Narrow a workspace item's config to the Torrents panel shape (filled by withConfig). */
 export function getListConfig(item: WorkspaceItem): TorrentsPanelConfig {
   return (item.config as TorrentsPanelConfig | undefined) ?? defaultPanelConfig()
@@ -193,6 +203,13 @@ function withConfig(item: WorkspaceItem, seedSort?: SortPref): WorkspaceItem {
         server: typeof cfg.server === 'string' ? cfg.server : base.server,
         windowSec: cfg.windowSec === 60 || cfg.windowSec === 900 ? cfg.windowSec : base.windowSec
       }
+    }
+  }
+  if (item.type === 'stats') {
+    const cfg = (item.config ?? {}) as Partial<StatsPanelConfig>
+    return {
+      ...item,
+      config: { server: typeof cfg.server === 'string' ? cfg.server : defaultStatsConfig().server }
     }
   }
   if (item.type !== 'torrent-list') return item
@@ -237,5 +254,6 @@ export function placeNewItem(type: PanelTypeId, existing: WorkspaceItem[]): Work
   const item: WorkspaceItem = { i: crypto.randomUUID(), type, x: 0, y: bottom, w: meta.w, h: meta.h }
   if (type === 'torrent-list') return { ...item, config: defaultPanelConfig() }
   if (type === 'speed-graph') return { ...item, config: defaultGraphConfig() }
+  if (type === 'stats') return { ...item, config: defaultStatsConfig() }
   return item
 }

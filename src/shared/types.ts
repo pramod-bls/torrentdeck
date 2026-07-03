@@ -221,8 +221,13 @@ export interface SpeedGraphConfig {
   windowSec: 60 | 300 | 900
 }
 
+/** Per-instance configuration of a Session Stats panel: which server it reads. */
+export interface StatsPanelConfig {
+  server: 'default' | string
+}
+
 /** Union of per-instance panel configs, discriminated by the item's `type`. */
-export type WorkspaceItemConfig = TorrentsPanelConfig | SpeedGraphConfig
+export type WorkspaceItemConfig = TorrentsPanelConfig | SpeedGraphConfig | StatsPanelConfig
 
 /** One panel instance placed on the workspace grid. `i` is a UUID, never an index. */
 export interface WorkspaceItem {

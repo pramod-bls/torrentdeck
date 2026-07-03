@@ -96,12 +96,17 @@ describe('normalizeLayout migrations', () => {
 describe('placeNewItem', () => {
   it('places below the lowest existing item with registry default size', () => {
     const items = defaultLayout().items
-    const it = placeNewItem('stats', items)
+    const it = placeNewItem('detail', items)
     expect(it.y).toBe(14)
     expect(it.x).toBe(0)
-    expect(it.w).toBe(PANELS.stats.w)
-    expect(it.h).toBe(PANELS.stats.h)
+    expect(it.w).toBe(PANELS.detail.w)
+    expect(it.h).toBe(PANELS.detail.h)
     expect(it.config).toBeUndefined()
+  })
+
+  it('stamps default server config onto new stats panels', () => {
+    const it = placeNewItem('stats', defaultLayout().items)
+    expect(it.config).toEqual({ server: 'default' })
   })
 
   it('stamps default config onto new torrent-list panels', () => {

@@ -9,10 +9,15 @@ import { Button } from '@/components/ui/button'
 import { Input, Field } from '@/components/ui/input'
 import { Checkbox, LabeledCheckbox } from '@/components/ui/checkbox'
 
+/** Remembers the last server a torrent was added to, across restarts. */
+const LAST_ADD_KEY = 'lastAddProfileId'
+
 export function AddTorrentDialog(): React.JSX.Element | null {
   const dispatch = useAppDispatch()
   const payload = useAppSelector((s) => s.ui.addTorrent)
-  const profileId = useActiveProfileId()
+  const profiles = useAppSelector((s) => s.connection.profiles)
+  const activeProfileId = useActiveProfileId()
+  const [profileId, setProfileId] = useState<string | null>(null)
   const { data: session } = useGetSessionQuery(profileId ? { profileId } : { profileId: '' }, {
     skip: !profileId
   })
@@ -36,8 +41,13 @@ export function AddTorrentDialog(): React.JSX.Element | null {
 
   useEffect(() => {
     if (open) {
+      // Default to the last server added to (if it still exists), else the current server.
+      const last = localStorage.getItem(LAST_ADD_KEY)
+      setProfileId(
+        last && profiles.some((p) => p.id === last) ? last : (activeProfileId ?? profiles[0]?.id ?? null)
+      )
       setMagnet(payload?.magnet ?? '')
-      setDir(session?.['download-dir'] ?? '')
+      setDir('')
       setLabels('')
       setPaused(false)
       setUnwanted(new Set())
@@ -68,8 +78,15 @@ export function AddTorrentDialog(): React.JSX.Element | null {
     dispatch(closeAddTorrent())
   }
 
+  const changeServer = (id: string): void => {
+    setProfileId(id)
+    localStorage.setItem(LAST_ADD_KEY, id)
+    setDir('') // refill from the newly chosen server's default download folder
+  }
+
   const submit = async (): Promise<void> => {
     setError(null)
+    if (profileId) localStorage.setItem(LAST_ADD_KEY, profileId)
     const labelList = labels
       .split(',')
       .map((s) => s.trim())
@@ -115,6 +132,22 @@ export function AddTorrentDialog(): React.JSX.Element | null {
     <Dialog open={open} onOpenChange={(v) => !v && close()}>
       <DialogContent title="Add torrent" wide={!!preview}>
         <div className="space-y-3">
+          {profiles.length > 1 && (
+            <Field label="Add to server">
+              <select
+                value={profileId ?? ''}
+                onChange={(e) => changeServer(e.target.value)}
+                className="h-9 w-full rounded-md border border-surface-300 bg-surface-50 px-2 text-sm dark:border-surface-600 dark:bg-surface-900"
+              >
+                {profiles.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          )}
+
           {isMagnetMode ? (
             <Field label="Magnet link">
               <Input

@@ -21,6 +21,6 @@ export const PANEL_COMPONENTS: Record<
   'detail-peers': () => <SingleDetailTab tab="peers" />,
   'detail-trackers': () => <SingleDetailTab tab="trackers" />,
   'detail-pieces': () => <SingleDetailTab tab="pieces" />,
-  stats: () => <StatsPanel />,
+  stats: (item) => <StatsPanel item={item} />,
   'speed-graph': (item) => <SpeedGraphPanel item={item} />
 }
