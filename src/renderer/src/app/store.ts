@@ -3,16 +3,20 @@ import { rpcApi } from '@/services/rpcApi'
 import connectionReducer from '@/features/connection/connectionSlice'
 import uiReducer from '@/features/ui/uiSlice'
 import workspaceReducer, { persistWorkspaceMiddleware } from '@/features/workspace/workspaceSlice'
+import speedHistoryReducer, { speedSamplerMiddleware } from '@/features/stats/speedHistorySlice'
 
 export const store = configureStore({
   reducer: {
     [rpcApi.reducerPath]: rpcApi.reducer,
     connection: connectionReducer,
     ui: uiReducer,
-    workspace: workspaceReducer
+    workspace: workspaceReducer,
+    speedHistory: speedHistoryReducer
   },
   middleware: (getDefault) =>
-    getDefault().prepend(persistWorkspaceMiddleware.middleware).concat(rpcApi.middleware)
+    getDefault()
+      .prepend(persistWorkspaceMiddleware.middleware, speedSamplerMiddleware.middleware)
+      .concat(rpcApi.middleware)
 })
 
 export type RootState = ReturnType<typeof store.getState>

@@ -8,6 +8,7 @@ import type { PanelTypeId, WorkspaceItem } from '@shared/types'
 import { TorrentsPanel } from '@/components/panels/TorrentsPanel'
 import { DetailTabsPanel, SingleDetailTab } from '@/components/DetailPanel'
 import { StatsPanel } from '@/components/panels/StatsPanel'
+import { SpeedGraphPanel } from '@/components/panels/SpeedGraphPanel'
 
 export const PANEL_COMPONENTS: Record<
   PanelTypeId,
@@ -19,5 +20,6 @@ export const PANEL_COMPONENTS: Record<
   'detail-files': () => <SingleDetailTab tab="files" />,
   'detail-peers': () => <SingleDetailTab tab="peers" />,
   'detail-trackers': () => <SingleDetailTab tab="trackers" />,
-  stats: () => <StatsPanel />
+  stats: () => <StatsPanel />,
+  'speed-graph': (item) => <SpeedGraphPanel item={item} />
 }

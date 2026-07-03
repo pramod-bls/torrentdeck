@@ -5,7 +5,7 @@ import type { Torrent } from '@shared/transmission'
 import { useAppDispatch, useAppSelector, useActiveProfileId } from '@/app/hooks'
 import { rpcApi } from '@/services/rpcApi'
 import { panelConfigChanged } from '@/features/workspace/workspaceSlice'
-import { defaultPanelConfig } from '@/features/workspace/panels'
+import { getListConfig } from '@/features/workspace/panels'
 import { clearSelection } from '@/features/ui/uiSlice'
 import type { RootState } from '@/app/store'
 import { FilterBar } from './FilterBar'
@@ -21,7 +21,7 @@ import { TableHeader } from './TorrentTable'
  */
 export function TorrentsPanel({ item }: { item: WorkspaceItem }): React.JSX.Element {
   const dispatch = useAppDispatch()
-  const config: TorrentsPanelConfig = item.config ?? defaultPanelConfig()
+  const config: TorrentsPanelConfig = getListConfig(item)
   const profiles = useAppSelector((s) => s.connection.profiles)
   const defaultProfileId = useActiveProfileId()
 

@@ -47,8 +47,8 @@ function scopedProfileIds(state: RootState, config: TorrentsPanelConfig): string
 
 /** The panel's rows exactly as displayed, flattened across server groups. */
 function visibleRows(state: RootState, panel: WorkspaceItem): RowRef[] {
-  const config = panel.config
-  if (!config) return []
+  if (panel.type !== 'torrent-list' || !panel.config) return []
+  const config = panel.config as TorrentsPanelConfig
   const rows: RowRef[] = []
   for (const profileId of scopedProfileIds(state, config)) {
     if (config.collapsedServers?.includes(profileId)) continue

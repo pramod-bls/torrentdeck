@@ -15,8 +15,10 @@ import {
 import type {
   PanelTypeId,
   ServerProfile,
+  SpeedGraphConfig,
   TorrentsPanelConfig,
   WorkspaceItem,
+  WorkspaceItemConfig,
   WorkspaceLayout
 } from '@shared/types'
 import { defaultLayout, normalizeLayout, placeNewItem } from './panels'
@@ -68,11 +70,16 @@ const workspaceSlice = createSlice({
     },
     panelConfigChanged(
       state,
-      action: PayloadAction<{ id: string; patch: Partial<TorrentsPanelConfig> }>
+      action: PayloadAction<{
+        id: string
+        patch: Partial<TorrentsPanelConfig> | Partial<SpeedGraphConfig>
+      }>
     ) {
       if (!state.layout) return
       const item = state.layout.items.find((it) => it.i === action.payload.id)
-      if (item?.config) item.config = { ...item.config, ...action.payload.patch }
+      if (item?.config) {
+        item.config = { ...item.config, ...action.payload.patch } as WorkspaceItemConfig
+      }
     },
     layoutReset(state) {
       state.layout = defaultLayout()

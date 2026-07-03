@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { WorkspaceLayout } from '@shared/types'
+import type { SpeedGraphConfig, TorrentsPanelConfig, WorkspaceLayout } from '@shared/types'
 import {
   CURRENT_LAYOUT_VERSION,
   defaultLayout,
@@ -53,10 +53,10 @@ describe('normalizeLayout migrations', () => {
     expect(result).not.toBeNull()
     expect(result!.version).toBe(CURRENT_LAYOUT_VERSION)
     expect(result!.items.map((i) => i.type)).toEqual(['torrent-list', 'detail'])
-    const list = result!.items[0]
-    expect(list.config?.servers).toBe('default')
-    expect(list.config?.sort).toEqual({ key: 'name', desc: false })
-    expect(list.config?.filters.status).toBe('all')
+    const listCfg = result!.items[0].config as TorrentsPanelConfig
+    expect(listCfg.servers).toBe('default')
+    expect(listCfg.sort).toEqual({ key: 'name', desc: false })
+    expect(listCfg.filters.status).toBe('all')
     expect(result!.items[1].config).toBeUndefined()
   })
 
@@ -85,7 +85,7 @@ describe('normalizeLayout migrations', () => {
         }
       ]
     }
-    const cfg = normalizeLayout(layout)!.items[0].config!
+    const cfg = normalizeLayout(layout)!.items[0].config as TorrentsPanelConfig
     expect(cfg.servers).toEqual(['p1'])
     expect(cfg.filters).toEqual({ status: 'seeding', tracker: null, label: null, search: '' })
     expect(cfg.view).toBe('cards')
@@ -137,7 +137,7 @@ describe('workspaceSlice', () => {
       s0,
       panelConfigChanged({ id: listId, patch: { servers: ['a', 'b'], view: 'table' } })
     )
-    const cfg = s.layout!.items[0].config!
+    const cfg = s.layout!.items[0].config as TorrentsPanelConfig
     expect(cfg.servers).toEqual(['a', 'b'])
     expect(cfg.view).toBe('table')
     expect(cfg.filters.status).toBe('all')
@@ -147,6 +147,26 @@ describe('workspaceSlice', () => {
     let s = reducer(state(), panelRemoved(state().layout!.items[0].i))
     s = reducer(s, layoutReset())
     expect(s.layout?.items).toHaveLength(2)
+  })
+})
+
+describe('speed-graph config', () => {
+  it('accepts speed-graph items and fills default config', () => {
+    const layout = {
+      version: CURRENT_LAYOUT_VERSION,
+      items: [{ i: 'g', type: 'speed-graph', x: 0, y: 0, w: 4, h: 6 }]
+    }
+    const cfg = normalizeLayout(layout)!.items[0].config as SpeedGraphConfig
+    expect(cfg).toEqual({ server: 'default', windowSec: 300 })
+  })
+
+  it('rejects invalid window values back to default', () => {
+    const layout = {
+      version: CURRENT_LAYOUT_VERSION,
+      items: [{ i: 'g', type: 'speed-graph', x: 0, y: 0, w: 4, h: 6, config: { windowSec: 42 } }]
+    }
+    const cfg = normalizeLayout(layout)!.items[0].config as SpeedGraphConfig
+    expect(cfg.windowSec).toBe(300)
   })
 })
 

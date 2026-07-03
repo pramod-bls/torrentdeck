@@ -105,6 +105,7 @@ export type PanelTypeId =
   | 'detail-peers'
   | 'detail-trackers'
   | 'stats'
+  | 'speed-graph'
 
 /** Coarse status groups used by list filtering (see derive.ts for the mapping). */
 export type StatusFilter = 'all' | 'downloading' | 'seeding' | 'paused' | 'checking' | 'error'
@@ -143,6 +144,15 @@ export interface TorrentsPanelConfig {
   collapsedServers?: string[]
 }
 
+/** Per-instance configuration of a Speed Graph panel. */
+export interface SpeedGraphConfig {
+  server: 'default' | string
+  windowSec: 60 | 300 | 900
+}
+
+/** Union of per-instance panel configs, discriminated by the item's `type`. */
+export type WorkspaceItemConfig = TorrentsPanelConfig | SpeedGraphConfig
+
 /** One panel instance placed on the workspace grid. `i` is a UUID, never an index. */
 export interface WorkspaceItem {
   i: string
@@ -151,8 +161,8 @@ export interface WorkspaceItem {
   y: number
   w: number
   h: number
-  /** Present on 'torrent-list' panels (stamped by migration/creation). */
-  config?: TorrentsPanelConfig
+  /** Present on panel types with per-instance config (torrent-list, speed-graph). */
+  config?: WorkspaceItemConfig
 }
 
 /**

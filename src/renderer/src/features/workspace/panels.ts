@@ -8,6 +8,7 @@
 import type {
   PanelTypeId,
   SortPref,
+  SpeedGraphConfig,
   TorrentsPanelConfig,
   WorkspaceItem,
   WorkspaceLayout
@@ -101,6 +102,16 @@ export const PANELS: Record<PanelTypeId, PanelMeta> = {
     minW: 2,
     minH: 4,
     multiInstance: false
+  },
+  'speed-graph': {
+    type: 'speed-graph',
+    title: 'Speed graph',
+    category: 'Server',
+    w: 4,
+    h: 6,
+    minW: 3,
+    minH: 4,
+    multiInstance: true
   }
 }
 
@@ -147,8 +158,33 @@ function isValidItem(raw: unknown): raw is WorkspaceItem {
   )
 }
 
-/** Ensure a torrent-list item carries a complete config (fills gaps from defaults). */
+export function defaultGraphConfig(): SpeedGraphConfig {
+  return { server: 'default', windowSec: 300 }
+}
+
+/** Narrow a workspace item's config to the Torrents panel shape (filled by withConfig). */
+export function getListConfig(item: WorkspaceItem): TorrentsPanelConfig {
+  return (item.config as TorrentsPanelConfig | undefined) ?? defaultPanelConfig()
+}
+
+/** Narrow a workspace item's config to the Speed Graph shape (filled by withConfig). */
+export function getGraphConfig(item: WorkspaceItem): SpeedGraphConfig {
+  return (item.config as SpeedGraphConfig | undefined) ?? defaultGraphConfig()
+}
+
+/** Ensure config-carrying items have a complete config (fills gaps from defaults). */
 function withConfig(item: WorkspaceItem, seedSort?: SortPref): WorkspaceItem {
+  if (item.type === 'speed-graph') {
+    const base = defaultGraphConfig()
+    const cfg = (item.config ?? {}) as Partial<SpeedGraphConfig>
+    return {
+      ...item,
+      config: {
+        server: typeof cfg.server === 'string' ? cfg.server : base.server,
+        windowSec: cfg.windowSec === 60 || cfg.windowSec === 900 ? cfg.windowSec : base.windowSec
+      }
+    }
+  }
   if (item.type !== 'torrent-list') return item
   const base = defaultPanelConfig(seedSort)
   const cfg = (item.config ?? {}) as Partial<TorrentsPanelConfig>
@@ -189,5 +225,7 @@ export function placeNewItem(type: PanelTypeId, existing: WorkspaceItem[]): Work
   const meta = PANELS[type]
   const bottom = existing.reduce((max, it) => Math.max(max, it.y + it.h), 0)
   const item: WorkspaceItem = { i: crypto.randomUUID(), type, x: 0, y: bottom, w: meta.w, h: meta.h }
-  return type === 'torrent-list' ? { ...item, config: defaultPanelConfig() } : item
+  if (type === 'torrent-list') return { ...item, config: defaultPanelConfig() }
+  if (type === 'speed-graph') return { ...item, config: defaultGraphConfig() }
+  return item
 }
