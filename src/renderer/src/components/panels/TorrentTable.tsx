@@ -6,6 +6,7 @@ import {
   ALL_COLUMNS,
   DEFAULT_VISIBLE_COLUMNS,
   gridTemplateFor,
+  MIN_COLUMN_WIDTH,
   visibleColumnDefs
 } from '@/features/torrents/columns'
 import { TorrentRowShell, type RowReorder } from './TorrentRow'
@@ -65,47 +66,79 @@ export function TableHeader({
     })
   }
 
+  // Live width overrides while dragging a column border; committed on release.
+  const [liveWidths, setLiveWidths] = useState<Record<string, number> | null>(null)
+
+  const startResize = (key: ColumnKey, e: React.MouseEvent): void => {
+    e.preventDefault()
+    e.stopPropagation()
+    const cell = (e.currentTarget as HTMLElement).parentElement
+    if (!cell) return
+    const startX = e.clientX
+    const startWidth = cell.getBoundingClientRect().width
+    const compute = (ev: MouseEvent): number =>
+      Math.max(MIN_COLUMN_WIDTH, Math.round(startWidth + (ev.clientX - startX)))
+    const onMove = (ev: MouseEvent): void => setLiveWidths({ [key]: compute(ev) })
+    const onUp = (ev: MouseEvent): void => {
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+      patch({ columnWidths: { ...config.columnWidths, [key]: compute(ev) } })
+      setLiveWidths(null)
+    }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+  }
+
+  const template = gridTemplateFor(defs, { ...config.columnWidths, ...liveWidths })
+
   return (
     <div className="flex items-center border-b border-surface-200 bg-surface-50 dark:border-surface-700 dark:bg-surface-800/60">
-      <div
-        className="grid min-w-0 flex-1 gap-2 px-3"
-        style={{ gridTemplateColumns: gridTemplateFor(defs) }}
-      >
-        {defs.map((d) => {
+      <div className="grid min-w-0 flex-1 gap-2 px-3" style={{ gridTemplateColumns: template }}>
+        {defs.map((d, i) => {
           const isSorted = d.sortKey === config.sort.key
+          const isLast = i === defs.length - 1
           return (
-            <button
-              key={d.key}
-              type="button"
-              draggable
-              onClick={() => d.sortKey && cycleSort(d.key)}
-              onDragStart={() => setDragKey(d.key)}
-              onDragOver={(e) => {
-                e.preventDefault()
-                if (dropKey !== d.key) setDropKey(d.key)
-              }}
-              onDrop={(e) => {
-                e.preventDefault()
-                if (dragKey) reorderColumn(dragKey, d.key)
-                setDragKey(null)
-                setDropKey(null)
-              }}
-              onDragEnd={() => {
-                setDragKey(null)
-                setDropKey(null)
-              }}
-              title="Click to sort · drag to reorder"
-              className={cn(
-                'cursor-grab truncate py-1 text-[11px] font-semibold text-surface-500 uppercase active:cursor-grabbing dark:text-surface-400',
-                d.align === 'right' ? 'text-right' : 'text-left',
-                'hover:text-surface-800 dark:hover:text-surface-200',
-                isSorted && 'text-accent-600 dark:text-accent-400',
-                dropKey === d.key && 'border-l-2 border-l-accent-500'
+            <div key={d.key} className="relative flex min-w-0 items-center">
+              <button
+                type="button"
+                draggable
+                onClick={() => d.sortKey && cycleSort(d.key)}
+                onDragStart={() => setDragKey(d.key)}
+                onDragOver={(e) => {
+                  e.preventDefault()
+                  if (dropKey !== d.key) setDropKey(d.key)
+                }}
+                onDrop={(e) => {
+                  e.preventDefault()
+                  if (dragKey) reorderColumn(dragKey, d.key)
+                  setDragKey(null)
+                  setDropKey(null)
+                }}
+                onDragEnd={() => {
+                  setDragKey(null)
+                  setDropKey(null)
+                }}
+                title="Click to sort · drag to reorder"
+                className={cn(
+                  'w-full cursor-grab truncate py-1 text-[11px] font-semibold text-surface-500 uppercase active:cursor-grabbing dark:text-surface-400',
+                  d.align === 'right' ? 'text-right' : 'text-left',
+                  'hover:text-surface-800 dark:hover:text-surface-200',
+                  isSorted && 'text-accent-600 dark:text-accent-400',
+                  dropKey === d.key && 'border-l-2 border-l-accent-500'
+                )}
+              >
+                {d.label}
+                {isSorted ? (config.sort.desc ? ' ↓' : ' ↑') : ''}
+              </button>
+              {!isLast && (
+                <span
+                  onMouseDown={(e) => startResize(d.key, e)}
+                  onClick={(e) => e.stopPropagation()}
+                  title="Drag to resize column"
+                  className="absolute top-0 -right-1.5 z-10 h-full w-3 cursor-col-resize"
+                />
               )}
-            >
-              {d.label}
-              {isSorted ? (config.sort.desc ? ' ↓' : ' ↑') : ''}
-            </button>
+            </div>
           )
         })}
       </div>
@@ -140,11 +173,13 @@ export function TorrentTableRow({
   torrent,
   profileId,
   visibleColumns,
+  columnWidths,
   reorder
 }: {
   torrent: Torrent
   profileId: string
   visibleColumns: ColumnKey[] | undefined
+  columnWidths?: Record<string, number>
   reorder?: RowReorder
 }): React.JSX.Element {
   const defs = visibleColumnDefs(visibleColumns)
@@ -157,7 +192,7 @@ export function TorrentTableRow({
     >
       <div
         className="grid h-7 items-center gap-2 text-xs"
-        style={{ gridTemplateColumns: gridTemplateFor(defs) }}
+        style={{ gridTemplateColumns: gridTemplateFor(defs, columnWidths) }}
       >
         {defs.map((d) => (
           <span

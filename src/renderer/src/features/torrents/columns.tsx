@@ -188,6 +188,14 @@ export function visibleColumnDefs(visible: ColumnKey[] | undefined): ColumnDef[]
   return keys.map((k) => COLUMNS[k]).filter((c): c is ColumnDef => c !== undefined)
 }
 
-export function gridTemplateFor(defs: ColumnDef[]): string {
-  return defs.map((d) => d.track).join(' ')
+export const MIN_COLUMN_WIDTH = 40
+
+/** Grid track list, substituting any user-resized fixed px widths. */
+export function gridTemplateFor(defs: ColumnDef[], widths?: Record<string, number>): string {
+  return defs
+    .map((d) => {
+      const w = widths?.[d.key]
+      return w && w >= MIN_COLUMN_WIDTH ? `${w}px` : d.track
+    })
+    .join(' ')
 }

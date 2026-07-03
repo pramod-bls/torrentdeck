@@ -117,6 +117,7 @@ export function ServerGroup({
                     torrent={t}
                     profileId={profileId}
                     visibleColumns={config.visibleColumns}
+                    columnWidths={config.columnWidths}
                     reorder={buildReorder(t.id)}
                   />
                 ) : (

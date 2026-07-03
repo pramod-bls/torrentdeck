@@ -151,6 +151,8 @@ export interface TorrentsPanelConfig {
   sort: SortPref
   view: 'cards' | 'table'
   visibleColumns?: ColumnKey[]
+  /** user-resized table column widths in px, keyed by ColumnKey */
+  columnWidths?: Record<string, number>
   collapsedServers?: string[]
 }
 
