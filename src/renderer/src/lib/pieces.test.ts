@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { bucketize, countHave, decodeBitfield } from './pieces'
+import {
+  availabilitySummary,
+  bucketize,
+  bucketizeAvailability,
+  countHave,
+  decodeBitfield
+} from './pieces'
 
 const b64 = (...bytes: number[]): string => btoa(String.fromCharCode(...bytes))
 
@@ -29,6 +35,25 @@ describe('decodeBitfield', () => {
     expect(countHave(decodeBitfield('', 10))).toBe(0)
     expect(countHave(decodeBitfield('!!!not-base64!!!', 10))).toBe(0)
     expect(decodeBitfield(b64(0xff), 0).length).toBe(0)
+  })
+})
+
+describe('availability', () => {
+  it('summarizes missing vs available-missing pieces', () => {
+    // have, missing+available(3 peers), missing+dead, missing+available(1)
+    expect(availabilitySummary([-1, 3, 0, 1])).toEqual({ missing: 3, missingAvailable: 2 })
+    expect(availabilitySummary([-1, -1])).toEqual({ missing: 0, missingAvailable: 0 })
+    expect(availabilitySummary([])).toEqual({ missing: 0, missingAvailable: 0 })
+  })
+
+  it('buckets the fraction of missing pieces that are available', () => {
+    // bucket 1: [-1, 2] → 1 missing, 1 available → 1
+    // bucket 2: [0, 0]  → 2 missing, 0 available → 0
+    expect([...bucketizeAvailability([-1, 2, 0, 0], 2)]).toEqual([1, 0])
+  })
+
+  it('reports 0 for fully-have buckets', () => {
+    expect([...bucketizeAvailability([-1, -1, -1, -1], 2)]).toEqual([0, 0])
   })
 })
 

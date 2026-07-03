@@ -24,6 +24,15 @@ export interface AddTorrentPayload {
   files?: TorrentFilePayload[]
 }
 
+export interface RenameTarget {
+  profileId: string
+  id: number
+  /** Full path within the torrent of the thing being renamed */
+  path: string
+  /** Its current basename (prefill) */
+  currentName: string
+}
+
 export interface UiState {
   selection: Selection | null
   detailTarget: { profileId: string; id: number } | null
@@ -33,6 +42,7 @@ export interface UiState {
   profileEditorId: string | null | undefined
   removeConfirm: Selection | null
   labelsEditor: Selection | null
+  renameTarget: RenameTarget | null
   sessionSettingsOpen: boolean
   prefsOpen: boolean
   shortcutsOpen: boolean
@@ -47,6 +57,7 @@ const initialState: UiState = {
   profileEditorId: undefined,
   removeConfirm: null,
   labelsEditor: null,
+  renameTarget: null,
   sessionSettingsOpen: false,
   prefsOpen: false,
   shortcutsOpen: false
@@ -111,6 +122,12 @@ const uiSlice = createSlice({
     closeLabelsEditor(state) {
       state.labelsEditor = null
     },
+    openRename(state, action: PayloadAction<RenameTarget>) {
+      state.renameTarget = action.payload
+    },
+    closeRename(state) {
+      state.renameTarget = null
+    },
     setSessionSettingsOpen(state, action: PayloadAction<boolean>) {
       state.sessionSettingsOpen = action.payload
     },
@@ -137,6 +154,8 @@ export const {
   closeRemoveConfirm,
   openLabelsEditor,
   closeLabelsEditor,
+  openRename,
+  closeRename,
   setSessionSettingsOpen,
   setPrefsOpen,
   setShortcutsOpen

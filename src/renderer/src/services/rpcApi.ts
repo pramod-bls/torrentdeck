@@ -17,6 +17,7 @@ import type { RpcError } from '@shared/types'
 import {
   TORRENT_DETAIL_FIELDS,
   TORRENT_LIST_FIELDS,
+  deriveAvailRatio,
   deriveSwarm,
   tableToObjects,
   type SessionInfo,
@@ -85,7 +86,11 @@ export const rpcApi = createApi({
           // Strip the heavy trackerStats array before it enters the cache;
           // only the derived swarm aggregates are kept on list torrents.
           const { trackerStats, ...rest } = t
-          return { ...rest, ...deriveSwarm(trackerStats) } as Torrent
+          return {
+            ...rest,
+            ...deriveSwarm(trackerStats),
+            availRatio: deriveAvailRatio(rest.leftUntilDone, rest.desiredAvailable)
+          } as Torrent
         }),
       providesTags: ['Torrents']
     }),
@@ -97,7 +102,13 @@ export const rpcApi = createApi({
       }),
       transformResponse: (raw: { torrents: TorrentDetail[] }) => {
         const t = raw.torrents[0]
-        return t ? { ...t, ...deriveSwarm(t.trackerStats) } : t
+        return t
+          ? {
+              ...t,
+              ...deriveSwarm(t.trackerStats),
+              availRatio: deriveAvailRatio(t.leftUntilDone, t.desiredAvailable)
+            }
+          : t
       },
       providesTags: (_res, _err, { id }) => [{ type: 'Torrent', id }]
     }),
@@ -160,6 +171,18 @@ export const rpcApi = createApi({
       }),
       invalidatesTags: (_r, _e, { ids }) => ['Torrents', ...ids.map((id) => ({ type: 'Torrent' as const, id }))]
     }),
+    renamePath: build.mutation<
+      { path: string; name: string; id: number },
+      { profileId: string; id: number; path: string; name: string }
+    >({
+      // torrent-rename-path accepts exactly ONE torrent per call (RPC spec)
+      query: ({ profileId, id, path, name }) => ({
+        profileId,
+        method: 'torrent-rename-path',
+        arguments: { ids: [id], path, name }
+      }),
+      invalidatesTags: (_r, _e, { id }) => ['Torrents', { type: 'Torrent', id }]
+    }),
     setLocation: build.mutation<
       unknown,
       { profileId: string; ids: number[]; location: string; move: boolean }
@@ -187,5 +210,6 @@ export const {
   useRemoveTorrentMutation,
   useAddTorrentMutation,
   useSetTorrentMutation,
+  useRenamePathMutation,
   useSetLocationMutation
 } = rpcApi

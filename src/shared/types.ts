@@ -21,6 +21,7 @@ export type SortKey =
   | 'addedDate'
   | 'queuePosition'
   | 'maxSeeders'
+  | 'availRatio'
 
 export interface SortPref {
   key: SortKey
@@ -127,6 +128,7 @@ export type ColumnKey =
   | 'labels'
   | 'seeders'
   | 'leechers'
+  | 'avail'
 
 export interface PanelFilters {
   status: StatusFilter

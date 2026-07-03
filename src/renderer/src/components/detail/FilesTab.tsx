@@ -1,4 +1,7 @@
+import { Pencil } from 'lucide-react'
 import type { TorrentDetail } from '@shared/transmission'
+import { useAppDispatch } from '@/app/hooks'
+import { openRename } from '@/features/ui/uiSlice'
 import { useSetTorrentMutation } from '@/services/rpcApi'
 import { formatBytes, formatPercent } from '@/lib/format'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -16,6 +19,7 @@ export function FilesTab({
   torrent: TorrentDetail
   profileId: string
 }): React.JSX.Element {
+  const dispatch = useAppDispatch()
   const [setTorrent] = useSetTorrentMutation()
 
   const setWanted = (index: number, wanted: boolean): void => {
@@ -40,7 +44,7 @@ export function FilesTab({
         const stat = torrent.fileStats[i]
         const progress = file.length > 0 ? file.bytesCompleted / file.length : 1
         return (
-          <div key={file.name} className="flex items-center gap-2 px-3 py-2">
+          <div key={file.name} className="group flex items-center gap-2 px-3 py-2">
             <Checkbox
               checked={stat?.wanted ?? true}
               onCheckedChange={(v) => setWanted(i, v)}
@@ -54,6 +58,24 @@ export function FilesTab({
                 {formatBytes(file.length)} · {formatPercent(progress)}
               </p>
             </div>
+            <button
+              type="button"
+              aria-label={`Rename ${file.name}`}
+              title="Rename file on the server"
+              onClick={() =>
+                dispatch(
+                  openRename({
+                    profileId,
+                    id: torrent.id,
+                    path: file.name,
+                    currentName: file.name.split('/').pop() ?? file.name
+                  })
+                )
+              }
+              className="rounded p-0.5 text-surface-300 opacity-0 group-hover:opacity-100 hover:bg-surface-200 hover:text-surface-700 dark:text-surface-600 dark:hover:bg-surface-700 dark:hover:text-surface-200"
+            >
+              <Pencil size={11} />
+            </button>
             <select
               value={String(stat?.priority ?? 0)}
               onChange={(e) => setPriority(i, e.target.value)}

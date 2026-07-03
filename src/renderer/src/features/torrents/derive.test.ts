@@ -33,6 +33,8 @@ function torrent(partial: Partial<Torrent>): Torrent {
     trackers: [],
     maxSeeders: -1,
     maxLeechers: -1,
+    desiredAvailable: 0,
+    availRatio: 1,
     ...partial
   }
 }
@@ -117,5 +119,15 @@ describe('statusColor', () => {
     expect(statusColor(torrent({ status: TorrentStatus.Checking })).stripe).toContain('warning')
     expect(statusColor(torrent({ status: TorrentStatus.Stopped })).stripe).toContain('surface')
     expect(statusColor(torrent({ status: TorrentStatus.Downloading, error: 3 })).stripe).toContain('danger')
+  })
+})
+
+describe('deriveAvailRatio', () => {
+  it('is 1 for complete torrents and clamps over-supply', async () => {
+    const { deriveAvailRatio } = await import('@shared/transmission')
+    expect(deriveAvailRatio(0, 0)).toBe(1)
+    expect(deriveAvailRatio(100, 200)).toBe(1)
+    expect(deriveAvailRatio(100, 50)).toBe(0.5)
+    expect(deriveAvailRatio(100, 0)).toBe(0)
   })
 })

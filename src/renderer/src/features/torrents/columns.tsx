@@ -6,7 +6,7 @@
  */
 import type { ColumnKey, SortKey } from '@shared/types'
 import type { Torrent } from '@shared/transmission'
-import { statusColor, statusText } from './derive'
+import { availTextClass, statusColor, statusText } from './derive'
 import { formatBytes, formatDate, formatEta, formatPercent, formatRatio, formatSpeed } from '@/lib/format'
 
 export interface ColumnDef {
@@ -117,6 +117,19 @@ export const COLUMNS: Record<ColumnKey, ColumnDef> = {
     align: 'right',
     sortKey: 'addedDate',
     cell: (t) => formatDate(t.addedDate)
+  },
+  avail: {
+    key: 'avail',
+    label: 'Avail',
+    track: '58px',
+    align: 'right',
+    sortKey: 'availRatio',
+    cell: (t) =>
+      t.leftUntilDone <= 0 ? (
+        '—'
+      ) : (
+        <span className={availTextClass(t.availRatio)}>{Math.round(t.availRatio * 100)}%</span>
+      )
   },
   seeders: {
     key: 'seeders',

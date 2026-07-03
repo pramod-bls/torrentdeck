@@ -50,12 +50,17 @@ export interface Torrent {
    * trackerStats (see deriveSwarm); -1 = unknown/no announce yet. */
   maxSeeders: number
   maxLeechers: number
+  /** Bytes of still-wanted data available from connected peers (RPC field). */
+  desiredAvailable: number
+  /** Derived: fraction of missing data available right now (1 when complete). */
+  availRatio: number
 }
 
 /** RPC fields requested for the list. `trackerStats` is heavy and is stripped
  * to maxSeeders/maxLeechers in the transform before entering the cache. */
 export const TORRENT_LIST_FIELDS: (keyof Torrent | 'trackerStats')[] = [
   'trackerStats',
+  'desiredAvailable',
   'id',
   'name',
   'status',
@@ -137,6 +142,8 @@ export interface TorrentDetail extends Torrent {
   isPrivate: boolean
   /** base64 bitfield, one bit per piece (MSB-first), set = piece verified locally */
   pieces: string
+  /** Per-piece connected-peer counts; -1 = we already have the piece (4.0+/rpc17+). */
+  availability: number[]
   files: TorrentFile[]
   fileStats: FileStat[]
   peers: Peer[]
@@ -158,6 +165,7 @@ export const TORRENT_DETAIL_FIELDS: (keyof TorrentDetail | 'trackerStats')[] = [
   'magnetLink',
   'isPrivate',
   'pieces',
+  'availability',
   'files',
   'fileStats',
   'peers',
@@ -194,6 +202,16 @@ export interface SessionStats {
   uploadSpeed: number
   'cumulative-stats': { uploadedBytes: number; downloadedBytes: number; secondsActive: number }
   'current-stats': { uploadedBytes: number; downloadedBytes: number; secondsActive: number }
+}
+
+/**
+ * Fraction of still-missing data that connected peers can currently supply.
+ * 1 for complete torrents (nothing missing); clamped — daemons can briefly
+ * report desiredAvailable > leftUntilDone during piece churn.
+ */
+export function deriveAvailRatio(leftUntilDone: number, desiredAvailable: number): number {
+  if (leftUntilDone <= 0) return 1
+  return Math.min(1, Math.max(0, desiredAvailable / leftUntilDone))
 }
 
 /** Best-across-trackers swarm counts; -1 when no tracker has answered yet. */

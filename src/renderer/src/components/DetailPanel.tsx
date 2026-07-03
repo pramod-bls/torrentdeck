@@ -103,7 +103,7 @@ export function DetailTabsPanel(): React.JSX.Element {
           </Tabs.Content>
           <Tabs.Content value="pieces">
             <div className="p-3">
-              <PiecesMap pieces={torrent.pieces} pieceCount={torrent.pieceCount} mode="grid" />
+              <PiecesMap pieces={torrent.pieces} pieceCount={torrent.pieceCount} availability={torrent.availability} mode="grid" />
             </div>
           </Tabs.Content>
         </div>
@@ -138,7 +138,7 @@ export function SingleDetailTab({
       {tab === 'trackers' && <TrackersTab torrent={torrent} profileId={profileId} />}
       {tab === 'pieces' && (
         <div className="p-3">
-          <PiecesMap pieces={torrent.pieces} pieceCount={torrent.pieceCount} mode="grid" />
+          <PiecesMap pieces={torrent.pieces} pieceCount={torrent.pieceCount} availability={torrent.availability} mode="grid" />
         </div>
       )}
     </div>

@@ -26,7 +26,8 @@ export const SORT_LABELS: Record<SortKey, string> = {
   eta: 'ETA',
   addedDate: 'Date added',
   queuePosition: 'Queue position',
-  maxSeeders: 'Seeders'
+  maxSeeders: 'Seeders',
+  availRatio: 'Availability'
 }
 
 const STATUS_LABELS: Record<StatusFilter, string> = {

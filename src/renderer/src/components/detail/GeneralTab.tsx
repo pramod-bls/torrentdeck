@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
+import { Pencil } from 'lucide-react'
 import type { TorrentDetail } from '@shared/transmission'
+import { useAppDispatch } from '@/app/hooks'
+import { openRename } from '@/features/ui/uiSlice'
 import { useSetTorrentMutation, useSetLocationMutation } from '@/services/rpcApi'
 import { statusText } from '@/features/torrents/derive'
 import { formatBytes, formatDate, formatEta, formatPercent, formatRatio } from '@/lib/format'
@@ -25,6 +28,7 @@ export function GeneralTab({
   torrent: TorrentDetail
   profileId: string
 }): React.JSX.Element {
+  const dispatch = useAppDispatch()
   const [setTorrent] = useSetTorrentMutation()
   const [setLocation] = useSetLocationMutation()
   const [labelsDraft, setLabelsDraft] = useState(torrent.labels.join(', '))
@@ -50,7 +54,27 @@ export function GeneralTab({
   return (
     <div className="space-y-4 p-3">
       <div>
-        <p className="text-sm font-medium break-all">{torrent.name}</p>
+        <p className="flex items-start gap-1.5 text-sm font-medium break-all">
+          <span className="min-w-0">{torrent.name}</span>
+          <button
+            type="button"
+            aria-label="Rename torrent"
+            title="Rename torrent (renames the root file/folder on the server)"
+            onClick={() =>
+              dispatch(
+                openRename({
+                  profileId,
+                  id: torrent.id,
+                  path: torrent.name,
+                  currentName: torrent.name
+                })
+              )
+            }
+            className="mt-0.5 shrink-0 rounded p-0.5 text-surface-400 hover:bg-surface-200 hover:text-surface-700 dark:hover:bg-surface-700 dark:hover:text-surface-200"
+          >
+            <Pencil size={12} />
+          </button>
+        </p>
         {torrent.error !== 0 && (
           <p className="mt-1 text-xs text-danger-600 dark:text-danger-400">{torrent.errorString}</p>
         )}
@@ -78,7 +102,7 @@ export function GeneralTab({
         <Row label="Hash" value={torrent.hashString} />
       </div>
 
-      <PiecesMap pieces={torrent.pieces} pieceCount={torrent.pieceCount} mode="strip" />
+      <PiecesMap pieces={torrent.pieces} pieceCount={torrent.pieceCount} availability={torrent.availability} mode="strip" />
 
       <Field label="Location">
         <div className="flex gap-1.5">

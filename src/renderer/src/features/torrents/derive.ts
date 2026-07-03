@@ -73,7 +73,15 @@ const comparators: Record<SortPref['key'], (a: Torrent, b: Torrent) => number> =
   eta: (a, b) => etaValue(a) - etaValue(b),
   addedDate: (a, b) => a.addedDate - b.addedDate,
   queuePosition: (a, b) => a.queuePosition - b.queuePosition,
-  maxSeeders: (a, b) => a.maxSeeders - b.maxSeeders
+  maxSeeders: (a, b) => a.maxSeeders - b.maxSeeders,
+  availRatio: (a, b) => a.availRatio - b.availRatio
+}
+
+/** Tint for the availability ratio: can this download actually finish right now? */
+export function availTextClass(availRatio: number): string {
+  if (availRatio >= 1) return 'text-success-600 dark:text-success-400'
+  if (availRatio > 0) return 'text-warning-600 dark:text-warning-400'
+  return 'text-danger-600 dark:text-danger-400'
 }
 
 /** Swarm-health tint for the seeder-count dot; -1 (unknown) reads as muted. */

@@ -28,6 +28,48 @@ export function countHave(bits: Uint8Array): number {
 }
 
 /**
+ * Per-bucket availability overlay data from Transmission's `availability`
+ * array (-1 = have the piece, else = connected peers holding it):
+ * fraction of the bucket's MISSING pieces that at least one peer can supply.
+ * Buckets with no missing pieces report 0 (nothing to overlay).
+ */
+export function bucketizeAvailability(availability: number[], buckets: number): Float32Array {
+  const out = new Float32Array(Math.max(0, buckets))
+  const n = availability.length
+  if (n === 0 || buckets <= 0) return out
+  for (let b = 0; b < buckets; b++) {
+    const start = Math.floor((b * n) / buckets)
+    const end = Math.max(start + 1, Math.floor(((b + 1) * n) / buckets))
+    let missing = 0
+    let available = 0
+    for (let i = start; i < end; i++) {
+      if (availability[i] >= 0) {
+        missing++
+        if (availability[i] > 0) available++
+      }
+    }
+    out[b] = missing > 0 ? available / missing : 0
+  }
+  return out
+}
+
+/** Missing-piece availability totals for captions. */
+export function availabilitySummary(availability: number[]): {
+  missing: number
+  missingAvailable: number
+} {
+  let missing = 0
+  let missingAvailable = 0
+  for (const a of availability) {
+    if (a >= 0) {
+      missing++
+      if (a > 0) missingAvailable++
+    }
+  }
+  return { missing, missingAvailable }
+}
+
+/**
  * Fraction of have-pieces per bucket, for pixel-mapped rendering. Buckets map
  * contiguous piece ranges; when there are fewer pieces than buckets, several
  * buckets share one piece (fraction 0 or 1).

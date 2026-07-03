@@ -67,8 +67,13 @@ may appear as several independent instances.
 
 ### Pieces Map
 A visualization of a Torrent's piece bitfield — which pieces the daemon has verified
-locally. Shown as a strip in the General tab and as a grid in the Pieces tab/Panel.
-It is a download map, not a swarm-availability map (the RPC does not expose the latter).
+locally — with an Availability overlay marking missing pieces that connected peers can
+supply. Shown as a strip in the General tab and as a grid in the Pieces tab/Panel.
+
+### Availability
+How much of a Torrent's still-missing data connected peers can currently provide:
+per piece (the overlay on the Pieces Map) and as a ratio per Torrent (the "avail"
+badge/column — 100% means the download can finish with the current swarm).
 
 ### Speed Graph
 A Panel plotting one server's download/upload throughput over a selectable time

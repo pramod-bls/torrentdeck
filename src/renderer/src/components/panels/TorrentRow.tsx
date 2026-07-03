@@ -4,7 +4,7 @@ import type { Torrent } from '@shared/transmission'
 import { TorrentStatus } from '@shared/transmission'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { useQueueMoveMutation, useTorrentActionMutation } from '@/services/rpcApi'
-import { statusColor, statusText, swarmHealthClass } from '@/features/torrents/derive'
+import { availTextClass, statusColor, statusText, swarmHealthClass } from '@/features/torrents/derive'
 import { openLabelsEditor, openRemoveConfirm, selectTorrent } from '@/features/ui/uiSlice'
 import { formatBytes, formatEta, formatPercent, formatRatio, formatSpeed } from '@/lib/format'
 import { cn } from '@/lib/cn'
@@ -75,6 +75,14 @@ function RowStats({ torrent }: { torrent: Torrent }): React.JSX.Element {
         <span className={statusColor(torrent).text}>{statusText(torrent)}</span>
         {after.length ? ` · ${after.join(' · ')}` : ''}
       </span>
+      {torrent.leftUntilDone > 0 && torrent.availRatio < 1 && (
+        <span
+          className={cn('shrink-0', availTextClass(torrent.availRatio))}
+          title="Share of missing data available from connected peers"
+        >
+          avail {Math.round(torrent.availRatio * 100)}%
+        </span>
+      )}
       {torrent.maxSeeders >= 0 && (
         <span className="flex shrink-0 items-center gap-1" title="Swarm: seeders / leechers (best tracker)">
           <span className={cn('h-1.5 w-1.5 rounded-full', swarmHealthClass(torrent.maxSeeders))} />
