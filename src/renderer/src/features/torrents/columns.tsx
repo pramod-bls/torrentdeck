@@ -20,6 +20,14 @@ export interface ColumnDef {
 }
 
 export const COLUMNS: Record<ColumnKey, ColumnDef> = {
+  queue: {
+    key: 'queue',
+    label: '#',
+    track: '44px',
+    align: 'right',
+    sortKey: 'queuePosition',
+    cell: (t) => `#${t.queuePosition + 1}`
+  },
   name: {
     key: 'name',
     label: 'Name',
@@ -118,14 +126,6 @@ export const COLUMNS: Record<ColumnKey, ColumnDef> = {
     sortKey: 'addedDate',
     cell: (t) => formatDate(t.addedDate)
   },
-  queue: {
-    key: 'queue',
-    label: '#',
-    track: '44px',
-    align: 'right',
-    sortKey: 'queuePosition',
-    cell: (t) => `#${t.queuePosition + 1}`
-  },
   avail: {
     key: 'avail',
     label: 'Avail',
@@ -170,6 +170,7 @@ export const COLUMNS: Record<ColumnKey, ColumnDef> = {
 export const ALL_COLUMNS = Object.values(COLUMNS)
 
 export const DEFAULT_VISIBLE_COLUMNS: ColumnKey[] = [
+  'queue',
   'name',
   'size',
   'progress',
@@ -180,10 +181,11 @@ export const DEFAULT_VISIBLE_COLUMNS: ColumnKey[] = [
   'eta'
 ]
 
+/** Column defs in the user's stored order (so header drag-reordering sticks),
+ * dropping any unknown keys from older layouts. */
 export function visibleColumnDefs(visible: ColumnKey[] | undefined): ColumnDef[] {
   const keys = visible?.length ? visible : DEFAULT_VISIBLE_COLUMNS
-  // preserve registry order regardless of stored order
-  return ALL_COLUMNS.filter((c) => keys.includes(c.key))
+  return keys.map((k) => COLUMNS[k]).filter((c): c is ColumnDef => c !== undefined)
 }
 
 export function gridTemplateFor(defs: ColumnDef[]): string {

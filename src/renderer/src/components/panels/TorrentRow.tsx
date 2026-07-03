@@ -5,7 +5,12 @@ import { TorrentStatus } from '@shared/transmission'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { useQueueMoveMutation, useTorrentActionMutation } from '@/services/rpcApi'
 import { availTextClass, statusColor, statusText, swarmHealthClass } from '@/features/torrents/derive'
-import { openLabelsEditor, openRemoveConfirm, selectTorrent } from '@/features/ui/uiSlice'
+import {
+  openLabelsEditor,
+  openQueueEditor,
+  openRemoveConfirm,
+  selectTorrent
+} from '@/features/ui/uiSlice'
 import { formatBytes, formatEta, formatPercent, formatRatio, formatSpeed } from '@/lib/format'
 import { cn } from '@/lib/cn'
 
@@ -108,15 +113,25 @@ function RowStats({ torrent }: { torrent: Torrent }): React.JSX.Element {
  * Selection is server-qualified: clicking always associates the row with its
  * profileId (ADR-0003).
  */
+export interface RowReorder {
+  onDragStart: () => void
+  onDragEnter: () => void
+  onDrop: () => void
+  isDropTarget: boolean
+}
+
 export function TorrentRowShell({
   torrent,
   profileId,
   className,
+  reorder,
   children
 }: {
   torrent: Torrent
   profileId: string
   className?: string
+  /** Present only when the panel is queue-sorted (drag-to-reorder enabled). */
+  reorder?: RowReorder
   children: React.ReactNode
 }): React.JSX.Element {
   const dispatch = useAppDispatch()
@@ -146,6 +161,7 @@ export function TorrentRowShell({
           aria-selected={selected}
           data-torrent-row
           data-rowid={`${profileId}:${torrent.id}`}
+          draggable={reorder !== undefined}
           onClick={(e) => {
             e.stopPropagation()
             dispatch(selectTorrent({ profileId, id: torrent.id, additive: e.metaKey || e.ctrlKey }))
@@ -153,8 +169,27 @@ export function TorrentRowShell({
           onContextMenu={() => {
             if (!selected) dispatch(selectTorrent({ profileId, id: torrent.id, additive: false }))
           }}
+          onDragStart={reorder ? () => reorder.onDragStart() : undefined}
+          onDragOver={
+            reorder
+              ? (e) => {
+                  e.preventDefault()
+                  reorder.onDragEnter()
+                }
+              : undefined
+          }
+          onDrop={
+            reorder
+              ? (e) => {
+                  e.preventDefault()
+                  reorder.onDrop()
+                }
+              : undefined
+          }
           className={cn(
             'border-b border-surface-100 dark:border-surface-800',
+            reorder && 'cursor-grab active:cursor-grabbing',
+            reorder?.isDropTarget && 'border-t-2 border-t-accent-500',
             selected ? 'bg-accent-50 dark:bg-accent-950/40' : 'hover:bg-surface-50 dark:hover:bg-surface-800/50',
             className
           )}
@@ -206,6 +241,22 @@ export function TorrentRowShell({
                     {label}
                   </ContextMenu.Item>
                 ))}
+                <ContextMenu.Separator className="my-1 h-px bg-surface-200 dark:bg-surface-700" />
+                <ContextMenu.Item
+                  onSelect={() =>
+                    dispatch(
+                      openQueueEditor({
+                        profileId,
+                        id: torrent.id,
+                        current: torrent.queuePosition,
+                        name: torrent.name
+                      })
+                    )
+                  }
+                  className="rounded px-2 py-1.5 outline-none select-none data-highlighted:bg-surface-100 dark:data-highlighted:bg-surface-700"
+                >
+                  Set position…
+                </ContextMenu.Item>
               </ContextMenu.SubContent>
             </ContextMenu.Portal>
           </ContextMenu.Sub>
@@ -226,11 +277,13 @@ export function TorrentRowShell({
 export function TorrentRow({
   torrent,
   profileId,
-  onLabelClick
+  onLabelClick,
+  reorder
 }: {
   torrent: Torrent
   profileId: string
   onLabelClick?: (label: string) => void
+  reorder?: RowReorder
 }): React.JSX.Element {
   const selection = useAppSelector((s) => s.ui.selection)
   const selected = selection?.profileId === profileId && selection.ids.includes(torrent.id)
@@ -238,6 +291,7 @@ export function TorrentRow({
     <TorrentRowShell
       torrent={torrent}
       profileId={profileId}
+      reorder={reorder}
       className={cn(
         'flex h-14 flex-col justify-center gap-1 border-l-2 px-3',
         statusColor(torrent).stripe

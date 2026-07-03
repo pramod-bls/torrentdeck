@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Columns3 } from 'lucide-react'
 import type { ColumnKey, TorrentsPanelConfig } from '@shared/types'
 import type { Torrent } from '@shared/transmission'
@@ -7,7 +8,7 @@ import {
   gridTemplateFor,
   visibleColumnDefs
 } from '@/features/torrents/columns'
-import { TorrentRowShell } from './TorrentRow'
+import { TorrentRowShell, type RowReorder } from './TorrentRow'
 import { statusColor } from '@/features/torrents/derive'
 import {
   DropdownMenu,
@@ -32,14 +33,25 @@ export function TableHeader({
   patch: (p: Partial<TorrentsPanelConfig>) => void
 }): React.JSX.Element {
   const defs = visibleColumnDefs(config.visibleColumns)
+  const [dragKey, setDragKey] = useState<ColumnKey | null>(null)
+  const [dropKey, setDropKey] = useState<ColumnKey | null>(null)
+
+  const currentKeys = (): ColumnKey[] =>
+    config.visibleColumns?.length ? config.visibleColumns : DEFAULT_VISIBLE_COLUMNS
 
   const toggleColumn = (key: ColumnKey): void => {
-    const current = config.visibleColumns?.length ? config.visibleColumns : DEFAULT_VISIBLE_COLUMNS
-    const next = current.includes(key)
-      ? current.filter((k) => k !== key)
-      : [...current, key]
+    const current = currentKeys()
+    const next = current.includes(key) ? current.filter((k) => k !== key) : [...current, key]
     if (next.length === 0) return
     patch({ visibleColumns: next })
+  }
+
+  const reorderColumn = (from: ColumnKey, before: ColumnKey): void => {
+    if (from === before) return
+    const keys = currentKeys().filter((k) => k !== from)
+    const idx = keys.indexOf(before)
+    keys.splice(idx < 0 ? keys.length : idx, 0, from)
+    patch({ visibleColumns: keys })
   }
 
   const cycleSort = (key: ColumnKey): void => {
@@ -65,13 +77,30 @@ export function TableHeader({
             <button
               key={d.key}
               type="button"
-              disabled={!d.sortKey}
-              onClick={() => cycleSort(d.key)}
+              draggable
+              onClick={() => d.sortKey && cycleSort(d.key)}
+              onDragStart={() => setDragKey(d.key)}
+              onDragOver={(e) => {
+                e.preventDefault()
+                if (dropKey !== d.key) setDropKey(d.key)
+              }}
+              onDrop={(e) => {
+                e.preventDefault()
+                if (dragKey) reorderColumn(dragKey, d.key)
+                setDragKey(null)
+                setDropKey(null)
+              }}
+              onDragEnd={() => {
+                setDragKey(null)
+                setDropKey(null)
+              }}
+              title="Click to sort · drag to reorder"
               className={cn(
-                'truncate py-1 text-[11px] font-semibold text-surface-500 uppercase dark:text-surface-400',
+                'cursor-grab truncate py-1 text-[11px] font-semibold text-surface-500 uppercase active:cursor-grabbing dark:text-surface-400',
                 d.align === 'right' ? 'text-right' : 'text-left',
-                d.sortKey && 'hover:text-surface-800 dark:hover:text-surface-200',
-                isSorted && 'text-accent-600 dark:text-accent-400'
+                'hover:text-surface-800 dark:hover:text-surface-200',
+                isSorted && 'text-accent-600 dark:text-accent-400',
+                dropKey === d.key && 'border-l-2 border-l-accent-500'
               )}
             >
               {d.label}
@@ -110,17 +139,20 @@ export function TableHeader({
 export function TorrentTableRow({
   torrent,
   profileId,
-  visibleColumns
+  visibleColumns,
+  reorder
 }: {
   torrent: Torrent
   profileId: string
   visibleColumns: ColumnKey[] | undefined
+  reorder?: RowReorder
 }): React.JSX.Element {
   const defs = visibleColumnDefs(visibleColumns)
   return (
     <TorrentRowShell
       torrent={torrent}
       profileId={profileId}
+      reorder={reorder}
       className={cn('block border-l-2 px-3', statusColor(torrent).stripe)}
     >
       <div

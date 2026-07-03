@@ -17,6 +17,7 @@ import { LabelsDialog } from '@/components/dialogs/LabelsDialog'
 import { ShortcutsDialog } from '@/components/dialogs/ShortcutsDialog'
 import { RenameDialog } from '@/components/dialogs/RenameDialog'
 import { GroupsDialog } from '@/components/dialogs/GroupsDialog'
+import { QueueDialog } from '@/components/dialogs/QueueDialog'
 
 /** Applies the theme pref by toggling `.dark` on <html>; tracks the OS scheme when set to "system". */
 function useTheme(): void {
@@ -114,6 +115,7 @@ export default function App(): React.JSX.Element {
       <ShortcutsDialog />
       <RenameDialog />
       <GroupsDialog />
+      <QueueDialog />
     </div>
   )
 }

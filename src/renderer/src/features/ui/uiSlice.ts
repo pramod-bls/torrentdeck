@@ -43,6 +43,7 @@ export interface UiState {
   removeConfirm: Selection | null
   labelsEditor: Selection | null
   renameTarget: RenameTarget | null
+  queueEditor: { profileId: string; id: number; current: number; name: string } | null
   sessionSettingsOpen: boolean
   prefsOpen: boolean
   shortcutsOpen: boolean
@@ -59,6 +60,7 @@ const initialState: UiState = {
   removeConfirm: null,
   labelsEditor: null,
   renameTarget: null,
+  queueEditor: null,
   sessionSettingsOpen: false,
   prefsOpen: false,
   shortcutsOpen: false,
@@ -130,6 +132,15 @@ const uiSlice = createSlice({
     closeRename(state) {
       state.renameTarget = null
     },
+    openQueueEditor(
+      state,
+      action: PayloadAction<{ profileId: string; id: number; current: number; name: string }>
+    ) {
+      state.queueEditor = action.payload
+    },
+    closeQueueEditor(state) {
+      state.queueEditor = null
+    },
     setSessionSettingsOpen(state, action: PayloadAction<boolean>) {
       state.sessionSettingsOpen = action.payload
     },
@@ -161,6 +172,8 @@ export const {
   closeLabelsEditor,
   openRename,
   closeRename,
+  openQueueEditor,
+  closeQueueEditor,
   setSessionSettingsOpen,
   setPrefsOpen,
   setShortcutsOpen,

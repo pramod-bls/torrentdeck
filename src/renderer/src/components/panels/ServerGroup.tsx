@@ -1,9 +1,10 @@
+import { useState } from 'react'
 import { ChevronDown, ChevronRight, ServerCrash } from 'lucide-react'
 import type { TorrentsPanelConfig } from '@shared/types'
 import { useAppSelector, usePollingInterval } from '@/app/hooks'
-import { useGetTorrentsQuery } from '@/services/rpcApi'
+import { useGetTorrentsQuery, useSetTorrentMutation } from '@/services/rpcApi'
 import { applyPanelFilters, sortTorrents } from '@/features/torrents/derive'
-import { TorrentRow } from './TorrentRow'
+import { TorrentRow, type RowReorder } from './TorrentRow'
 import { TorrentTableRow } from './TorrentTable'
 import { cn } from '@/lib/cn'
 
@@ -45,6 +46,34 @@ export function ServerGroup({
   const collapsed = config.collapsedServers?.includes(profileId) ?? false
 
   const visible = sortTorrents(applyPanelFilters(torrents, config.filters), config.sort)
+
+  // Drag-to-reorder is only meaningful when the visual order IS the queue order.
+  const reorderable = config.sort.key === 'queuePosition' && !config.sort.desc
+  const [setTorrent] = useSetTorrentMutation()
+  const [dragId, setDragId] = useState<number | null>(null)
+  const [dropId, setDropId] = useState<number | null>(null)
+
+  const buildReorder = (targetId: number): RowReorder | undefined => {
+    if (!reorderable) return undefined
+    return {
+      onDragStart: () => setDragId(targetId),
+      onDragEnter: () => setDropId((prev) => (prev === targetId ? prev : targetId)),
+      onDrop: () => {
+        const from = visible.find((t) => t.id === dragId)
+        const to = visible.find((t) => t.id === targetId)
+        if (from && to && from.id !== to.id) {
+          void setTorrent({
+            profileId,
+            ids: [from.id],
+            fields: { queuePosition: to.queuePosition }
+          })
+        }
+        setDragId(null)
+        setDropId(null)
+      },
+      isDropTarget: dropId === targetId && dragId !== targetId
+    }
+  }
 
   return (
     <div>
@@ -88,9 +117,16 @@ export function ServerGroup({
                     torrent={t}
                     profileId={profileId}
                     visibleColumns={config.visibleColumns}
+                    reorder={buildReorder(t.id)}
                   />
                 ) : (
-                  <TorrentRow key={t.id} torrent={t} profileId={profileId} onLabelClick={onLabelClick} />
+                  <TorrentRow
+                    key={t.id}
+                    torrent={t}
+                    profileId={profileId}
+                    onLabelClick={onLabelClick}
+                    reorder={buildReorder(t.id)}
+                  />
                 )
               )}
               {visible.length > ROW_RENDER_CAP && (
