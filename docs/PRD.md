@@ -40,12 +40,16 @@ A self-hosting enthusiast running Transmission on one or more remote machines
 - A **flexible workspace**: the UI is composed of panels the user can add, remove,
   resize, and rearrange rather than a fixed chrome (see §6 and
   [ADR-0002](adr/0002-flexible-panel-workspace.md)).
+- **Multiple daemon types** behind one UI via per-protocol adapters — Transmission and
+  Deluge (v0.7), with features gated per server by capabilities (see
+  [ADR-0004](adr/0004-protocol-adapters.md)).
 
 **Non-goals**
 
 - Being a torrent *client* — the app never downloads torrent data itself; it only
-  remote-controls a Transmission daemon.
-- Supporting Transmission < 4.0 (RPC version < 17), rTorrent, qBittorrent, or Deluge.
+  remote-controls a daemon.
+- Supporting Transmission < 4.0 (RPC version < 17), Deluge 1.x, the native `deluged`
+  socket protocol (Deluge is reached through its Web UI), rTorrent, or qBittorrent.
 - Torrent search/indexing, RSS auto-download (may be revisited post-1.0), streaming.
 - Mobile or web deployment.
 
@@ -65,6 +69,8 @@ Status reflects the current build.
 | C5 | "Test connection" with actionable error messages (auth vs TLS vs network) | P0 | ✅ |
 | C6 | Automatic CSRF (409 session-id) handling and retry | P0 | ✅ |
 | C7 | View several servers simultaneously (each Torrents panel scopes to one or more servers, grouped sections, per-server error isolation) | P2 | ✅ v0.3 |
+| C8 | Per-profile **Server Type** (Transmission or Deluge) with a per-protocol adapter; unsupported features hidden via capabilities ([ADR-0004](adr/0004-protocol-adapters.md)) | P1 | ✅ v0.7 |
+| C9 | Deluge via its Web UI JSON-RPC (`/json`): password→session-cookie auth, auto-bind to the sole/default `deluged` host | P1 | ✅ v0.7 |
 
 ### 4.2 Torrent list
 
@@ -142,8 +148,9 @@ Status reflects the current build.
 - **Security:** see §3 goals; renderer has no network or Node access.
 - **Reliability:** RPC failures degrade to an inline error state with the cause;
   polling resumes automatically when the daemon returns.
-- **Compatibility:** Transmission 4.0+ (RPC 17+). Verified against 4.0.5 (user's
-  NAS) and 4.1.3 (dev container).
+- **Compatibility:** Transmission 4.0+ (RPC 17+), verified against 4.0.5 (user's NAS)
+  and 4.1.3 (dev container); Deluge 2.x via its Web UI, verified against 2.2.0 (dev
+  container). Per-server-type feature support is summarized in the README matrix.
 
 ## 5. Current UI
 
@@ -187,6 +194,7 @@ Decision record: [ADR-0002](adr/0002-flexible-panel-workspace.md).
 | **0.5** ✅ | Files-as-tree (D6); per-torrent limits (D7); tray (P4) |
 | **1.0** | Public launch: branding, docs site, auto-update proven in the wild |
 | **0.6** ✅ | Alt-speed scheduler (S4); blocklist (S5); sequential download (S9); bandwidth groups (S10) |
+| **0.7** ✅ | Deluge support via protocol adapters (C8/C9, ADR-0004): neutral capability API, infohash identity, capability-gated UI |
 | Post-1.0 | Geo-IP peer info, RSS/watch folders, completion scripts, web seeds in peers |
 
 ## 8. Success criteria

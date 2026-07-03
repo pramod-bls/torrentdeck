@@ -1,21 +1,46 @@
 # Transmission Remote
 
 A modern cross-platform desktop client for remote-controlling [Transmission](https://transmissionbt.com)
-daemons — a successor to the abandoned [transgui](https://github.com/transmission-remote-gui/transgui),
-built for Apple Silicon, Windows, and Linux.
+and [Deluge](https://deluge-torrent.org) daemons — a successor to the abandoned
+[transgui](https://github.com/transmission-remote-gui/transgui), built for Apple Silicon,
+Windows, and Linux.
 
 Electron + TypeScript + React, with Redux Toolkit / RTK Query for state. All RPC traffic
-runs through the Electron main process (see [ADR-0001](docs/adr/0001-rpc-via-main-process.md));
-passwords are stored with the OS keychain via `safeStorage`.
+runs through the Electron main process (see [ADR-0001](docs/adr/0001-rpc-via-main-process.md)),
+where a per-daemon **adapter** translates protocol-neutral operations into each daemon's
+native RPC (see [ADR-0004](docs/adr/0004-protocol-adapters.md)); passwords are stored with
+the OS keychain via `safeStorage`.
 
-Requires a Transmission **4.x** daemon (RPC version 17+).
+Each server profile picks a **Server Type**:
+
+- **Transmission 4.x** (RPC version 17+) — full feature set.
+- **Deluge 2.x** via its Web UI (`deluge-web`, default `:8112/json`). The Web UI must be
+  running; the app does not speak to `deluged` directly.
+
+Features a server doesn't support are hidden automatically per profile (see the matrix below).
 
 ## Documentation
 
 - [Product requirements (PRD)](docs/PRD.md) — problem, users, requirement tables with status, release plan
 - [Architecture](docs/ARCHITECTURE.md) — process model, data flow, state, security, testing
 - [Domain glossary](CONTEXT.md) — the canonical vocabulary used in code and UI
-- [Decision records](docs/adr/) — 0001 RPC-via-main-process, 0002 flexible panel workspace
+- [Decision records](docs/adr/) — 0001 RPC-via-main-process, 0002 flexible panel workspace, 0003 server-qualified selection, 0004 protocol adapters
+
+## Supported features by server type
+
+| Feature | Transmission 4.x | Deluge 2.x (Web UI) |
+| --- | --- | --- |
+| List / add (magnet + file) / remove / start / pause / verify / reannounce | ✓ | ✓ |
+| Detail: general, files (+ priorities), peers, trackers | ✓ | ✓ |
+| Per-torrent limits, seed-ratio, queue reorder, free space, global speed limits | ✓ | ✓ |
+| Sequential download | ✓ (RPC ≥ 18) | ✓ |
+| Labels | ✓ | ✓ *(Label plugin; single label per torrent)* |
+| Per-piece availability map | ✓ | — *(progress only; Deluge exposes only distributed copies)* |
+| Per-tracker swarm scrape | ✓ | approximate *(swarm totals)* |
+| Bandwidth groups | ✓ | — |
+| Alt-speed scheduler | ✓ | — |
+| Blocklist | ✓ | — |
+| Path rename, port test | ✓ | — |
 
 ## Features (MVP)
 
@@ -37,7 +62,8 @@ project's GPL-licensed icon (recolored, remote badge added) — see `build/icon.
 ```sh
 nvm use               # Node 22
 npm install
-cd dev-daemon && docker compose up -d && cd ..   # test daemon at localhost:9091 (dev/devpass)
+cd dev-daemon && docker compose up -d && cd ..          # Transmission at localhost:9091 (dev/devpass)
+cd dev-daemon/deluge && docker compose up -d && cd ../.. # Deluge Web UI at localhost:8112 (password "deluge")
 npm run dev
 ```
 

@@ -1,15 +1,37 @@
 # Context
 
 Glossary of domain terms for Transmission Remote, a desktop client that remote-controls
-Transmission BitTorrent daemons. Terms here are the canonical language for code, UI copy,
-and discussion. Implementation details do not belong in this file.
+Transmission and Deluge BitTorrent daemons. Terms here are the canonical language for
+code, UI copy, and discussion. Implementation details do not belong in this file.
 
 ## Terms
 
 ### Server Profile
-A saved connection definition for one Transmission daemon: name, address, port, TLS
+A saved connection definition for one daemon: name, Server Type, address, port, TLS
 settings, credentials, and per-profile UI preferences. A user may have many Server
 Profiles (home NAS, seedbox, …).
+
+### Server Type
+The daemon protocol a Server Profile speaks — Transmission or Deluge. It selects the
+Adapter that backs the profile and, through Capabilities, which features the UI offers.
+For Deluge this is the Web UI (deluge-web), reached over its JSON-RPC endpoint.
+
+### Adapter
+The per–Server Type translator that turns the app's protocol-neutral operations into a
+daemon's native RPC and normalizes replies back into the shared Torrent/Session shapes.
+One Adapter implementation per Server Type; the rest of the app never sees a
+daemon-specific payload.
+
+### Capabilities
+The set of features a connected server actually supports (bandwidth groups, alt-speed
+scheduler, blocklist, sequential download, per-piece availability, labels, …). Reported
+by the Adapter — some flags fixed by Server Type, some probed live (e.g. Deluge labels
+depend on its Label plugin). The UI hides controls a server lacks rather than letting
+them fail.
+
+### Host
+For a Deluge Server, the backing `deluged` daemon that the Web UI connects to. One
+Web UI may know several Hosts; the app binds to the sole/default one automatically.
 
 ### Default Server
 The Server Profile picked in the toolbar (remembered across restarts). It is the target
@@ -22,8 +44,9 @@ The daemon-wide state of the Active Server: global speed limits, download direct
 encryption policy, port settings, and statistics. Distinct from any individual torrent.
 
 ### Torrent
-One transfer known to the Active Server, identified by its daemon-assigned id and its
-hash. A Torrent has a Status, content Files, Peers, Trackers, and optional Labels.
+One transfer known to the Active Server, identified canonically by its infohash (the
+same identity across daemons). A Torrent has a Status, content Files, Peers, Trackers,
+and optional Labels.
 
 ### Status
 The daemon-reported lifecycle state of a Torrent: stopped, queued to verify, verifying,
@@ -36,8 +59,9 @@ with the Tracker filter, Label filter, and Search it forms a Torrents Panel's fi
 owned by each Panel individually, never global.
 
 ### Label
-A free-form tag stored on a Torrent by the daemon (Transmission "labels"). Used for
-user-defined grouping and filtering.
+A free-form tag stored on a Torrent by the daemon (Transmission "labels"; on Deluge, the
+optional Label plugin — a single label per torrent). Used for user-defined grouping and
+filtering. Absent as a Capability when the daemon doesn't provide it.
 
 ### Torrents Panel
 A Panel showing torrents from one or more servers (its Scope), grouped by server when
