@@ -58,19 +58,20 @@
   --color-warning-900: #5c391f;
   --color-warning-950: #3d2513;
 
-  /* Warm neutral ramp (R > G > B throughout — taupe/stone, not cool gray).
-     Light surfaces read like warm paper; dark mode is a warm charcoal-brown. */
-  --color-surface-50: #faf7f1;
-  --color-surface-100: #f3efe6;
-  --color-surface-200: #e8e1d4;
-  --color-surface-300: #d7ccba;
-  --color-surface-400: #aaa08e;
-  --color-surface-500: #7d7464;
-  --color-surface-600: #5c554a;
-  --color-surface-700: #423d34;
-  --color-surface-800: #2d2a25;
-  --color-surface-900: #201d18;
-  --color-surface-950: #16130e;
+  /* Neutral gray ramp (no color cast) — dark mode matches the FlimViewer
+     reference (#1a1a1a base, #252525/#333 surfaces). Warmth is applied only
+     to the status bar, not the whole canvas. */
+  --color-surface-50: #f7f7f7;
+  --color-surface-100: #efefef;
+  --color-surface-200: #e4e4e4;
+  --color-surface-300: #d1d1d1;
+  --color-surface-400: #a0a0a0;
+  --color-surface-500: #727272;
+  --color-surface-600: #525252;
+  --color-surface-700: #333333;
+  --color-surface-800: #252525;
+  --color-surface-900: #1e1e1e;
+  --color-surface-950: #1a1a1a;
 }
 
 html,

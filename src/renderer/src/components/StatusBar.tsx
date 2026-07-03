@@ -33,7 +33,7 @@ export function StatusBar(): React.JSX.Element {
   )
 
   return (
-    <div className="flex items-center gap-4 border-t border-surface-200 bg-surface-50 px-3 py-1 text-xs text-surface-600 dark:border-surface-700 dark:bg-surface-800/60 dark:text-surface-400">
+    <div className="flex items-center gap-4 border-t border-warning-200/70 bg-warning-50 px-3 py-1 text-xs text-warning-900/70 dark:border-warning-900/40 dark:bg-warning-950/40 dark:text-warning-100/70">
       <span className="flex items-center gap-1 text-accent-600 dark:text-accent-400">
         <ArrowDown size={12} /> {formatSpeed(stats?.downloadSpeed ?? 0)}
       </span>
