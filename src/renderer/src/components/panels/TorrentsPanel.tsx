@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { createSelector } from '@reduxjs/toolkit'
 import type { TorrentsPanelConfig, WorkspaceItem } from '@shared/types'
 import type { Torrent } from '@shared/transmission'
-import { useAppDispatch, useAppSelector, useActiveProfileId } from '@/app/hooks'
+import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { rpcApi } from '@/services/rpcApi'
 import { panelConfigChanged } from '@/features/workspace/workspaceSlice'
 import { getListConfig } from '@/features/workspace/panels'
@@ -23,12 +23,12 @@ export function TorrentsPanel({ item }: { item: WorkspaceItem }): React.JSX.Elem
   const dispatch = useAppDispatch()
   const config: TorrentsPanelConfig = getListConfig(item)
   const profiles = useAppSelector((s) => s.connection.profiles)
-  const defaultProfileId = useActiveProfileId()
 
   const scopedIds = useMemo(() => {
-    if (config.servers === 'default') return defaultProfileId ? [defaultProfileId] : []
+    // 'default' scope now means "all configured servers" (no active server).
+    if (config.servers === 'default') return profiles.map((p) => p.id)
     return config.servers.filter((id) => profiles.some((p) => p.id === id))
-  }, [config.servers, defaultProfileId, profiles])
+  }, [config.servers, profiles])
 
   const selectAggregated = useMemo(() => {
     const inputs = scopedIds.map((id) => rpcApi.endpoints.getTorrents.select({ profileId: id }))

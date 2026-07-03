@@ -14,9 +14,7 @@ import {
   Keyboard,
   Gauge
 } from 'lucide-react'
-import { useAppDispatch, useAppSelector, useActiveProfileId } from '@/app/hooks'
-import { setActiveProfile } from '@/features/connection/connectionSlice'
-import { can, useServerCapabilities } from '@/features/connection/useCapabilities'
+import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import {
   openAddTorrent,
   openLabelsEditor,
@@ -47,10 +45,7 @@ import { AddPanelMenu } from '@/components/workspace/AddPanelMenu'
  */
 export function Toolbar(): React.JSX.Element {
   const dispatch = useAppDispatch()
-  const defaultProfileId = useActiveProfileId()
-  const caps = useServerCapabilities(defaultProfileId)
   const profiles = useAppSelector((s) => s.connection.profiles)
-  const active = profiles.find((p) => p.id === defaultProfileId)
   const selection = useAppSelector((s) => s.ui.selection)
   const [torrentAction] = useTorrentActionMutation()
 
@@ -115,26 +110,21 @@ export function Toolbar(): React.JSX.Element {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="secondary" size="sm">
-            <Server size={13} /> {active?.name ?? 'Server'} <ChevronDown size={12} />
+            <Server size={13} /> Servers <ChevronDown size={12} />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Default server</DropdownMenuLabel>
+          <DropdownMenuLabel>Servers</DropdownMenuLabel>
           {profiles.map((p) => (
-            <DropdownMenuItem key={p.id} onSelect={() => void dispatch(setActiveProfile(p.id))}>
-              <span className="w-3 text-xs">{p.id === defaultProfileId ? '•' : ''}</span>
-              {p.name}
+            <DropdownMenuItem key={p.id} onSelect={() => dispatch(openProfileEditor(p.id))}>
+              <Server size={14} /> {p.name}
+              <Pencil size={13} className="ml-auto text-surface-400" />
             </DropdownMenuItem>
           ))}
-          <DropdownMenuSeparator />
+          {profiles.length > 0 && <DropdownMenuSeparator />}
           <DropdownMenuItem onSelect={() => dispatch(openProfileEditor(null))}>
             <Plus size={14} /> Add server…
           </DropdownMenuItem>
-          {defaultProfileId && (
-            <DropdownMenuItem onSelect={() => dispatch(openProfileEditor(defaultProfileId))}>
-              <Pencil size={14} /> Edit default server…
-            </DropdownMenuItem>
-          )}
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -148,11 +138,9 @@ export function Toolbar(): React.JSX.Element {
           <DropdownMenuItem onSelect={() => dispatch(setSessionSettingsOpen(true))}>
             <SlidersHorizontal size={14} /> Server settings…
           </DropdownMenuItem>
-          {can(caps, 'bandwidthGroups') && (
-            <DropdownMenuItem onSelect={() => dispatch(setGroupsOpen(true))}>
-              <Gauge size={14} /> Bandwidth groups…
-            </DropdownMenuItem>
-          )}
+          <DropdownMenuItem onSelect={() => dispatch(setGroupsOpen(true))}>
+            <Gauge size={14} /> Bandwidth groups…
+          </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => dispatch(setPrefsOpen(true))}>
             <Settings2 size={14} /> Preferences…
           </DropdownMenuItem>

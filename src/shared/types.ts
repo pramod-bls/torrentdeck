@@ -263,17 +263,16 @@ export interface Api {
     list: () => Promise<ServerProfile[]>
     save: (input: ProfileInput) => Promise<ServerProfile>
     remove: (id: string) => Promise<void>
-    getActiveId: () => Promise<string | null>
-    setActiveId: (id: string | null) => Promise<void>
     setSort: (id: string, sort: SortPref) => Promise<void>
   }
   prefs: {
     get: () => Promise<AppPrefs>
     set: (prefs: Partial<AppPrefs>) => Promise<AppPrefs>
   }
+  /** The single, app-wide panel workspace (no longer per-server). */
   workspace: {
-    get: (profileId: string) => Promise<WorkspaceLayout | null>
-    set: (profileId: string, layout: WorkspaceLayout) => Promise<void>
+    get: () => Promise<WorkspaceLayout | null>
+    set: (layout: WorkspaceLayout) => Promise<void>
   }
   pickTorrentFiles: () => Promise<TorrentFilePayload[]>
   readDroppedTorrents: (paths: string[]) => Promise<TorrentFilePayload[]>

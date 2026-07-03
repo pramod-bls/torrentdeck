@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { ProfileInput, ServerType } from '@shared/types'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
-import { deleteProfile, saveProfile, setActiveProfile } from '@/features/connection/connectionSlice'
+import { deleteProfile, saveProfile } from '@/features/connection/connectionSlice'
 import { closeProfileEditor } from '@/features/ui/uiSlice'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -94,7 +94,6 @@ export function ProfileDialog(): React.JSX.Element | null {
     const result = await dispatch(saveProfile(inputWithPassword()))
     setSaving(false)
     if (saveProfile.fulfilled.match(result)) {
-      if (!editing) void dispatch(setActiveProfile(result.payload.id))
       close()
     }
   }

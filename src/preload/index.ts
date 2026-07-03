@@ -32,8 +32,6 @@ const api: Api & { getPathForFile: (file: File) => string; rendererReady: () => 
     list: () => ipcRenderer.invoke('profiles:list'),
     save: (input: ProfileInput) => ipcRenderer.invoke('profiles:save', input),
     remove: (id: string) => ipcRenderer.invoke('profiles:delete', id),
-    getActiveId: () => ipcRenderer.invoke('profiles:getActiveId'),
-    setActiveId: (id: string | null) => ipcRenderer.invoke('profiles:setActiveId', id),
     setSort: (id: string, sort: SortPref) => ipcRenderer.invoke('profiles:setSort', id, sort)
   },
   prefs: {
@@ -41,9 +39,8 @@ const api: Api & { getPathForFile: (file: File) => string; rendererReady: () => 
     set: (prefs: Partial<AppPrefs>) => ipcRenderer.invoke('prefs:set', prefs)
   },
   workspace: {
-    get: (profileId: string) => ipcRenderer.invoke('workspace:get', profileId),
-    set: (profileId: string, layout: WorkspaceLayout) =>
-      ipcRenderer.invoke('workspace:set', profileId, layout)
+    get: () => ipcRenderer.invoke('workspace:get'),
+    set: (layout: WorkspaceLayout) => ipcRenderer.invoke('workspace:set', layout)
   },
   pickTorrentFiles: () => ipcRenderer.invoke('dialog:pickTorrentFiles'),
   readDroppedTorrents: (paths: string[]) => ipcRenderer.invoke('fs:readDroppedTorrents', paths),

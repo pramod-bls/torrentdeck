@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { ArrowDown, ArrowUp, Turtle } from 'lucide-react'
-import { useAppSelector, useActiveProfileId, usePollingInterval } from '@/app/hooks'
+import { useAppSelector, usePollingInterval } from '@/app/hooks'
 import {
   useFreeSpaceQuery,
   useGetSessionQuery,
@@ -8,30 +8,39 @@ import {
   useSetSessionMutation
 } from '@/services/rpcApi'
 import { can, useServerCapabilities } from '@/features/connection/useCapabilities'
-import { formatBytes } from '@/lib/format'
-import { formatSpeed } from '@/lib/format'
+import { formatBytes, formatSpeed } from '@/lib/format'
 import { cn } from '@/lib/cn'
 
+const STATUS_SERVER_KEY = 'statusBarServerId'
+
+/** The bottom bar reads one server (its own pick, remembered across restarts). */
 export function StatusBar(): React.JSX.Element {
-  const profileId = useActiveProfileId()!
   const pollingInterval = usePollingInterval()
   const profiles = useAppSelector((s) => s.connection.profiles)
-  const profileName = profiles.find((p) => p.id === profileId)?.name
-  const { data: stats } = useGetSessionStatsQuery({ profileId }, { pollingInterval })
+  const [picked, setPicked] = useState<string | null>(() => localStorage.getItem(STATUS_SERVER_KEY))
+  const profileId = profiles.some((p) => p.id === picked) ? (picked as string) : profiles[0]?.id
+  const valid = Boolean(profileId)
 
-  // Feed the tray tooltip with the default server's aggregate speeds
+  const { data: stats } = useGetSessionStatsQuery({ profileId: profileId ?? '' }, { pollingInterval, skip: !valid })
+  const { data: session } = useGetSessionQuery({ profileId: profileId ?? '' }, { skip: !valid })
+  const [setSession] = useSetSessionMutation()
+  const caps = useServerCapabilities(profileId)
+
+  // Feed the tray tooltip with the selected server's speeds
   useEffect(() => {
     window.api.setTraySpeeds(stats?.downloadSpeed ?? 0, stats?.uploadSpeed ?? 0)
   }, [stats?.downloadSpeed, stats?.uploadSpeed])
-  const { data: session } = useGetSessionQuery({ profileId })
-  const [setSession] = useSetSessionMutation()
 
-  const caps = useServerCapabilities(profileId)
+  const changeServer = (id: string): void => {
+    setPicked(id)
+    localStorage.setItem(STATUS_SERVER_KEY, id)
+  }
+
   const altOn = session?.['alt-speed-enabled'] ?? false
   const downloadDir = session?.['download-dir'] ?? ''
   const { data: freeSpace } = useFreeSpaceQuery(
-    { profileId, path: downloadDir },
-    { skip: !downloadDir, pollingInterval: 30_000 }
+    { profileId: profileId ?? '', path: downloadDir },
+    { skip: !valid || !downloadDir, pollingInterval: 30_000 }
   )
 
   return (
@@ -47,7 +56,7 @@ export function StatusBar(): React.JSX.Element {
           type="button"
           aria-label="Toggle alternative speed limits"
           title="Alternative speed limits"
-          onClick={() => void setSession({ profileId, fields: { 'alt-speed-enabled': !altOn } })}
+          onClick={() => profileId && void setSession({ profileId, fields: { 'alt-speed-enabled': !altOn } })}
           className={cn(
             'flex items-center rounded px-1 py-0.5',
             altOn
@@ -62,9 +71,23 @@ export function StatusBar(): React.JSX.Element {
       <span>
         {stats ? `${stats.torrentCount} torrents` : '…'}
         {freeSpace ? ` · ${formatBytes(freeSpace['size-bytes'])} free` : ''}
-        {profileName ? ` · ${profileName}` : ''}
-        {session ? ` · Transmission ${session.version}` : ''}
       </span>
+      {profiles.length > 1 ? (
+        <select
+          value={profileId}
+          onChange={(e) => changeServer(e.target.value)}
+          aria-label="Status bar server"
+          className="h-5 rounded border border-warning-200/60 bg-transparent px-1 text-xs dark:border-warning-900/40"
+        >
+          {profiles.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name}
+            </option>
+          ))}
+        </select>
+      ) : (
+        <span>{profiles[0]?.name}</span>
+      )}
     </div>
   )
 }

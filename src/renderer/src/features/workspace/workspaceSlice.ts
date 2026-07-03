@@ -25,24 +25,20 @@ import { defaultLayout, normalizeLayout, placeNewItem } from './panels'
 
 export interface WorkspaceState {
   /** Layout being shown; null until the first loadWorkspace resolves */
+  /** The single app-wide layout; null until the first loadWorkspace resolves */
   layout: WorkspaceLayout | null
-  /** Which profile `layout` belongs to — guards against late async loads */
-  profileId: string | null
 }
 
-const initialState: WorkspaceState = { layout: null, profileId: null }
+const initialState: WorkspaceState = { layout: null }
 
 export const loadWorkspace = createAsyncThunk(
   'workspace/load',
-  async (
-    profileId: string,
-    { getState }
-  ): Promise<{ profileId: string; layout: WorkspaceLayout }> => {
-    const stored = await window.api.workspace.get(profileId)
-    // Seed migrated v1 panels with the profile's old global sort preference
+  async (_: void, { getState }): Promise<{ layout: WorkspaceLayout }> => {
+    const stored = await window.api.workspace.get()
+    // Seed any migrated v1 panels with a profile's old sort preference
     const state = getState() as { connection: { profiles: ServerProfile[] } }
-    const seedSort = state.connection.profiles.find((p) => p.id === profileId)?.sort
-    return { profileId, layout: normalizeLayout(stored, seedSort) ?? defaultLayout() }
+    const seedSort = state.connection.profiles[0]?.sort
+    return { layout: normalizeLayout(stored, seedSort) ?? defaultLayout() }
   }
 )
 
@@ -88,7 +84,6 @@ const workspaceSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(loadWorkspace.fulfilled, (state, action) => {
       state.layout = action.payload.layout
-      state.profileId = action.payload.profileId
     })
   }
 })
@@ -102,15 +97,14 @@ export function selectPanelInstances(items: WorkspaceItem[] | undefined): Set<Pa
 }
 
 /**
- * Write-through persistence: any user mutation of the layout saves it for the
- * profile it belongs to. loadWorkspace deliberately does NOT trigger a save.
+ * Write-through persistence: any user mutation saves the single app-wide
+ * layout. loadWorkspace deliberately does NOT trigger a save.
  */
 export const persistWorkspaceMiddleware = createListenerMiddleware()
 persistWorkspaceMiddleware.startListening({
   matcher: isAnyOf(gridChanged, panelAdded, panelRemoved, panelConfigChanged, layoutReset),
   effect: async (_action, api) => {
     const state = api.getState() as { workspace: WorkspaceState }
-    const { layout, profileId } = state.workspace
-    if (layout && profileId) await window.api.workspace.set(profileId, layout)
+    if (state.workspace.layout) await window.api.workspace.set(state.workspace.layout)
   }
 })

@@ -129,8 +129,6 @@ export function registerIpc(): void {
     profiles.deleteProfile(id)
     clients.delete(id)
   })
-  ipcMain.handle('profiles:getActiveId', () => profiles.getActiveProfileId())
-  ipcMain.handle('profiles:setActiveId', (_e, id: string | null) => profiles.setActiveProfileId(id))
   ipcMain.handle('profiles:setSort', (_e, id: string, sort: SortPref) =>
     profiles.setProfileSort(id, sort)
   )
@@ -138,10 +136,8 @@ export function registerIpc(): void {
   ipcMain.handle('prefs:get', () => profiles.getPrefs())
   ipcMain.handle('prefs:set', (_e, partial) => profiles.setPrefs(partial))
 
-  ipcMain.handle('workspace:get', (_e, profileId: string) => profiles.getWorkspace(profileId))
-  ipcMain.handle('workspace:set', (_e, profileId: string, layout: WorkspaceLayout) =>
-    profiles.setWorkspace(profileId, layout)
-  )
+  ipcMain.handle('workspace:get', () => profiles.getWorkspace())
+  ipcMain.handle('workspace:set', (_e, layout: WorkspaceLayout) => profiles.setWorkspace(layout))
 
   ipcMain.handle('dialog:pickTorrentFiles', async (): Promise<TorrentFilePayload[]> => {
     const res = await dialog.showOpenDialog({

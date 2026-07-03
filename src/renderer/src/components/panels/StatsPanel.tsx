@@ -1,5 +1,5 @@
 import type { StatsPanelConfig, WorkspaceItem } from '@shared/types'
-import { useAppDispatch, useAppSelector, useActiveProfileId, usePollingInterval } from '@/app/hooks'
+import { useAppDispatch, useAppSelector, useFirstProfileId, usePollingInterval } from '@/app/hooks'
 import { useFreeSpaceQuery, useGetSessionQuery, useGetSessionStatsQuery } from '@/services/rpcApi'
 import { panelConfigChanged } from '@/features/workspace/workspaceSlice'
 import { getStatsConfig } from '@/features/workspace/panels'
@@ -19,7 +19,7 @@ export function StatsPanel({ item }: { item: WorkspaceItem }): React.JSX.Element
   const dispatch = useAppDispatch()
   const config: StatsPanelConfig = getStatsConfig(item)
   const profiles = useAppSelector((s) => s.connection.profiles)
-  const defaultProfileId = useActiveProfileId()
+  const defaultProfileId = useFirstProfileId()
   const pollingInterval = usePollingInterval()
 
   const profileId = config.server === 'default' ? defaultProfileId : config.server
@@ -50,7 +50,7 @@ export function StatsPanel({ item }: { item: WorkspaceItem }): React.JSX.Element
           aria-label="Stats server"
           className="h-6 rounded border border-surface-300 bg-surface-50 px-1 text-xs dark:border-surface-600 dark:bg-surface-800"
         >
-          <option value="default">Default server</option>
+          <option value="default">First server</option>
           {profiles.map((p) => (
             <option key={p.id} value={p.id}>
               {p.name}

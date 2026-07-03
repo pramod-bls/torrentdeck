@@ -116,7 +116,7 @@ describe('placeNewItem', () => {
 })
 
 describe('workspaceSlice', () => {
-  const state = (): WorkspaceState => ({ layout: defaultLayout(), profileId: 'p1' })
+  const state = (): WorkspaceState => ({ layout: defaultLayout() })
 
   it('adds and removes panels', () => {
     let s = reducer(state(), panelAdded('stats'))

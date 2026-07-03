@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import type { BandwidthGroup } from '@shared/transmission'
-import { useAppDispatch, useAppSelector, useActiveProfileId } from '@/app/hooks'
+import { useAppDispatch, useAppSelector, useFirstProfileId } from '@/app/hooks'
 import { setGroupsOpen } from '@/features/ui/uiSlice'
 import { useGetGroupsQuery, useSetGroupMutation } from '@/services/rpcApi'
 import { can, useServerCapabilities } from '@/features/connection/useCapabilities'
@@ -70,18 +70,20 @@ function GroupRow({
 export function GroupsDialog(): React.JSX.Element | null {
   const dispatch = useAppDispatch()
   const open = useAppSelector((s) => s.ui.groupsOpen)
-  const profileId = useActiveProfileId()
+  const profiles = useAppSelector((s) => s.connection.profiles)
+  const firstProfileId = useFirstProfileId()
+  const [selected, setSelected] = useState<string | null>(null)
+  const profileId = profiles.some((p) => p.id === selected) ? selected : firstProfileId
   const caps = useServerCapabilities(profileId)
+  const supported = can(caps, 'bandwidthGroups')
   const { data: groups = [] } = useGetGroupsQuery(
     { profileId: profileId ?? '' },
-    { skip: !profileId || !open || !can(caps, 'bandwidthGroups') }
+    { skip: !profileId || !open || !supported }
   )
   const [setGroup] = useSetGroupMutation()
   const [newName, setNewName] = useState('')
 
-  // Bandwidth groups are Transmission-only; the menu entry is hidden elsewhere,
-  // but guard here too so the dialog can never open against a server without them.
-  if (!open || !profileId || !can(caps, 'bandwidthGroups')) return null
+  if (!open || !profileId) return null
 
   const close = (): void => {
     dispatch(setGroupsOpen(false))
@@ -98,28 +100,51 @@ export function GroupsDialog(): React.JSX.Element | null {
     <Dialog open={open} onOpenChange={(v) => !v && close()}>
       <DialogContent title="Bandwidth groups">
         <div className="space-y-3">
-          <p className="text-xs text-surface-500 dark:text-surface-400">
-            Named speed-limit pools. Assign a torrent to a group from its detail panel.
-          </p>
-
-          {groups.length === 0 && (
-            <p className="py-2 text-center text-xs text-surface-500">No groups yet</p>
+          {profiles.length > 1 && (
+            <select
+              value={profileId}
+              onChange={(e) => setSelected(e.target.value)}
+              aria-label="Groups server"
+              className="h-8 w-full rounded-md border border-surface-300 bg-surface-50 px-2 text-sm dark:border-surface-600 dark:bg-surface-800"
+            >
+              {profiles.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
           )}
-          {groups.map((g) => (
-            <GroupRow key={g.name} group={g} profileId={profileId} />
-          ))}
 
-          <div className="flex gap-1.5">
-            <Input
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              placeholder="New group name"
-              onKeyDown={(e) => e.key === 'Enter' && create()}
-            />
-            <Button variant="secondary" size="sm" onClick={create} disabled={!newName.trim()}>
-              <Plus size={13} /> Create
-            </Button>
-          </div>
+          {!supported ? (
+            <p className="py-4 text-center text-sm text-surface-500">
+              Bandwidth groups aren't supported on this server.
+            </p>
+          ) : (
+            <>
+              <p className="text-xs text-surface-500 dark:text-surface-400">
+                Named speed-limit pools. Assign a torrent to a group from its detail panel.
+              </p>
+
+              {groups.length === 0 && (
+                <p className="py-2 text-center text-xs text-surface-500">No groups yet</p>
+              )}
+              {groups.map((g) => (
+                <GroupRow key={g.name} group={g} profileId={profileId} />
+              ))}
+
+              <div className="flex gap-1.5">
+                <Input
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder="New group name"
+                  onKeyDown={(e) => e.key === 'Enter' && create()}
+                />
+                <Button variant="secondary" size="sm" onClick={create} disabled={!newName.trim()}>
+                  <Plus size={13} /> Create
+                </Button>
+              </div>
+            </>
+          )}
 
           <div className="flex justify-end pt-1">
             <Button variant="secondary" onClick={close}>

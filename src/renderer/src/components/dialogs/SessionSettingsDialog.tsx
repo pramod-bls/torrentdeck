@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { SessionInfo } from '@shared/transmission'
-import { useAppDispatch, useAppSelector, useActiveProfileId } from '@/app/hooks'
+import { useAppDispatch, useAppSelector, useFirstProfileId } from '@/app/hooks'
 import { setSessionSettingsOpen } from '@/features/ui/uiSlice'
 import {
   useBlocklistUpdateMutation,
@@ -352,7 +352,7 @@ export function SessionSettingsDialog(): React.JSX.Element | null {
   const dispatch = useAppDispatch()
   const open = useAppSelector((s) => s.ui.sessionSettingsOpen)
   const profiles = useAppSelector((s) => s.connection.profiles)
-  const activeId = useActiveProfileId()
+  const activeId = useFirstProfileId()
   const [selected, setSelected] = useState<string | null>(null)
 
   // Default to the active server each time the dialog opens.

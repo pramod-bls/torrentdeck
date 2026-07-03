@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useAppDispatch, useAppSelector, useActiveProfileId } from '@/app/hooks'
+import { useAppDispatch, useAppSelector, useFirstProfileId } from '@/app/hooks'
 import { closeAddTorrent } from '@/features/ui/uiSlice'
 import { useAddTorrentMutation, useFreeSpaceQuery, useGetSessionQuery } from '@/services/rpcApi'
 import { parseTorrentPreview } from '@/lib/bencode'
@@ -16,7 +16,7 @@ export function AddTorrentDialog(): React.JSX.Element | null {
   const dispatch = useAppDispatch()
   const payload = useAppSelector((s) => s.ui.addTorrent)
   const profiles = useAppSelector((s) => s.connection.profiles)
-  const activeProfileId = useActiveProfileId()
+  const firstProfileId = useFirstProfileId()
   const [profileId, setProfileId] = useState<string | null>(null)
   const { data: session } = useGetSessionQuery(profileId ? { profileId } : { profileId: '' }, {
     skip: !profileId
@@ -44,7 +44,7 @@ export function AddTorrentDialog(): React.JSX.Element | null {
       // Default to the last server added to (if it still exists), else the current server.
       const last = localStorage.getItem(LAST_ADD_KEY)
       setProfileId(
-        last && profiles.some((p) => p.id === last) ? last : (activeProfileId ?? profiles[0]?.id ?? null)
+        last && profiles.some((p) => p.id === last) ? last : (firstProfileId ?? profiles[0]?.id ?? null)
       )
       setMagnet(payload?.magnet ?? '')
       setDir('')

@@ -39,9 +39,8 @@ function focusedListPanel(state: RootState): WorkspaceItem | null {
 }
 
 function scopedProfileIds(state: RootState, config: TorrentsPanelConfig): string[] {
-  if (config.servers === 'default') {
-    return state.connection.activeProfileId ? [state.connection.activeProfileId] : []
-  }
+  // 'default' scope = all configured servers (no active server).
+  if (config.servers === 'default') return state.connection.profiles.map((p) => p.id)
   return config.servers.filter((id) => state.connection.profiles.some((p) => p.id === id))
 }
 
