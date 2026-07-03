@@ -4,7 +4,13 @@ import type { Torrent } from '@shared/transmission'
 import { TorrentStatus } from '@shared/transmission'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { useQueueMoveMutation, useTorrentActionMutation } from '@/services/rpcApi'
-import { availTextClass, statusColor, statusText, swarmHealthClass } from '@/features/torrents/derive'
+import {
+  availTextClass,
+  progressFillColor,
+  statusColor,
+  statusText,
+  swarmHealthClass
+} from '@/features/torrents/derive'
 import {
   openLabelsEditor,
   openQueueEditor,
@@ -17,17 +23,25 @@ import { cn } from '@/lib/cn'
 export function ProgressBar({ torrent }: { torrent: Torrent }): React.JSX.Element {
   const checking = torrent.status === TorrentStatus.Checking
   const fraction = checking ? torrent.recheckProgress : torrent.percentDone
-  const color =
+  // In-progress fill is colored by completion (orange→green); terminal states
+  // keep their semantic color.
+  const staticColor =
     torrent.error !== 0
       ? 'bg-danger-500'
       : torrent.status === TorrentStatus.Stopped
         ? 'bg-surface-400 dark:bg-surface-500'
         : torrent.percentDone >= 1
           ? 'bg-success-500'
-          : 'bg-accent-500'
+          : null
   return (
     <div className="h-1 w-full overflow-hidden rounded-full bg-surface-200 dark:bg-surface-700">
-      <div className={cn('h-full rounded-full', color)} style={{ width: `${fraction * 100}%` }} />
+      <div
+        className={cn('h-full rounded-full', staticColor)}
+        style={{
+          width: `${fraction * 100}%`,
+          backgroundColor: staticColor ? undefined : progressFillColor(fraction)
+        }}
+      />
     </div>
   )
 }

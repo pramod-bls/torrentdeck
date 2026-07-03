@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Torrent } from '@shared/transmission'
 import { TorrentStatus } from '@shared/transmission'
-import { filterTorrents, sortTorrents, deriveSidebar, statusColor } from './derive'
+import { filterTorrents, sortTorrents, deriveSidebar, statusColor, progressFillColor } from './derive'
 
 function torrent(partial: Partial<Torrent>): Torrent {
   return {
@@ -129,5 +129,17 @@ describe('deriveAvailRatio', () => {
     expect(deriveAvailRatio(100, 200)).toBe(1)
     expect(deriveAvailRatio(100, 50)).toBe(0.5)
     expect(deriveAvailRatio(100, 0)).toBe(0)
+  })
+})
+
+describe('progressFillColor', () => {
+  it('sweeps orange → green with the fraction', () => {
+    expect(progressFillColor(0)).toBe('hsl(30 85% 45%)')
+    expect(progressFillColor(0.5)).toBe('hsl(75 85% 45%)')
+    expect(progressFillColor(1)).toBe('hsl(120 85% 45%)')
+  })
+  it('clamps out-of-range input', () => {
+    expect(progressFillColor(-1)).toBe('hsl(30 85% 45%)')
+    expect(progressFillColor(2)).toBe('hsl(120 85% 45%)')
   })
 })

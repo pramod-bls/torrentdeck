@@ -84,6 +84,17 @@ export function availTextClass(availRatio: number): string {
   return 'text-danger-600 dark:text-danger-400'
 }
 
+/**
+ * Solid progress-fill color reflecting completion: orange when low, yellow
+ * mid, green near done. Hue sweeps 30°→120° with the fraction (returns an HSL
+ * string for an inline backgroundColor, since Tailwind can't interpolate).
+ */
+export function progressFillColor(fraction: number): string {
+  const f = Math.min(1, Math.max(0, fraction))
+  const hue = Math.round(30 + 90 * f)
+  return `hsl(${hue} 85% 45%)`
+}
+
 /** Swarm-health tint for the seeder-count dot; -1 (unknown) reads as muted. */
 export function swarmHealthClass(maxSeeders: number): string {
   if (maxSeeders <= 0) return 'bg-surface-400 dark:bg-surface-500'

@@ -6,7 +6,7 @@
  */
 import type { ColumnKey, SortKey } from '@shared/types'
 import type { Torrent } from '@shared/transmission'
-import { availTextClass, statusColor, statusText } from './derive'
+import { availTextClass, progressFillColor, statusColor, statusText } from './derive'
 import { formatBytes, formatDate, formatEta, formatPercent, formatRatio, formatSpeed } from '@/lib/format'
 
 export interface ColumnDef {
@@ -54,19 +54,26 @@ export const COLUMNS: Record<ColumnKey, ColumnDef> = {
     track: '110px',
     align: 'left',
     sortKey: 'percentDone',
-    cell: (t) => (
-      <span className="flex w-full items-center gap-1.5">
-        <span className="h-1 min-w-0 flex-1 overflow-hidden rounded-full bg-surface-200 dark:bg-surface-700">
-          <span
-            className={`block h-full rounded-full ${t.error !== 0 ? 'bg-danger-500' : t.percentDone >= 1 ? 'bg-success-500' : 'bg-accent-500'}`}
-            style={{ width: `${t.percentDone * 100}%` }}
-          />
+    cell: (t) => {
+      const staticColor =
+        t.error !== 0 ? 'bg-danger-500' : t.percentDone >= 1 ? 'bg-success-500' : null
+      return (
+        <span className="flex w-full items-center gap-1.5">
+          <span className="h-1 min-w-0 flex-1 overflow-hidden rounded-full bg-surface-200 dark:bg-surface-700">
+            <span
+              className={`block h-full rounded-full ${staticColor ?? ''}`}
+              style={{
+                width: `${t.percentDone * 100}%`,
+                backgroundColor: staticColor ? undefined : progressFillColor(t.percentDone)
+              }}
+            />
+          </span>
+          <span className="w-10 shrink-0 text-right text-[11px] text-surface-500">
+            {formatPercent(t.percentDone)}
+          </span>
         </span>
-        <span className="w-10 shrink-0 text-right text-[11px] text-surface-500">
-          {formatPercent(t.percentDone)}
-        </span>
-      </span>
-    )
+      )
+    }
   },
   status: {
     key: 'status',
