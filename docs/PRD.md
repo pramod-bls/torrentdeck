@@ -102,8 +102,8 @@ Status reflects the current build.
 | D3 | Trackers: list with announce health, add and remove | P0 | ✅ |
 | D4 | Edit labels; move data to a new location | P0 | ✅ |
 | D5 | Peers: address, client, progress, rates | P0 | ✅ |
-| D6 | Files tab renders as a collapsible directory tree | P1 | — (flat list today) |
-| D7 | Per-torrent speed limits and seed-ratio overrides | P1 | — |
+| D6 | Files tab renders as a collapsible directory tree with folder-level wanted/priority | P1 | ✅ v0.5 |
+| D7 | Per-torrent speed limits, seed-ratio override, bandwidth priority, peer limit | P1 | ✅ v0.5 |
 | D8 | Pieces map (downloaded-pieces bitfield): strip in General, grid in a Pieces tab/panel | P1 | ✅ |
 | D9 | Swarm availability: per-piece availability overlay on the pieces map (4.0+ `availability`) and an availability-ratio (`desiredAvailable`) list column/badge showing whether a download can finish | P1 | ✅ |
 | D10 | Rename torrent root or individual files on the daemon (`torrent-rename-path`) from General/Files tabs | P1 | ✅ |
@@ -128,7 +128,7 @@ Status reflects the current build.
 | P1 | macOS arm64+x64 (signed, notarized DMG), Windows (NSIS), Linux (AppImage + deb with XDG magnet/torrent registration) | P0 | ✅ config (unreleased) |
 | P2 | Auto-update from GitHub releases | P0 | ✅ wired |
 | P3 | Single instance; second launch focuses the window and forwards its arguments | P0 | ✅ |
-| P4 | System tray / menu-bar mini controller | P2 | — |
+| P4 | System tray / menu-bar controller: speed tooltip, Show/Hide, Pause-all/Resume-all, opt-in close-to-tray | P2 | ✅ v0.5 |
 
 ### 4.7 Non-functional
 
@@ -180,9 +180,9 @@ Decision record: [ADR-0002](adr/0002-flexible-panel-workspace.md).
 | **0.2** ✅ | Flexible panel workspace (§6) |
 | **0.3** ✅ | Multi-server Torrents panels with per-panel filters/sort/scope (C7/W6, ADR-0003); table view (L7); keyboard shortcuts (L8); labels everywhere (A5) |
 | **0.4** ✅ | Semantic color system + status-coded rows (L9); speed graph panel (S6); queue controls (L10); free space (S7); completion notifications (S8); clipboard magnets (A6); swarm health (L11) |
-| **0.5** | Files-as-tree (D6); per-torrent limits (D7); tray (P4) |
+| **0.5** ✅ | Files-as-tree (D6); per-torrent limits (D7); tray (P4) |
 | **1.0** | Public launch: branding, docs site, auto-update proven in the wild |
-| Post-1.0 | Scheduler (S4), blocklists (S5), geo-IP peer info, RSS/watch folders |
+| Post-1.0 | Scheduler (S4), blocklists (S5), geo-IP peer info, RSS/watch folders, bandwidth groups, sequential download |
 
 ## 8. Success criteria
 
