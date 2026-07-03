@@ -33,20 +33,15 @@ them fail.
 For a Deluge Server, the backing `deluged` daemon that the Web UI connects to. One
 Web UI may know several Hosts; the app binds to the sole/default one automatically.
 
-### Default Server
-The Server Profile picked in the toolbar (remembered across restarts). It is the target
-for adding torrents, the subject of session settings and the status bar, and what a
-Torrents Panel with "default" scope shows. Individual Panels may scope themselves to
-other servers — the Default Server is a convenience anchor, not a connection limit.
-
 ### Session
-The daemon-wide state of the Active Server: global speed limits, download directory,
-encryption policy, port settings, and statistics. Distinct from any individual torrent.
+The daemon-wide state of a server: global speed limits, download directory, encryption
+policy, port settings, and statistics. Distinct from any individual torrent. There is no
+single "active" server — each Panel and dialog names the server it acts on.
 
 ### Torrent
-One transfer known to the Active Server, identified canonically by its infohash (the
-same identity across daemons). A Torrent has a Status, content Files, Peers, Trackers,
-and optional Labels.
+One transfer known to a server, identified canonically by its infohash (the same identity
+across daemons). A Torrent has a Status, content Files, Peers, Trackers, and optional
+Labels.
 
 ### Status
 The daemon-reported lifecycle state of a Torrent: stopped, queued to verify, verifying,
@@ -69,8 +64,14 @@ several are shown. Each instance owns its filters, sort, search, and view mode
 (cards or table). Also called the Torrent List.
 
 ### Scope
-The set of Server Profiles a Torrents Panel displays: either "default" (follow the
-Default Server) or an explicit list of servers.
+The set of Server Profiles a Torrents Panel displays: either "default" (all configured
+servers) or an explicit list. Other server-reading Panels (Session stats, Speed Graph)
+similarly pick their own server.
+
+### Workspace
+The single, app-wide arrangement of Panels (positions, sizes, per-instance config),
+persisted once for the whole app — not per server. Every Panel names the server(s) it
+reads, so one Workspace can show several daemons at once.
 
 ### Selection
 The torrents currently highlighted, always belonging to exactly one server

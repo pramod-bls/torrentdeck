@@ -63,7 +63,7 @@ Status reflects the current build.
 | ID | Requirement | Pri | Status |
 |----|-------------|-----|--------|
 | C1 | Multiple named Server Profiles (host, port, HTTPS, RPC path, credentials) | P0 | ✅ |
-| C2 | One Active Server at a time; instant switching; all state keyed per profile | P0 | ✅ |
+| C2 | No single "active" server — every Panel/dialog targets the server(s) it names; all state keyed per profile; one app-wide Workspace | P0 | ✅ (revised v0.8) |
 | C3 | Passwords encrypted at rest via OS keychain (safeStorage); never exposed to the UI process | P0 | ✅ |
 | C4 | Per-profile trust of self-signed HTTPS certificates | P0 | ✅ |
 | C5 | "Test connection" with actionable error messages (auth vs TLS vs network) | P0 | ✅ |
@@ -128,7 +128,7 @@ Status reflects the current build.
 | S9 | Sequential download toggle per torrent (rpc-version ≥ 18) | P1 | ✅ v0.6 |
 | S10 | Bandwidth groups: named speed-limit pools, manager dialog, per-torrent assignment | P1 | ✅ v0.6 |
 | S6 | Speed Graph panel: per-server throughput over 1/5/15-min windows | P1 | ✅ v0.4 |
-| S7 | Free-space gauges (status bar + stats panel) for the default server's download dir | P1 | ✅ v0.4 |
+| S7 | Free-space gauges (status bar + stats panel) for a chosen server's download dir | P1 | ✅ v0.4 |
 | S8 | Native notification on download completion (per server, click to focus + select); toggleable | P1 | ✅ v0.4 |
 
 ### 4.6 Platform and distribution

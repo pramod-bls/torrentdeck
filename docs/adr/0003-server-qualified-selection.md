@@ -1,7 +1,9 @@
 # 0003 — Server-qualified selection and grouped multi-server panels
 
 Date: 2026-07-02
-Status: accepted, implemented (v0.3)
+Status: accepted, implemented (v0.3). Partially superseded (v0.8): the **Default Server**
+introduced here was removed — every Panel/dialog now names its own server(s) and the
+Workspace is global. Server-qualified selection (decision 1) still stands.
 
 ## Context
 
