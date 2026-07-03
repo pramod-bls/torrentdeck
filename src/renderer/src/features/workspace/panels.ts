@@ -282,11 +282,38 @@ export function normalizeLayout(raw: unknown, seedSort?: SortPref): WorkspaceLay
   return { version: CURRENT_LAYOUT_VERSION, items }
 }
 
-/** Grid position for a newly added panel: full-left, below everything else. */
+interface Rect {
+  x: number
+  y: number
+  w: number
+  h: number
+}
+
+function overlaps(a: Rect, b: Rect): boolean {
+  return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h
+}
+
+/**
+ * First empty w×h slot in the grid, scanning top-to-bottom then left-to-right,
+ * so a new panel tucks into a gap beside existing panels instead of always
+ * starting a new row. Falls through to the bottom-left (always free) when
+ * nothing fits alongside — the loop is bounded by the current lowest edge.
+ */
+export function firstFreeSlot(existing: Rect[], w: number, h: number, cols = GRID_COLS): { x: number; y: number } {
+  const maxY = existing.reduce((m, it) => Math.max(m, it.y + it.h), 0)
+  for (let y = 0; y <= maxY; y++) {
+    for (let x = 0; x + w <= cols; x++) {
+      if (!existing.some((it) => overlaps({ x, y, w, h }, it))) return { x, y }
+    }
+  }
+  return { x: 0, y: maxY }
+}
+
+/** Grid position for a newly added panel: the first empty slot that fits. */
 export function placeNewItem(type: PanelTypeId, existing: WorkspaceItem[]): WorkspaceItem {
   const meta = PANELS[type]
-  const bottom = existing.reduce((max, it) => Math.max(max, it.y + it.h), 0)
-  const item: WorkspaceItem = { i: crypto.randomUUID(), type, x: 0, y: bottom, w: meta.w, h: meta.h }
+  const { x, y } = firstFreeSlot(existing, meta.w, meta.h)
+  const item: WorkspaceItem = { i: crypto.randomUUID(), type, x, y, w: meta.w, h: meta.h }
   if (type === 'torrent-list') return { ...item, config: defaultPanelConfig() }
   if (type === 'speed-graph') return { ...item, config: defaultGraphConfig() }
   if (type === 'stats') return { ...item, config: defaultStatsConfig() }
