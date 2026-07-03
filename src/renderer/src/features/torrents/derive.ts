@@ -85,13 +85,15 @@ export function availTextClass(availRatio: number): string {
 }
 
 /**
- * Solid progress-fill color reflecting completion: orange when low, yellow
- * mid, green near done. Hue sweeps 30°→120° with the fraction (returns an HSL
- * string for an inline backgroundColor, since Tailwind can't interpolate).
+ * Solid progress-fill color for an IN-PROGRESS download: orange when low,
+ * warming to yellow as it fills. Green is reserved for 100% (handled by the
+ * caller with the completed `success` color), so the bar never looks "done"
+ * before it is. Hue sweeps 30°(orange) → 58°(yellow) only — never into green.
+ * Returns HSL for an inline backgroundColor (Tailwind can't interpolate).
  */
 export function progressFillColor(fraction: number): string {
   const f = Math.min(1, Math.max(0, fraction))
-  const hue = Math.round(30 + 90 * f)
+  const hue = Math.round(30 + 28 * f)
   return `hsl(${hue} 85% 45%)`
 }
 

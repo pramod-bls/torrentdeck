@@ -133,13 +133,13 @@ describe('deriveAvailRatio', () => {
 })
 
 describe('progressFillColor', () => {
-  it('sweeps orange → green with the fraction', () => {
+  it('sweeps orange → yellow only (never green; green is reserved for 100%)', () => {
     expect(progressFillColor(0)).toBe('hsl(30 85% 45%)')
-    expect(progressFillColor(0.5)).toBe('hsl(75 85% 45%)')
-    expect(progressFillColor(1)).toBe('hsl(120 85% 45%)')
+    expect(progressFillColor(0.5)).toBe('hsl(44 85% 45%)')
+    expect(progressFillColor(1)).toBe('hsl(58 85% 45%)')
   })
   it('clamps out-of-range input', () => {
     expect(progressFillColor(-1)).toBe('hsl(30 85% 45%)')
-    expect(progressFillColor(2)).toBe('hsl(120 85% 45%)')
+    expect(progressFillColor(2)).toBe('hsl(58 85% 45%)')
   })
 })
