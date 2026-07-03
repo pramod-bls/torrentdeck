@@ -135,6 +135,8 @@ export interface TorrentDetail extends Torrent {
   corruptEver: number
   magnetLink: string
   isPrivate: boolean
+  /** base64 bitfield, one bit per piece (MSB-first), set = piece verified locally */
+  pieces: string
   files: TorrentFile[]
   fileStats: FileStat[]
   peers: Peer[]
@@ -155,6 +157,7 @@ export const TORRENT_DETAIL_FIELDS: (keyof TorrentDetail | 'trackerStats')[] = [
   'corruptEver',
   'magnetLink',
   'isPrivate',
+  'pieces',
   'files',
   'fileStats',
   'peers',

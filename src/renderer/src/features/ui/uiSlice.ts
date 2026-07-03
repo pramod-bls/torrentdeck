@@ -28,7 +28,7 @@ export interface UiState {
   selection: Selection | null
   detailTarget: { profileId: string; id: number } | null
   focusedPanelId: string | null
-  detailTab: 'general' | 'files' | 'peers' | 'trackers'
+  detailTab: 'general' | 'files' | 'peers' | 'trackers' | 'pieces'
   addTorrent: AddTorrentPayload | null
   profileEditorId: string | null | undefined
   removeConfirm: Selection | null

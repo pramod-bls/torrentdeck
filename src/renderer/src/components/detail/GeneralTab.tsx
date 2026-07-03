@@ -5,6 +5,7 @@ import { statusText } from '@/features/torrents/derive'
 import { formatBytes, formatDate, formatEta, formatPercent, formatRatio } from '@/lib/format'
 import { Input, Field } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { PiecesMap } from './PiecesMap'
 
 function Row({ label, value }: { label: string; value: string }): React.JSX.Element {
   return (
@@ -76,6 +77,8 @@ export function GeneralTab({
         <Row label="Comment" value={torrent.comment || '—'} />
         <Row label="Hash" value={torrent.hashString} />
       </div>
+
+      <PiecesMap pieces={torrent.pieces} pieceCount={torrent.pieceCount} mode="strip" />
 
       <Field label="Location">
         <div className="flex gap-1.5">

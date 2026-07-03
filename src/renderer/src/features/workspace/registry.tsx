@@ -20,6 +20,7 @@ export const PANEL_COMPONENTS: Record<
   'detail-files': () => <SingleDetailTab tab="files" />,
   'detail-peers': () => <SingleDetailTab tab="peers" />,
   'detail-trackers': () => <SingleDetailTab tab="trackers" />,
+  'detail-pieces': () => <SingleDetailTab tab="pieces" />,
   stats: () => <StatsPanel />,
   'speed-graph': (item) => <SpeedGraphPanel item={item} />
 }

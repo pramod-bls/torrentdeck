@@ -13,13 +13,15 @@ import { GeneralTab } from './detail/GeneralTab'
 import { FilesTab } from './detail/FilesTab'
 import { PeersTab } from './detail/PeersTab'
 import { TrackersTab } from './detail/TrackersTab'
+import { PiecesMap } from './detail/PiecesMap'
 import { cn } from '@/lib/cn'
 
 const TABS: { value: UiState['detailTab']; label: string }[] = [
   { value: 'general', label: 'General' },
   { value: 'files', label: 'Files' },
   { value: 'peers', label: 'Peers' },
-  { value: 'trackers', label: 'Trackers' }
+  { value: 'trackers', label: 'Trackers' },
+  { value: 'pieces', label: 'Pieces' }
 ]
 
 function EmptyState({ hint }: { hint: string }): React.JSX.Element {
@@ -99,6 +101,11 @@ export function DetailTabsPanel(): React.JSX.Element {
           <Tabs.Content value="trackers">
             <TrackersTab torrent={torrent} profileId={profileId} />
           </Tabs.Content>
+          <Tabs.Content value="pieces">
+            <div className="p-3">
+              <PiecesMap pieces={torrent.pieces} pieceCount={torrent.pieceCount} mode="grid" />
+            </div>
+          </Tabs.Content>
         </div>
       )}
     </Tabs.Root>
@@ -109,7 +116,7 @@ export function DetailTabsPanel(): React.JSX.Element {
 export function SingleDetailTab({
   tab
 }: {
-  tab: 'general' | 'files' | 'peers' | 'trackers'
+  tab: 'general' | 'files' | 'peers' | 'trackers' | 'pieces'
 }): React.JSX.Element {
   const { target, torrent } = useSelectedTorrentDetail()
 
@@ -129,6 +136,11 @@ export function SingleDetailTab({
       {tab === 'files' && <FilesTab torrent={torrent} profileId={profileId} />}
       {tab === 'peers' && <PeersTab torrent={torrent} />}
       {tab === 'trackers' && <TrackersTab torrent={torrent} profileId={profileId} />}
+      {tab === 'pieces' && (
+        <div className="p-3">
+          <PiecesMap pieces={torrent.pieces} pieceCount={torrent.pieceCount} mode="grid" />
+        </div>
+      )}
     </div>
   )
 }

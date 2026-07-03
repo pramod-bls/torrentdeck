@@ -93,6 +93,16 @@ export const PANELS: Record<PanelTypeId, PanelMeta> = {
     minH: 4,
     multiInstance: false
   },
+  'detail-pieces': {
+    type: 'detail-pieces',
+    title: 'Pieces',
+    category: 'Torrent detail',
+    w: 3,
+    h: 8,
+    minW: 2,
+    minH: 4,
+    multiInstance: false
+  },
   stats: {
     type: 'stats',
     title: 'Session stats',

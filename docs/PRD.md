@@ -104,6 +104,7 @@ Status reflects the current build.
 | D5 | Peers: address, client, progress, rates | P0 | ✅ |
 | D6 | Files tab renders as a collapsible directory tree | P1 | — (flat list today) |
 | D7 | Per-torrent speed limits and seed-ratio overrides | P1 | — |
+| D8 | Pieces map (downloaded-pieces bitfield): strip in General, grid in a Pieces tab/panel | P1 | ✅ |
 
 ### 4.5 Daemon and app settings
 

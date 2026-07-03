@@ -65,6 +65,11 @@ A self-contained view (Torrents Panel, a Detail tab, session stats, Speed Graph)
 the user can add to, remove from, and rearrange within the Workspace. One Panel type
 may appear as several independent instances.
 
+### Pieces Map
+A visualization of a Torrent's piece bitfield — which pieces the daemon has verified
+locally. Shown as a strip in the General tab and as a grid in the Pieces tab/Panel.
+It is a download map, not a swarm-availability map (the RPC does not expose the latter).
+
 ### Speed Graph
 A Panel plotting one server's download/upload throughput over a selectable time
 window, fed by the same polling that drives the stats displays.

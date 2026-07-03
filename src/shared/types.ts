@@ -106,6 +106,7 @@ export type PanelTypeId =
   | 'detail-files'
   | 'detail-peers'
   | 'detail-trackers'
+  | 'detail-pieces'
   | 'stats'
   | 'speed-graph'
 
