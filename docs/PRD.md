@@ -81,6 +81,7 @@ Status reflects the current build.
 | L9 | Status-coded rows (stripe + tinted status text) on a soft semantic palette | P1 | ✅ v0.4 |
 | L10 | Queue controls: move top/up/down/bottom (context menu), visible # column + card badge, set-exact-position dialog, drag-to-reorder rows (when queue-sorted) | P1 | ✅ v0.4/v0.6 |
 | L12 | Reorder table columns by dragging headers (order persisted per panel) | P2 | ✅ v0.6 |
+| L13 | Resize table column widths by dragging header borders (persisted per panel) | P2 | ✅ v0.6 |
 | L11 | Swarm health: best seeder/leecher counts with health tint, sortable table columns | P1 | ✅ v0.4 |
 
 ### 4.3 Adding torrents
