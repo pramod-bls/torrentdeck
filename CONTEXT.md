@@ -75,6 +75,11 @@ How much of a Torrent's still-missing data connected peers can currently provide
 per piece (the overlay on the Pieces Map) and as a ratio per Torrent (the "avail"
 badge/column — 100% means the download can finish with the current swarm).
 
+### Bandwidth Group
+A named speed-limit pool on the daemon. Torrents assigned to a group share its
+download/upload caps. Created and edited in the Bandwidth Groups manager; a torrent
+joins one from its detail panel.
+
 ### Speed Graph
 A Panel plotting one server's download/upload throughput over a selectable time
 window, fed by the same polling that drives the stats displays.

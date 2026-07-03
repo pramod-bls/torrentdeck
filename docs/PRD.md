@@ -115,8 +115,10 @@ Status reflects the current build.
 | S1 | Session settings: speed limits, alt-speed values, seeding limits, peer limits, encryption, peer port + open-port test | P0 | ✅ |
 | S2 | One-click alternative-speed ("turtle") toggle in the status bar | P0 | ✅ |
 | S3 | App preferences: theme (system/light/dark), polling rate | P0 | ✅ |
-| S4 | Alt-speed scheduler UI | P2 | — |
-| S5 | Blocklist management | P2 | — |
+| S4 | Alt-speed scheduler UI (enable, begin/end time, day-of-week mask) | P2 | ✅ v0.6 |
+| S5 | Blocklist management (enable, URL, size, update now) | P2 | ✅ v0.6 |
+| S9 | Sequential download toggle per torrent (rpc-version ≥ 18) | P1 | ✅ v0.6 |
+| S10 | Bandwidth groups: named speed-limit pools, manager dialog, per-torrent assignment | P1 | ✅ v0.6 |
 | S6 | Speed Graph panel: per-server throughput over 1/5/15-min windows | P1 | ✅ v0.4 |
 | S7 | Free-space gauges (status bar + stats panel) for the default server's download dir | P1 | ✅ v0.4 |
 | S8 | Native notification on download completion (per server, click to focus + select); toggleable | P1 | ✅ v0.4 |
@@ -182,7 +184,8 @@ Decision record: [ADR-0002](adr/0002-flexible-panel-workspace.md).
 | **0.4** ✅ | Semantic color system + status-coded rows (L9); speed graph panel (S6); queue controls (L10); free space (S7); completion notifications (S8); clipboard magnets (A6); swarm health (L11) |
 | **0.5** ✅ | Files-as-tree (D6); per-torrent limits (D7); tray (P4) |
 | **1.0** | Public launch: branding, docs site, auto-update proven in the wild |
-| Post-1.0 | Scheduler (S4), blocklists (S5), geo-IP peer info, RSS/watch folders, bandwidth groups, sequential download |
+| **0.6** ✅ | Alt-speed scheduler (S4); blocklist (S5); sequential download (S9); bandwidth groups (S10) |
+| Post-1.0 | Geo-IP peer info, RSS/watch folders, completion scripts, web seeds in peers |
 
 ## 8. Success criteria
 
