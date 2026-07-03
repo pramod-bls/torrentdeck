@@ -118,6 +118,14 @@ export const COLUMNS: Record<ColumnKey, ColumnDef> = {
     sortKey: 'addedDate',
     cell: (t) => formatDate(t.addedDate)
   },
+  queue: {
+    key: 'queue',
+    label: '#',
+    track: '44px',
+    align: 'right',
+    sortKey: 'queuePosition',
+    cell: (t) => `#${t.queuePosition + 1}`
+  },
   avail: {
     key: 'avail',
     label: 'Avail',

@@ -131,6 +131,7 @@ export type ColumnKey =
   | 'seeders'
   | 'leechers'
   | 'avail'
+  | 'queue'
 
 export interface PanelFilters {
   status: StatusFilter

@@ -244,6 +244,12 @@ export function TorrentRow({
       )}
     >
       <span className="flex items-center gap-2">
+        <span
+          className="shrink-0 text-[11px] text-surface-400 tabular-nums dark:text-surface-500"
+          title="Queue position"
+        >
+          #{torrent.queuePosition + 1}
+        </span>
         <span className={cn('min-w-0 flex-1 truncate text-sm', selected && 'font-medium')}>
           {torrent.name}
         </span>
