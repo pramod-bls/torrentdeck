@@ -42,6 +42,12 @@ export function AddTorrentDialog(): React.JSX.Element | null {
       setPaused(false)
       setUnwanted(new Set())
       setError(null)
+      // Convenience: a magnet link sitting in the clipboard prefills the field
+      if (payload?.magnet === '') {
+        void window.api.readClipboardText().then((text) => {
+          if (text.trim().startsWith('magnet:')) setMagnet(text.trim())
+        })
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, payload])

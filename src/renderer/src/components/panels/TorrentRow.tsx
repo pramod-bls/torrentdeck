@@ -3,8 +3,8 @@ import { ArrowDown, ArrowUp } from 'lucide-react'
 import type { Torrent } from '@shared/transmission'
 import { TorrentStatus } from '@shared/transmission'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
-import { useTorrentActionMutation } from '@/services/rpcApi'
-import { statusColor, statusText } from '@/features/torrents/derive'
+import { useQueueMoveMutation, useTorrentActionMutation } from '@/services/rpcApi'
+import { statusColor, statusText, swarmHealthClass } from '@/features/torrents/derive'
 import { openLabelsEditor, openRemoveConfirm, selectTorrent } from '@/features/ui/uiSlice'
 import { formatBytes, formatEta, formatPercent, formatRatio, formatSpeed } from '@/lib/format'
 import { cn } from '@/lib/cn'
@@ -75,6 +75,12 @@ function RowStats({ torrent }: { torrent: Torrent }): React.JSX.Element {
         <span className={statusColor(torrent).text}>{statusText(torrent)}</span>
         {after.length ? ` · ${after.join(' · ')}` : ''}
       </span>
+      {torrent.maxSeeders >= 0 && (
+        <span className="flex shrink-0 items-center gap-1" title="Swarm: seeders / leechers (best tracker)">
+          <span className={cn('h-1.5 w-1.5 rounded-full', swarmHealthClass(torrent.maxSeeders))} />
+          {torrent.maxSeeders}S/{Math.max(0, torrent.maxLeechers)}L
+        </span>
+      )}
       {torrent.rateDownload > 0 && (
         <span className="flex shrink-0 items-center gap-0.5 text-accent-600 dark:text-accent-400">
           <ArrowDown size={11} /> {formatSpeed(torrent.rateDownload)}
@@ -109,6 +115,7 @@ export function TorrentRowShell({
   const selection = useAppSelector((s) => s.ui.selection)
   const selected = selection?.profileId === profileId && selection.ids.includes(torrent.id)
   const [torrentAction] = useTorrentActionMutation()
+  const [queueMove] = useQueueMoveMutation()
 
   const ctxIds = selected && selection ? selection.ids : [torrent.id]
   const act =
@@ -167,6 +174,33 @@ export function TorrentRowShell({
               {label}
             </ContextMenu.Item>
           ))}
+          <ContextMenu.Separator className="my-1 h-px bg-surface-200 dark:bg-surface-700" />
+          <ContextMenu.Sub>
+            <ContextMenu.SubTrigger className="flex items-center rounded px-2 py-1.5 outline-none select-none data-highlighted:bg-surface-100 data-[state=open]:bg-surface-100 dark:data-highlighted:bg-surface-700 dark:data-[state=open]:bg-surface-700">
+              Queue
+              <span className="ml-auto text-surface-400">›</span>
+            </ContextMenu.SubTrigger>
+            <ContextMenu.Portal>
+              <ContextMenu.SubContent className="z-50 min-w-36 rounded-md border border-surface-200 bg-surface-50 p-1 text-sm shadow-lg dark:border-surface-700 dark:bg-surface-800">
+                {(
+                  [
+                    ['Move to top', 'queue-move-top'],
+                    ['Move up', 'queue-move-up'],
+                    ['Move down', 'queue-move-down'],
+                    ['Move to bottom', 'queue-move-bottom']
+                  ] as const
+                ).map(([label, direction]) => (
+                  <ContextMenu.Item
+                    key={direction}
+                    onSelect={() => void queueMove({ profileId, ids: ctxIds, direction })}
+                    className="rounded px-2 py-1.5 outline-none select-none data-highlighted:bg-surface-100 dark:data-highlighted:bg-surface-700"
+                  >
+                    {label}
+                  </ContextMenu.Item>
+                ))}
+              </ContextMenu.SubContent>
+            </ContextMenu.Portal>
+          </ContextMenu.Sub>
           <ContextMenu.Separator className="my-1 h-px bg-surface-200 dark:bg-surface-700" />
           <ContextMenu.Item
             onSelect={() => dispatch(openRemoveConfirm({ profileId, ids: ctxIds }))}

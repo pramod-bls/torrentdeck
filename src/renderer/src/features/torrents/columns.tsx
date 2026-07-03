@@ -118,6 +118,21 @@ export const COLUMNS: Record<ColumnKey, ColumnDef> = {
     sortKey: 'addedDate',
     cell: (t) => formatDate(t.addedDate)
   },
+  seeders: {
+    key: 'seeders',
+    label: 'Seeds',
+    track: '56px',
+    align: 'right',
+    sortKey: 'maxSeeders',
+    cell: (t) => (t.maxSeeders < 0 ? '—' : String(t.maxSeeders))
+  },
+  leechers: {
+    key: 'leechers',
+    label: 'Peers',
+    track: '56px',
+    align: 'right',
+    cell: (t) => (t.maxLeechers < 0 ? '—' : String(t.maxLeechers))
+  },
   labels: {
     key: 'labels',
     label: 'Labels',

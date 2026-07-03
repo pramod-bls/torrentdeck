@@ -1,10 +1,12 @@
 import { ArrowDown, ArrowUp, Turtle } from 'lucide-react'
 import { useAppSelector, useActiveProfileId, usePollingInterval } from '@/app/hooks'
 import {
+  useFreeSpaceQuery,
   useGetSessionQuery,
   useGetSessionStatsQuery,
   useSetSessionMutation
 } from '@/services/rpcApi'
+import { formatBytes } from '@/lib/format'
 import { formatSpeed } from '@/lib/format'
 import { cn } from '@/lib/cn'
 
@@ -18,6 +20,11 @@ export function StatusBar(): React.JSX.Element {
   const [setSession] = useSetSessionMutation()
 
   const altOn = session?.['alt-speed-enabled'] ?? false
+  const downloadDir = session?.['download-dir'] ?? ''
+  const { data: freeSpace } = useFreeSpaceQuery(
+    { profileId, path: downloadDir },
+    { skip: !downloadDir, pollingInterval: 30_000 }
+  )
 
   return (
     <div className="flex items-center gap-4 border-t border-surface-200 bg-surface-50 px-3 py-1 text-xs text-surface-600 dark:border-surface-700 dark:bg-surface-800/60 dark:text-surface-400">
@@ -44,6 +51,7 @@ export function StatusBar(): React.JSX.Element {
       <span className="flex-1" />
       <span>
         {stats ? `${stats.torrentCount} torrents` : '…'}
+        {freeSpace ? ` · ${formatBytes(freeSpace['size-bytes'])} free` : ''}
         {profileName ? ` · ${profileName}` : ''}
         {session ? ` · Transmission ${session.version}` : ''}
       </span>

@@ -7,7 +7,7 @@
  * across calls; editing a profile evicts its cache entry (credentials or TLS
  * settings may have changed).
  */
-import { dialog, ipcMain } from 'electron'
+import { clipboard, dialog, ipcMain } from 'electron'
 import { readFile } from 'node:fs/promises'
 import { basename } from 'node:path'
 import type {
@@ -120,4 +120,6 @@ export function registerIpc(): void {
   })
 
   ipcMain.handle('fs:readDroppedTorrents', (_e, paths: string[]) => readTorrentFiles(paths))
+
+  ipcMain.handle('clipboard:readText', () => clipboard.readText())
 }

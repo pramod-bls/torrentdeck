@@ -4,6 +4,7 @@ import { setPrefsOpen } from '@/features/ui/uiSlice'
 import type { AppPrefs } from '@shared/types'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Field } from '@/components/ui/input'
+import { LabeledCheckbox } from '@/components/ui/checkbox'
 
 export function PrefsDialog(): React.JSX.Element | null {
   const dispatch = useAppDispatch()
@@ -46,6 +47,11 @@ export function PrefsDialog(): React.JSX.Element | null {
               <option value={10000}>10 seconds</option>
             </select>
           </Field>
+          <LabeledCheckbox
+            checked={prefs.notifyOnComplete}
+            onCheckedChange={(v) => update({ notifyOnComplete: v })}
+            label="Notify when a download completes"
+          />
         </div>
       </DialogContent>
     </Dialog>

@@ -61,9 +61,17 @@ A `magnet:` URI that adds a Torrent without a metainfo file. The app registers a
 OS handler for these.
 
 ### Panel
-A self-contained view (Torrent List, a Detail tab, filters, stats) that the user can
-add to, remove from, and rearrange within the Workspace. One Panel type may appear as
-several independent instances.
+A self-contained view (Torrents Panel, a Detail tab, session stats, Speed Graph) that
+the user can add to, remove from, and rearrange within the Workspace. One Panel type
+may appear as several independent instances.
+
+### Speed Graph
+A Panel plotting one server's download/upload throughput over a selectable time
+window, fed by the same polling that drives the stats displays.
+
+### Swarm
+The peers available for a Torrent across its trackers. The list shows the best
+seeder/leecher counts any tracker reports, with a health tint (none/few/plenty).
 
 ### Workspace
 The user-composed arrangement of Panels in the main window, saved per Server Profile.

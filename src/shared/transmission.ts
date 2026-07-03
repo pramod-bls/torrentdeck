@@ -46,9 +46,16 @@ export interface Torrent {
   isFinished: boolean
   metadataPercentComplete: number
   trackers: TrackerRef[]
+  /** Best seeder/leecher counts across trackers, derived client-side from
+   * trackerStats (see deriveSwarm); -1 = unknown/no announce yet. */
+  maxSeeders: number
+  maxLeechers: number
 }
 
-export const TORRENT_LIST_FIELDS: (keyof Torrent)[] = [
+/** RPC fields requested for the list. `trackerStats` is heavy and is stripped
+ * to maxSeeders/maxLeechers in the transform before entering the cache. */
+export const TORRENT_LIST_FIELDS: (keyof Torrent | 'trackerStats')[] = [
+  'trackerStats',
   'id',
   'name',
   'status',
@@ -134,7 +141,7 @@ export interface TorrentDetail extends Torrent {
   trackerStats: TrackerStat[]
 }
 
-export const TORRENT_DETAIL_FIELDS: (keyof TorrentDetail)[] = [
+export const TORRENT_DETAIL_FIELDS: (keyof TorrentDetail | 'trackerStats')[] = [
   ...TORRENT_LIST_FIELDS,
   'comment',
   'creator',
@@ -184,6 +191,20 @@ export interface SessionStats {
   uploadSpeed: number
   'cumulative-stats': { uploadedBytes: number; downloadedBytes: number; secondsActive: number }
   'current-stats': { uploadedBytes: number; downloadedBytes: number; secondsActive: number }
+}
+
+/** Best-across-trackers swarm counts; -1 when no tracker has answered yet. */
+export function deriveSwarm(trackerStats?: TrackerStat[]): {
+  maxSeeders: number
+  maxLeechers: number
+} {
+  let maxSeeders = -1
+  let maxLeechers = -1
+  for (const t of trackerStats ?? []) {
+    maxSeeders = Math.max(maxSeeders, t.seederCount)
+    maxLeechers = Math.max(maxLeechers, t.leecherCount)
+  }
+  return { maxSeeders, maxLeechers }
 }
 
 /** Convert torrent-get `format: "table"` rows (first row = field names) to objects. */

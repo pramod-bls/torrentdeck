@@ -31,6 +31,8 @@ function torrent(partial: Partial<Torrent>): Torrent {
     isFinished: false,
     metadataPercentComplete: 1,
     trackers: [],
+    maxSeeders: -1,
+    maxLeechers: -1,
     ...partial
   }
 }

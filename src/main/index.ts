@@ -135,6 +135,13 @@ if (!gotTheLock) {
       rendererReady = true
       void flushPendingOpens()
     })
+    ipcMain.handle('app:focusWindow', () => {
+      if (mainWindow) {
+        if (mainWindow.isMinimized()) mainWindow.restore()
+        mainWindow.show()
+        mainWindow.focus()
+      }
+    })
 
     createWindow()
 

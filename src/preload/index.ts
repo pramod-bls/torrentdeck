@@ -47,6 +47,8 @@ const api: Api & { getPathForFile: (file: File) => string; rendererReady: () => 
   },
   pickTorrentFiles: () => ipcRenderer.invoke('dialog:pickTorrentFiles'),
   readDroppedTorrents: (paths: string[]) => ipcRenderer.invoke('fs:readDroppedTorrents', paths),
+  readClipboardText: () => ipcRenderer.invoke('clipboard:readText'),
+  focusWindow: () => ipcRenderer.invoke('app:focusWindow'),
   onOpenMagnet: (cb: (url: string) => void) => subscribe('open-magnet', cb),
   onOpenTorrentFiles: (cb: (files: TorrentFilePayload[]) => void) =>
     subscribe('open-torrent-files', cb),

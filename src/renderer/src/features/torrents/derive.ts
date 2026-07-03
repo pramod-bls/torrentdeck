@@ -72,7 +72,15 @@ const comparators: Record<SortPref['key'], (a: Torrent, b: Torrent) => number> =
   uploadRatio: (a, b) => a.uploadRatio - b.uploadRatio,
   eta: (a, b) => etaValue(a) - etaValue(b),
   addedDate: (a, b) => a.addedDate - b.addedDate,
-  queuePosition: (a, b) => a.queuePosition - b.queuePosition
+  queuePosition: (a, b) => a.queuePosition - b.queuePosition,
+  maxSeeders: (a, b) => a.maxSeeders - b.maxSeeders
+}
+
+/** Swarm-health tint for the seeder-count dot; -1 (unknown) reads as muted. */
+export function swarmHealthClass(maxSeeders: number): string {
+  if (maxSeeders <= 0) return 'bg-surface-400 dark:bg-surface-500'
+  if (maxSeeders <= 5) return 'bg-warning-400'
+  return 'bg-success-400'
 }
 
 export function sortTorrents(torrents: Torrent[], sort: SortPref): Torrent[] {

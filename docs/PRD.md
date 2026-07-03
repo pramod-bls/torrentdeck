@@ -78,6 +78,9 @@ Status reflects the current build.
 | L6 | Context menu: start, start now, pause, verify, reannounce, remove | P0 | ✅ |
 | L7 | Optional multi-column table view (transgui-style spreadsheet): sortable headers, column show/hide, per panel | P1 | ✅ v0.3 |
 | L8 | Keyboard navigation (arrows, ⇧-extend, ⌘A, space, delete) and global shortcuts with cheat sheet | P1 | ✅ v0.3 |
+| L9 | Status-coded rows (stripe + tinted status text) on a soft semantic palette | P1 | ✅ v0.4 |
+| L10 | Queue controls (move top/up/down/bottom) via context menu | P1 | ✅ v0.4 |
+| L11 | Swarm health: best seeder/leecher counts with health tint, sortable table columns | P1 | ✅ v0.4 |
 
 ### 4.3 Adding torrents
 
@@ -88,6 +91,7 @@ Status reflects the current build.
 | A3 | Add dialog: destination folder with live free-space, start-paused, per-file selection (metainfo parsed locally) | P0 | ✅ |
 | A4 | Duplicate detection surfaced to the user | P0 | ✅ |
 | A5 | Set labels at add time; bulk relabel via context menu; label chips with click-to-filter | P1 | ✅ v0.3 |
+| A6 | Clipboard magnet detection: add dialog prefills a magnet link found in the clipboard | P2 | ✅ v0.4 |
 
 ### 4.4 Torrent detail
 
@@ -110,6 +114,9 @@ Status reflects the current build.
 | S3 | App preferences: theme (system/light/dark), polling rate | P0 | ✅ |
 | S4 | Alt-speed scheduler UI | P2 | — |
 | S5 | Blocklist management | P2 | — |
+| S6 | Speed Graph panel: per-server throughput over 1/5/15-min windows | P1 | ✅ v0.4 |
+| S7 | Free-space gauges (status bar + stats panel) for the default server's download dir | P1 | ✅ v0.4 |
+| S8 | Native notification on download completion (per server, click to focus + select); toggleable | P1 | ✅ v0.4 |
 
 ### 4.6 Platform and distribution
 
@@ -169,7 +176,8 @@ Decision record: [ADR-0002](adr/0002-flexible-panel-workspace.md).
 | **0.1** ✅ | MVP core (§4, all P0s) — built and verified against live daemons |
 | **0.2** ✅ | Flexible panel workspace (§6) |
 | **0.3** ✅ | Multi-server Torrents panels with per-panel filters/sort/scope (C7/W6, ADR-0003); table view (L7); keyboard shortcuts (L8); labels everywhere (A5) |
-| **0.4** | Files-as-tree (D6); per-torrent limits (D7); tray (P4) |
+| **0.4** ✅ | Semantic color system + status-coded rows (L9); speed graph panel (S6); queue controls (L10); free space (S7); completion notifications (S8); clipboard magnets (A6); swarm health (L11) |
+| **0.5** | Files-as-tree (D6); per-torrent limits (D7); tray (P4) |
 | **1.0** | Public launch: branding, docs site, auto-update proven in the wild |
 | Post-1.0 | Scheduler (S4), blocklists (S5), geo-IP peer info, RSS/watch folders |
 

@@ -19,7 +19,7 @@ const initialState: ConnectionState = {
   loaded: false,
   profiles: [],
   activeProfileId: null,
-  prefs: { theme: 'system', pollingIntervalMs: 3000 }
+  prefs: { theme: 'system', pollingIntervalMs: 3000, notifyOnComplete: true }
 }
 
 export const bootstrap = createAsyncThunk('connection/bootstrap', async () => {

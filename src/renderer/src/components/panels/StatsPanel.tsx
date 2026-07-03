@@ -1,5 +1,5 @@
 import { useActiveProfileId, usePollingInterval } from '@/app/hooks'
-import { useGetSessionStatsQuery } from '@/services/rpcApi'
+import { useFreeSpaceQuery, useGetSessionQuery, useGetSessionStatsQuery } from '@/services/rpcApi'
 import { formatBytes, formatSpeed } from '@/lib/format'
 
 function Stat({ label, value }: { label: string; value: string }): React.JSX.Element {
@@ -16,6 +16,12 @@ export function StatsPanel(): React.JSX.Element {
   const profileId = useActiveProfileId()!
   const pollingInterval = usePollingInterval()
   const { data: stats } = useGetSessionStatsQuery({ profileId }, { pollingInterval })
+  const { data: session } = useGetSessionQuery({ profileId })
+  const downloadDir = session?.['download-dir'] ?? ''
+  const { data: freeSpace } = useFreeSpaceQuery(
+    { profileId, path: downloadDir },
+    { skip: !downloadDir, pollingInterval: 30_000 }
+  )
 
   if (!stats) {
     return (
@@ -39,9 +45,11 @@ export function StatsPanel(): React.JSX.Element {
       <Stat label="Session uploaded" value={formatBytes(cur.uploadedBytes)} />
       <Stat label="All-time downloaded" value={formatBytes(cum.downloadedBytes)} />
       <Stat label="All-time uploaded" value={formatBytes(cum.uploadedBytes)} />
-      <div className="col-span-2">
-        <Stat label="All-time ratio" value={ratio} />
-      </div>
+      <Stat label="All-time ratio" value={ratio} />
+      <Stat
+        label={`Free space${downloadDir ? ` · ${downloadDir}` : ''}`}
+        value={freeSpace ? formatBytes(freeSpace['size-bytes']) : '—'}
+      />
     </div>
   )
 }

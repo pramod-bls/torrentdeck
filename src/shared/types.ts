@@ -20,6 +20,7 @@ export type SortKey =
   | 'eta'
   | 'addedDate'
   | 'queuePosition'
+  | 'maxSeeders'
 
 export interface SortPref {
   key: SortKey
@@ -87,6 +88,7 @@ export interface RpcRequest {
 export interface AppPrefs {
   theme: 'system' | 'light' | 'dark'
   pollingIntervalMs: number
+  notifyOnComplete: boolean
 }
 
 export interface TorrentFilePayload {
@@ -122,6 +124,8 @@ export type ColumnKey =
   | 'eta'
   | 'added'
   | 'labels'
+  | 'seeders'
+  | 'leechers'
 
 export interface PanelFilters {
   status: StatusFilter
@@ -201,6 +205,8 @@ export interface Api {
   }
   pickTorrentFiles: () => Promise<TorrentFilePayload[]>
   readDroppedTorrents: (paths: string[]) => Promise<TorrentFilePayload[]>
+  readClipboardText: () => Promise<string>
+  focusWindow: () => Promise<void>
   onOpenMagnet: (cb: (url: string) => void) => () => void
   onOpenTorrentFiles: (cb: (files: TorrentFilePayload[]) => void) => () => void
 }

@@ -17,11 +17,13 @@ import type { RpcError } from '@shared/types'
 import {
   TORRENT_DETAIL_FIELDS,
   TORRENT_LIST_FIELDS,
+  deriveSwarm,
   tableToObjects,
   type SessionInfo,
   type SessionStats,
   type Torrent,
-  type TorrentDetail
+  type TorrentDetail,
+  type TrackerStat
 } from '@shared/transmission'
 
 export interface RpcQueryArgs {
@@ -78,7 +80,13 @@ export const rpcApi = createApi({
         method: 'torrent-get',
         arguments: { fields: TORRENT_LIST_FIELDS, format: 'table' }
       }),
-      transformResponse: (raw: { torrents: unknown[][] }) => tableToObjects<Torrent>(raw.torrents),
+      transformResponse: (raw: { torrents: unknown[][] }) =>
+        tableToObjects<Torrent & { trackerStats?: TrackerStat[] }>(raw.torrents).map((t) => {
+          // Strip the heavy trackerStats array before it enters the cache;
+          // only the derived swarm aggregates are kept on list torrents.
+          const { trackerStats, ...rest } = t
+          return { ...rest, ...deriveSwarm(trackerStats) } as Torrent
+        }),
       providesTags: ['Torrents']
     }),
     getTorrentDetail: build.query<TorrentDetail | undefined, { profileId: string; id: number }>({
@@ -87,7 +95,10 @@ export const rpcApi = createApi({
         method: 'torrent-get',
         arguments: { ids: [id], fields: TORRENT_DETAIL_FIELDS }
       }),
-      transformResponse: (raw: { torrents: TorrentDetail[] }) => raw.torrents[0],
+      transformResponse: (raw: { torrents: TorrentDetail[] }) => {
+        const t = raw.torrents[0]
+        return t ? { ...t, ...deriveSwarm(t.trackerStats) } : t
+      },
       providesTags: (_res, _err, { id }) => [{ type: 'Torrent', id }]
     }),
     torrentAction: build.mutation<
@@ -100,6 +111,17 @@ export const rpcApi = createApi({
     >({
       query: ({ profileId, action, ids }) => ({ profileId, method: action, arguments: { ids } }),
       invalidatesTags: (_r, _e, { ids }) => ['Torrents', ...ids.map((id) => ({ type: 'Torrent' as const, id }))]
+    }),
+    queueMove: build.mutation<
+      unknown,
+      {
+        profileId: string
+        ids: number[]
+        direction: 'queue-move-top' | 'queue-move-up' | 'queue-move-down' | 'queue-move-bottom'
+      }
+    >({
+      query: ({ profileId, ids, direction }) => ({ profileId, method: direction, arguments: { ids } }),
+      invalidatesTags: ['Torrents']
     }),
     removeTorrent: build.mutation<unknown, { profileId: string; ids: number[]; deleteData: boolean }>({
       query: ({ profileId, ids, deleteData }) => ({
@@ -161,6 +183,7 @@ export const {
   useGetTorrentsQuery,
   useGetTorrentDetailQuery,
   useTorrentActionMutation,
+  useQueueMoveMutation,
   useRemoveTorrentMutation,
   useAddTorrentMutation,
   useSetTorrentMutation,

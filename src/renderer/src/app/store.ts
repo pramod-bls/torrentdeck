@@ -4,6 +4,7 @@ import connectionReducer from '@/features/connection/connectionSlice'
 import uiReducer from '@/features/ui/uiSlice'
 import workspaceReducer, { persistWorkspaceMiddleware } from '@/features/workspace/workspaceSlice'
 import speedHistoryReducer, { speedSamplerMiddleware } from '@/features/stats/speedHistorySlice'
+import { completionNotifierMiddleware } from '@/features/torrents/completions'
 
 export const store = configureStore({
   reducer: {
@@ -15,7 +16,11 @@ export const store = configureStore({
   },
   middleware: (getDefault) =>
     getDefault()
-      .prepend(persistWorkspaceMiddleware.middleware, speedSamplerMiddleware.middleware)
+      .prepend(
+        persistWorkspaceMiddleware.middleware,
+        speedSamplerMiddleware.middleware,
+        completionNotifierMiddleware.middleware
+      )
       .concat(rpcApi.middleware)
 })
 
