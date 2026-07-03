@@ -5,7 +5,9 @@
  */
 import type { ServerProfile } from '@shared/types'
 import { TransmissionClient } from '../client'
+import { DelugeClient } from '../deluge/client'
 import { TransmissionAdapter } from './transmission'
+import { DelugeAdapter } from './deluge'
 import type { TorrentClient } from './types'
 
 export type { TorrentClient } from './types'
@@ -19,9 +21,16 @@ export function createAdapter(
 ): TorrentClient {
   switch (profile.serverType) {
     case 'deluge':
-      // Wired in Phase 2 (Deluge adapter). No Deluge profiles exist yet, so
-      // this is unreachable until then.
-      throw new Error('Deluge support is not available yet')
+      return new DelugeAdapter(
+        new DelugeClient({
+          host: profile.host,
+          port: profile.port,
+          useTls: profile.useTls,
+          allowSelfSignedCert: profile.allowSelfSignedCert,
+          rpcPath: profile.rpcPath || '/json',
+          password
+        })
+      )
     case 'transmission':
     default:
       return new TransmissionAdapter(

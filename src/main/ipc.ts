@@ -112,7 +112,7 @@ export function registerIpc(): void {
 
   ipcMain.handle('rpc:test', async (_e, input: ProfileInput): Promise<RpcResult> => {
     try {
-      const client = createAdapter(input)
+      const client = createAdapter(input, input.password)
       return await client.test()
     } catch (err) {
       return { ok: false, error: { kind: 'unknown', message: (err as Error).message } }
