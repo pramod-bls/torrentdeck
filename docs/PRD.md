@@ -150,7 +150,8 @@ Status reflects the current build.
   polling resumes automatically when the daemon returns.
 - **Compatibility:** Transmission 4.0+ (RPC 17+), verified against 4.0.5 (user's NAS)
   and 4.1.3 (dev container); Deluge 2.x via its Web UI, verified against 2.2.0 (dev
-  container). Per-server-type feature support is summarized in the README matrix.
+  container). Per-server-type feature support is documented in [DELUGE.md](DELUGE.md)
+  (and summarized in the README matrix).
 
 ## 5. Current UI
 

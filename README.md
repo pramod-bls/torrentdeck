@@ -24,6 +24,7 @@ Features a server doesn't support are hidden automatically per profile (see the 
 - [Product requirements (PRD)](docs/PRD.md) — problem, users, requirement tables with status, release plan
 - [Architecture](docs/ARCHITECTURE.md) — process model, data flow, state, security, testing
 - [Domain glossary](CONTEXT.md) — the canonical vocabulary used in code and UI
+- [Deluge support](docs/DELUGE.md) — Deluge vs. Transmission capabilities, degrades, and limits
 - [Decision records](docs/adr/) — 0001 RPC-via-main-process, 0002 flexible panel workspace, 0003 server-qualified selection, 0004 protocol adapters
 
 ## Supported features by server type
@@ -41,6 +42,9 @@ Features a server doesn't support are hidden automatically per profile (see the 
 | Alt-speed scheduler | ✓ | — |
 | Blocklist | ✓ | — |
 | Path rename, port test | ✓ | — |
+
+See [docs/DELUGE.md](docs/DELUGE.md) for the full breakdown — what has full parity, what
+degrades (and to what), and why each unsupported feature is hidden.
 
 ## Features (MVP)
 
