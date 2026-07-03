@@ -182,6 +182,41 @@ export function getStatsConfig(item: WorkspaceItem): StatsPanelConfig {
   return (item.config as StatsPanelConfig | undefined) ?? defaultStatsConfig()
 }
 
+/**
+ * Which server(s) a panel currently represents, for header color-coding.
+ * Torrents 'default' scope = all servers; Stats/Speed 'default' = the first;
+ * detail panels follow the selected torrent's server. Ids not in `allProfileIds`
+ * are dropped (stale config).
+ */
+export function panelServerIds(
+  item: WorkspaceItem,
+  allProfileIds: string[],
+  detailProfileId: string | null
+): string[] {
+  const keep = (ids: (string | null | undefined)[]): string[] =>
+    ids.filter((id): id is string => !!id && allProfileIds.includes(id))
+  switch (item.type) {
+    case 'torrent-list': {
+      const cfg = getListConfig(item)
+      return keep(cfg.servers === 'default' ? allProfileIds : cfg.servers)
+    }
+    case 'stats':
+    case 'speed-graph': {
+      const server = item.type === 'stats' ? getStatsConfig(item).server : getGraphConfig(item).server
+      return keep([server === 'default' ? allProfileIds[0] : server])
+    }
+    case 'detail':
+    case 'detail-general':
+    case 'detail-files':
+    case 'detail-peers':
+    case 'detail-trackers':
+    case 'detail-pieces':
+      return keep([detailProfileId])
+    default:
+      return []
+  }
+}
+
 /** Narrow a workspace item's config to the Torrents panel shape (filled by withConfig). */
 export function getListConfig(item: WorkspaceItem): TorrentsPanelConfig {
   return (item.config as TorrentsPanelConfig | undefined) ?? defaultPanelConfig()

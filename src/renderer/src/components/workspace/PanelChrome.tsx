@@ -1,6 +1,9 @@
 import { GripHorizontal, X } from 'lucide-react'
+import type { WorkspaceItem } from '@shared/types'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { panelRemoved } from '@/features/workspace/workspaceSlice'
+import { panelServerIds } from '@/features/workspace/panels'
+import { serverColor } from '@/features/connection/serverColor'
 import { setFocusedPanel } from '@/features/ui/uiSlice'
 import { cn } from '@/lib/cn'
 
@@ -10,18 +13,28 @@ import { cn } from '@/lib/cn'
  * dragConfig.handle in Workspace.tsx) with the panel title and a remove
  * button, and a clipped content area the panel fills. Clicking anywhere in a
  * panel focuses it (ring + keyboard routing target).
+ *
+ * A thin color strip along the top marks which server(s) the panel shows: one
+ * band per server (equal segments), so multi-server Torrents panels read at a
+ * glance. Colors are the stable per-server pastels (serverColor).
  */
 export function PanelChrome({
   id,
   title,
+  item,
   children
 }: {
   id: string
   title: string
+  item: WorkspaceItem
   children: React.ReactNode
 }): React.JSX.Element {
   const dispatch = useAppDispatch()
   const focused = useAppSelector((s) => s.ui.focusedPanelId === id)
+  const profileIds = useAppSelector((s) => s.connection.profiles.map((p) => p.id))
+  const detailProfileId = useAppSelector((s) => s.ui.detailTarget?.profileId ?? null)
+  const serverIds = panelServerIds(item, profileIds, detailProfileId)
+
   return (
     <div
       data-panel-id={id}
@@ -33,6 +46,13 @@ export function PanelChrome({
           : 'border-surface-200 dark:border-surface-700'
       )}
     >
+      {serverIds.length > 0 && (
+        <div className="flex h-1 shrink-0" aria-hidden>
+          {serverIds.map((sid) => (
+            <span key={sid} className="flex-1" style={{ backgroundColor: serverColor(sid) }} />
+          ))}
+        </div>
+      )}
       <div className="panel-drag-handle flex shrink-0 cursor-grab items-center gap-1.5 border-b border-surface-200 bg-surface-50 px-2 py-1 select-none active:cursor-grabbing dark:border-surface-700 dark:bg-surface-800/60">
         <GripHorizontal size={12} className="text-surface-400" />
         <span className="text-xs font-medium text-surface-600 dark:text-surface-300">{title}</span>

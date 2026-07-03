@@ -9,6 +9,7 @@ import {
   useSetSessionMutation
 } from '@/services/rpcApi'
 import { can, useServerCapabilities } from '@/features/connection/useCapabilities'
+import { serverColor } from '@/features/connection/serverColor'
 import {
   ALL_DAYS,
   DAY_LABELS,
@@ -389,12 +390,17 @@ export function SessionSettingsDialog(): React.JSX.Element | null {
                 type="button"
                 onClick={() => setSelected(p.id)}
                 className={cn(
-                  '-mb-px border-b-2 px-3 py-1.5 text-sm',
+                  '-mb-px flex items-center gap-1.5 border-b-2 px-3 py-1.5 text-sm',
                   p.id === current
                     ? 'border-accent-500 font-medium text-accent-600 dark:text-accent-300'
                     : 'border-transparent text-surface-500 hover:text-surface-700 dark:hover:text-surface-300'
                 )}
               >
+                <span
+                  className="h-2 w-2 shrink-0 rounded-full"
+                  style={{ backgroundColor: serverColor(p.id) }}
+                  aria-hidden
+                />
                 {p.name}
               </button>
             ))}

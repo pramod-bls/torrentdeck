@@ -15,6 +15,7 @@ import {
   Gauge
 } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
+import { serverColor } from '@/features/connection/serverColor'
 import {
   openAddTorrent,
   openLabelsEditor,
@@ -117,7 +118,12 @@ export function Toolbar(): React.JSX.Element {
           <DropdownMenuLabel>Servers</DropdownMenuLabel>
           {profiles.map((p) => (
             <DropdownMenuItem key={p.id} onSelect={() => dispatch(openProfileEditor(p.id))}>
-              <Server size={14} /> {p.name}
+              <span
+                className="h-2.5 w-2.5 shrink-0 rounded-full"
+                style={{ backgroundColor: serverColor(p.id) }}
+                aria-hidden
+              />
+              {p.name}
               <Pencil size={13} className="ml-auto text-surface-400" />
             </DropdownMenuItem>
           ))}
