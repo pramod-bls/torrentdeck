@@ -21,6 +21,7 @@ Features a server doesn't support are hidden automatically per profile (see the 
 
 ## Documentation
 
+- [User guide](docs/USER_GUIDE.md) — how to use the app: servers, panels, torrents, settings (with screenshots)
 - [Product requirements (PRD)](docs/PRD.md) — problem, users, requirement tables with status, release plan
 - [Architecture](docs/ARCHITECTURE.md) — process model, data flow, state, security, testing
 - [Domain glossary](CONTEXT.md) — the canonical vocabulary used in code and UI
