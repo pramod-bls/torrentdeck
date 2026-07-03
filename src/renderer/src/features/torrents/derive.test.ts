@@ -134,12 +134,17 @@ describe('deriveAvailRatio', () => {
 
 describe('progressFillColor', () => {
   it('sweeps orange → yellow only (never green; green is reserved for 100%)', () => {
-    expect(progressFillColor(0)).toBe('hsl(30 85% 45%)')
-    expect(progressFillColor(0.5)).toBe('hsl(44 85% 45%)')
-    expect(progressFillColor(1)).toBe('hsl(58 85% 45%)')
+    expect(progressFillColor(0)).toBe('hsl(20 90% 42%)')
+    expect(progressFillColor(0.5)).toBe('hsl(40 90% 47%)')
+    expect(progressFillColor(1)).toBe('hsl(60 90% 52%)')
+  })
+  it('quantizes into 10% bands (nearby values share a color, band boundaries differ)', () => {
+    expect(progressFillColor(0.4)).toBe(progressFillColor(0.44))
+    expect(progressFillColor(0.4)).toBe('hsl(36 90% 46%)')
+    expect(progressFillColor(0.4)).not.toBe(progressFillColor(0.5))
   })
   it('clamps out-of-range input', () => {
-    expect(progressFillColor(-1)).toBe('hsl(30 85% 45%)')
-    expect(progressFillColor(2)).toBe('hsl(58 85% 45%)')
+    expect(progressFillColor(-1)).toBe('hsl(20 90% 42%)')
+    expect(progressFillColor(2)).toBe('hsl(60 90% 52%)')
   })
 })

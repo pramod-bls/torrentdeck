@@ -84,17 +84,25 @@ export function availTextClass(availRatio: number): string {
   return 'text-danger-600 dark:text-danger-400'
 }
 
+/** Size of each progress-color band (0.1 = a distinct color every 10%). */
+export const PROGRESS_COLOR_STEP = 0.1
+
 /**
- * Solid progress-fill color for an IN-PROGRESS download: orange when low,
- * warming to yellow as it fills. Green is reserved for 100% (handled by the
- * caller with the completed `success` color), so the bar never looks "done"
- * before it is. Hue sweeps 30°(orange) → 58°(yellow) only — never into green.
+ * Solid progress-fill color for an IN-PROGRESS download, quantized into
+ * discrete bands (every PROGRESS_COLOR_STEP) so the fill visibly steps as it
+ * fills rather than drifting imperceptibly. Deep orange when low → bright
+ * yellow when nearly done; both hue AND lightness sweep so adjacent bands are
+ * distinguishable. Green is reserved for 100% (the caller swaps in the
+ * completed `success` color), so the bar never looks "done" before it is —
+ * the ramp stays in the orange→yellow range, never into green.
  * Returns HSL for an inline backgroundColor (Tailwind can't interpolate).
  */
 export function progressFillColor(fraction: number): string {
   const f = Math.min(1, Math.max(0, fraction))
-  const hue = Math.round(30 + 28 * f)
-  return `hsl(${hue} 85% 45%)`
+  const band = Math.round(f / PROGRESS_COLOR_STEP) * PROGRESS_COLOR_STEP
+  const hue = Math.round(20 + 40 * band) // 20°(orange) → 60°(yellow)
+  const light = Math.round(42 + 10 * band) // 42% (deep) → 52% (bright)
+  return `hsl(${hue} 90% ${light}%)`
 }
 
 /** Swarm-health tint for the seeder-count dot; -1 (unknown) reads as muted. */
