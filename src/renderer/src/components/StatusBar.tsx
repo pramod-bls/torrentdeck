@@ -7,6 +7,7 @@ import {
   useGetSessionStatsQuery,
   useSetSessionMutation
 } from '@/services/rpcApi'
+import { can, useServerCapabilities } from '@/features/connection/useCapabilities'
 import { formatBytes } from '@/lib/format'
 import { formatSpeed } from '@/lib/format'
 import { cn } from '@/lib/cn'
@@ -25,6 +26,7 @@ export function StatusBar(): React.JSX.Element {
   const { data: session } = useGetSessionQuery({ profileId })
   const [setSession] = useSetSessionMutation()
 
+  const caps = useServerCapabilities(profileId)
   const altOn = session?.['alt-speed-enabled'] ?? false
   const downloadDir = session?.['download-dir'] ?? ''
   const { data: freeSpace } = useFreeSpaceQuery(
@@ -40,20 +42,22 @@ export function StatusBar(): React.JSX.Element {
       <span className="flex items-center gap-1 text-success-600 dark:text-success-400">
         <ArrowUp size={12} /> {formatSpeed(stats?.uploadSpeed ?? 0)}
       </span>
-      <button
-        type="button"
-        aria-label="Toggle alternative speed limits"
-        title="Alternative speed limits"
-        onClick={() => void setSession({ profileId, fields: { 'alt-speed-enabled': !altOn } })}
-        className={cn(
-          'flex items-center rounded px-1 py-0.5',
-          altOn
-            ? 'bg-warning-100 text-warning-700 dark:bg-warning-900/50 dark:text-warning-300'
-            : 'hover:bg-surface-200 dark:hover:bg-surface-700'
-        )}
-      >
-        <Turtle size={13} />
-      </button>
+      {can(caps, 'altSpeedScheduler') && (
+        <button
+          type="button"
+          aria-label="Toggle alternative speed limits"
+          title="Alternative speed limits"
+          onClick={() => void setSession({ profileId, fields: { 'alt-speed-enabled': !altOn } })}
+          className={cn(
+            'flex items-center rounded px-1 py-0.5',
+            altOn
+              ? 'bg-warning-100 text-warning-700 dark:bg-warning-900/50 dark:text-warning-300'
+              : 'hover:bg-surface-200 dark:hover:bg-surface-700'
+          )}
+        >
+          <Turtle size={13} />
+        </button>
+      )}
       <span className="flex-1" />
       <span>
         {stats ? `${stats.torrentCount} torrents` : '…'}

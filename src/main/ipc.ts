@@ -11,48 +11,77 @@ import { clipboard, dialog, ipcMain } from 'electron'
 import { readFile } from 'node:fs/promises'
 import { basename } from 'node:path'
 import type {
+  InvokeRequest,
   ProfileInput,
-  RpcRequest,
   RpcResult,
   SortPref,
   TorrentFilePayload,
   WorkspaceLayout
 } from '@shared/types'
-import { TransmissionClient, type RpcTarget } from './rpc/client'
+import { createAdapter, type TorrentClient } from './rpc/adapters'
+import type {
+  AddTorrentParams,
+  QueueDirection,
+  TorrentActionKind
+} from './rpc/adapters/types'
+import type { BandwidthGroup, SessionInfo } from '@shared/transmission'
 import * as profiles from './profiles'
 
-const clients = new Map<string, TransmissionClient>()
+const clients = new Map<string, TorrentClient>()
 
-function targetFor(input: {
-  host: string
-  port: number
-  useTls: boolean
-  allowSelfSignedCert: boolean
-  rpcPath: string
-  username: string
-  password?: string
-}): RpcTarget {
-  return {
-    host: input.host,
-    port: input.port,
-    useTls: input.useTls,
-    allowSelfSignedCert: input.allowSelfSignedCert,
-    rpcPath: input.rpcPath || '/transmission/rpc',
-    username: input.username || undefined,
-    password: input.password
-  }
-}
-
-function clientFor(profileId: string): TransmissionClient | null {
+function clientFor(profileId: string): TorrentClient | null {
   const cached = clients.get(profileId)
   if (cached) return cached
   const profile = profiles.getProfile(profileId)
   if (!profile) return null
-  const client = new TransmissionClient(
-    targetFor({ ...profile, password: profiles.getPassword(profileId) })
-  )
+  const client = createAdapter(profile, profiles.getPassword(profileId))
   clients.set(profileId, client)
   return client
+}
+
+/** Route one intent-level op to the active profile's adapter. Params are the
+ * loose renderer payload; each case narrows them to the adapter's signature. */
+function dispatch(client: TorrentClient, op: InvokeRequest['op'], p: Record<string, unknown>): Promise<RpcResult> {
+  switch (op) {
+    case 'getCapabilities':
+      return client.getCapabilities()
+    case 'getSession':
+      return client.getSession()
+    case 'setSession':
+      return client.setSession(p.fields as Partial<SessionInfo>)
+    case 'getSessionStats':
+      return client.getSessionStats()
+    case 'portTest':
+      return client.portTest()
+    case 'blocklistUpdate':
+      return client.blocklistUpdate()
+    case 'getGroups':
+      return client.getGroups()
+    case 'setGroup':
+      return client.setGroup(p.group as Partial<BandwidthGroup> & { name: string })
+    case 'freeSpace':
+      return client.freeSpace(p.path as string)
+    case 'getTorrents':
+      return client.getTorrents()
+    case 'getTorrentDetail':
+      return client.getTorrentDetail(p.id as string)
+    case 'torrentAction':
+      return client.torrentAction(p.action as TorrentActionKind, p.ids as string[])
+    case 'queueMove':
+      return client.queueMove(p.direction as QueueDirection, p.ids as string[])
+    case 'removeTorrent':
+      return client.removeTorrent(p.ids as string[], p.deleteData as boolean)
+    case 'addTorrent':
+      return client.addTorrent(p as AddTorrentParams)
+    case 'setTorrent':
+      return client.setTorrent(p.ids as string[], p.fields as Record<string, unknown>)
+    case 'renamePath':
+      return client.renamePath(p.id as string, p.path as string, p.name as string)
+    case 'setLocation':
+      return client.setLocation(p.ids as string[], p.location as string, p.move as boolean)
+    default:
+      return Promise.resolve({ ok: false, error: { kind: 'unknown', message: `Unknown op: ${op}` } })
+  }
 }
 
 async function readTorrentFiles(paths: string[]): Promise<TorrentFilePayload[]> {
@@ -69,20 +98,25 @@ async function readTorrentFiles(paths: string[]): Promise<TorrentFilePayload[]> 
 }
 
 export function registerIpc(): void {
-  ipcMain.handle('rpc:call', async (_e, req: RpcRequest): Promise<RpcResult> => {
+  ipcMain.handle('rpc:invoke', async (_e, req: InvokeRequest): Promise<RpcResult> => {
     const client = clientFor(req.profileId)
     if (!client) {
       return { ok: false, error: { kind: 'unknown', message: 'Unknown server profile' } }
     }
-    return client.call(req.method, req.arguments)
+    try {
+      return await dispatch(client, req.op, req.params ?? {})
+    } catch (err) {
+      return { ok: false, error: { kind: 'unknown', message: (err as Error).message } }
+    }
   })
 
   ipcMain.handle('rpc:test', async (_e, input: ProfileInput): Promise<RpcResult> => {
-    const client = new TransmissionClient(targetFor(input))
-    const res = await client.call<{ version?: string }>('session-get', {
-      fields: ['version', 'rpc-version']
-    })
-    return res.ok ? { ok: true, data: { version: res.data.version ?? 'unknown' } } : res
+    try {
+      const client = createAdapter(input)
+      return await client.test()
+    } catch (err) {
+      return { ok: false, error: { kind: 'unknown', message: (err as Error).message } }
+    }
   })
 
   ipcMain.handle('profiles:list', () => profiles.listProfiles())

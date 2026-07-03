@@ -87,7 +87,7 @@ export function AddTorrentDialog(): React.JSX.Element | null {
           return
         }
         const res = await addTorrent({ ...common, magnet: magnet.trim() }).unwrap()
-        if (res['torrent-duplicate']) setError('That torrent is already on the server')
+        if (res.duplicate) setError('That torrent is already on the server')
         else close()
       } else {
         for (const f of files) {

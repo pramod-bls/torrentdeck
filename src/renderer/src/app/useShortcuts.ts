@@ -73,7 +73,7 @@ function anyDialogOpen(state: RootState): boolean {
   )
 }
 
-function scrollRowIntoView(profileId: string, id: number): void {
+function scrollRowIntoView(profileId: string, id: string): void {
   requestAnimationFrame(() => {
     document
       .querySelector(`[data-rowid="${profileId}:${id}"]`)

@@ -32,12 +32,23 @@ const store = new Store<StoreSchema>({
   }
 })
 
+/** Default RPC path for a server type when the user leaves the field blank. */
+export function defaultRpcPath(serverType: ServerProfile['serverType']): string {
+  return serverType === 'deluge' ? '/json' : '/transmission/rpc'
+}
+
+/** Backfill `serverType` for profiles saved before the field existed. */
+function normalizeProfile(p: ServerProfile): ServerProfile {
+  return p.serverType ? p : { ...p, serverType: 'transmission' }
+}
+
 export function listProfiles(): ServerProfile[] {
-  return store.get('profiles')
+  return store.get('profiles').map(normalizeProfile)
 }
 
 export function getProfile(id: string): ServerProfile | undefined {
-  return store.get('profiles').find((p) => p.id === id)
+  const p = store.get('profiles').find((p) => p.id === id)
+  return p ? normalizeProfile(p) : undefined
 }
 
 export function saveProfile(input: ProfileInput): ServerProfile {
@@ -55,14 +66,16 @@ export function saveProfile(input: ProfileInput): ServerProfile {
     store.set('passwords', passwords)
   }
 
+  const serverType = input.serverType ?? 'transmission'
   const profile: ServerProfile = {
     id,
     name: input.name,
+    serverType,
     host: input.host,
     port: input.port,
     useTls: input.useTls,
     allowSelfSignedCert: input.allowSelfSignedCert,
-    rpcPath: input.rpcPath || '/transmission/rpc',
+    rpcPath: input.rpcPath || defaultRpcPath(serverType),
     username: input.username,
     hasPassword: passwords[id] !== undefined,
     sort: existing?.sort

@@ -5,7 +5,7 @@ import { filterTorrents, sortTorrents, deriveSidebar, statusColor, progressFillC
 
 function torrent(partial: Partial<Torrent>): Torrent {
   return {
-    id: 1,
+    id: '1',
     name: 't',
     status: TorrentStatus.Downloading,
     hashString: 'h',
@@ -44,51 +44,51 @@ const base = { statusFilter: 'all' as const, trackerFilter: null, labelFilter: n
 describe('filterTorrents', () => {
   it('filters by status group', () => {
     const list = [
-      torrent({ id: 1, status: TorrentStatus.Downloading }),
-      torrent({ id: 2, status: TorrentStatus.Seeding }),
-      torrent({ id: 3, status: TorrentStatus.Stopped })
+      torrent({ id: '1', status: TorrentStatus.Downloading }),
+      torrent({ id: '2', status: TorrentStatus.Seeding }),
+      torrent({ id: '3', status: TorrentStatus.Stopped })
     ]
-    expect(filterTorrents(list, { ...base, statusFilter: 'downloading' }).map((t) => t.id)).toEqual([1])
-    expect(filterTorrents(list, { ...base, statusFilter: 'paused' }).map((t) => t.id)).toEqual([3])
+    expect(filterTorrents(list, { ...base, statusFilter: 'downloading' }).map((t) => t.id)).toEqual(['1'])
+    expect(filterTorrents(list, { ...base, statusFilter: 'paused' }).map((t) => t.id)).toEqual(['3'])
   })
 
   it('filters by error state', () => {
-    const list = [torrent({ id: 1 }), torrent({ id: 2, error: 3, errorString: 'boom' })]
-    expect(filterTorrents(list, { ...base, statusFilter: 'error' }).map((t) => t.id)).toEqual([2])
+    const list = [torrent({ id: '1' }), torrent({ id: '2', error: 3, errorString: 'boom' })]
+    expect(filterTorrents(list, { ...base, statusFilter: 'error' }).map((t) => t.id)).toEqual(['2'])
   })
 
   it('searches case-insensitively', () => {
-    const list = [torrent({ id: 1, name: 'Ubuntu ISO' }), torrent({ id: 2, name: 'debian' })]
-    expect(filterTorrents(list, { ...base, search: 'ubu' }).map((t) => t.id)).toEqual([1])
+    const list = [torrent({ id: '1', name: 'Ubuntu ISO' }), torrent({ id: '2', name: 'debian' })]
+    expect(filterTorrents(list, { ...base, search: 'ubu' }).map((t) => t.id)).toEqual(['1'])
   })
 
   it('filters by tracker host and label', () => {
     const list = [
       torrent({
-        id: 1,
+        id: '1',
         trackers: [{ announce: 'https://tr.example.org/announce', id: 0, scrape: '', sitename: '', tier: 0 }]
       }),
-      torrent({ id: 2, labels: ['isos'] })
+      torrent({ id: '2', labels: ['isos'] })
     ]
-    expect(filterTorrents(list, { ...base, trackerFilter: 'tr.example.org' }).map((t) => t.id)).toEqual([1])
-    expect(filterTorrents(list, { ...base, labelFilter: 'isos' }).map((t) => t.id)).toEqual([2])
+    expect(filterTorrents(list, { ...base, trackerFilter: 'tr.example.org' }).map((t) => t.id)).toEqual(['1'])
+    expect(filterTorrents(list, { ...base, labelFilter: 'isos' }).map((t) => t.id)).toEqual(['2'])
   })
 })
 
 describe('sortTorrents', () => {
   it('sorts by name with numeric awareness', () => {
-    const list = [torrent({ id: 1, name: 'ep10' }), torrent({ id: 2, name: 'ep2' })]
+    const list = [torrent({ id: '1', name: 'ep10' }), torrent({ id: '2', name: 'ep2' })]
     expect(sortTorrents(list, { key: 'name', desc: false }).map((t) => t.name)).toEqual(['ep2', 'ep10'])
   })
 
   it('sorts descending', () => {
-    const list = [torrent({ id: 1, totalSize: 10 }), torrent({ id: 2, totalSize: 20 })]
-    expect(sortTorrents(list, { key: 'totalSize', desc: true }).map((t) => t.id)).toEqual([2, 1])
+    const list = [torrent({ id: '1', totalSize: 10 }), torrent({ id: '2', totalSize: 20 })]
+    expect(sortTorrents(list, { key: 'totalSize', desc: true }).map((t) => t.id)).toEqual(['2', '1'])
   })
 
   it('always sorts unknown eta last', () => {
-    const list = [torrent({ id: 1, eta: -1 }), torrent({ id: 2, eta: 30 })]
-    expect(sortTorrents(list, { key: 'eta', desc: false }).map((t) => t.id)).toEqual([2, 1])
+    const list = [torrent({ id: '1', eta: -1 }), torrent({ id: '2', eta: 30 })]
+    expect(sortTorrents(list, { key: 'eta', desc: false }).map((t) => t.id)).toEqual(['2', '1'])
   })
 })
 
@@ -96,12 +96,12 @@ describe('deriveSidebar', () => {
   it('counts statuses, trackers, and labels', () => {
     const list = [
       torrent({
-        id: 1,
+        id: '1',
         status: TorrentStatus.Downloading,
         labels: ['isos'],
         trackers: [{ announce: 'https://a.example/announce', id: 0, scrape: '', sitename: '', tier: 0 }]
       }),
-      torrent({ id: 2, status: TorrentStatus.Seeding, labels: ['isos'] })
+      torrent({ id: '2', status: TorrentStatus.Seeding, labels: ['isos'] })
     ]
     const sb = deriveSidebar(list)
     expect(sb.all).toBe(2)

@@ -11,7 +11,7 @@ import { selectTorrent } from '@/features/ui/uiSlice'
 import type { AppPrefs, ServerProfile } from '@shared/types'
 
 export interface Completion {
-  id: number
+  id: string
   name: string
 }
 

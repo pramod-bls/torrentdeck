@@ -108,7 +108,7 @@ export function sortTorrents(torrents: Torrent[], sort: SortPref): Torrent[] {
   const cmp = comparators[sort.key]
   const sorted = [...torrents].sort((a, b) => {
     const c = cmp(a, b)
-    return c !== 0 ? (sort.desc ? -c : c) : a.id - b.id
+    return c !== 0 ? (sort.desc ? -c : c) : a.id.localeCompare(b.id)
   })
   return sorted
 }

@@ -39,13 +39,13 @@ function EmptyState({ hint }: { hint: string }): React.JSX.Element {
  * which daemon the torrent lives on.
  */
 function useSelectedTorrentDetail(): {
-  target: { profileId: string; id: number } | null
+  target: { profileId: string; id: string } | null
   torrent: TorrentDetail | undefined
 } {
   const pollingInterval = usePollingInterval()
   const target = useAppSelector((s) => s.ui.detailTarget)
   const { data: torrent } = useGetTorrentDetailQuery(
-    { profileId: target?.profileId ?? '', id: target?.id ?? 0 },
+    { profileId: target?.profileId ?? '', id: target?.id ?? '' },
     { pollingInterval, skip: target === null }
   )
   return { target, torrent }

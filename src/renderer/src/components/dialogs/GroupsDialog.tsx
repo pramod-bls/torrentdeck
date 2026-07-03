@@ -4,6 +4,7 @@ import type { BandwidthGroup } from '@shared/transmission'
 import { useAppDispatch, useAppSelector, useActiveProfileId } from '@/app/hooks'
 import { setGroupsOpen } from '@/features/ui/uiSlice'
 import { useGetGroupsQuery, useSetGroupMutation } from '@/services/rpcApi'
+import { can, useServerCapabilities } from '@/features/connection/useCapabilities'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -70,11 +71,17 @@ export function GroupsDialog(): React.JSX.Element | null {
   const dispatch = useAppDispatch()
   const open = useAppSelector((s) => s.ui.groupsOpen)
   const profileId = useActiveProfileId()
-  const { data: groups = [] } = useGetGroupsQuery({ profileId: profileId ?? '' }, { skip: !profileId || !open })
+  const caps = useServerCapabilities(profileId)
+  const { data: groups = [] } = useGetGroupsQuery(
+    { profileId: profileId ?? '' },
+    { skip: !profileId || !open || !can(caps, 'bandwidthGroups') }
+  )
   const [setGroup] = useSetGroupMutation()
   const [newName, setNewName] = useState('')
 
-  if (!open || !profileId) return null
+  // Bandwidth groups are Transmission-only; the menu entry is hidden elsewhere,
+  // but guard here too so the dialog can never open against a server without them.
+  if (!open || !profileId || !can(caps, 'bandwidthGroups')) return null
 
   const close = (): void => {
     dispatch(setGroupsOpen(false))

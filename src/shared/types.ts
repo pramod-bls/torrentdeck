@@ -29,6 +29,31 @@ export interface SortPref {
 }
 
 /**
+ * Which daemon protocol a profile speaks. The main process picks an adapter
+ * from this (see src/main/rpc/adapters); the renderer stays protocol-agnostic
+ * and only branches on Capabilities. Defaults to 'transmission' for profiles
+ * saved before this field existed.
+ */
+export type ServerType = 'transmission' | 'deluge'
+
+/**
+ * What a given server can actually do, so the UI can hide controls the daemon
+ * doesn't support rather than letting them fail. Reported by the active
+ * adapter (some flags are probed live — e.g. Deluge's Label plugin).
+ */
+export interface Capabilities {
+  bandwidthGroups: boolean
+  altSpeedScheduler: boolean
+  blocklist: boolean
+  sequentialDownload: boolean
+  perPieceAvailability: boolean
+  perTrackerSwarm: boolean
+  labels: boolean
+  renamePath: boolean
+  portTest: boolean
+}
+
+/**
  * A saved daemon connection ("Server Profile" in CONTEXT.md) as seen by the
  * renderer. Deliberately excludes the password — the renderer only learns
  * `hasPassword`; the secret lives safeStorage-encrypted in the main process.
@@ -36,6 +61,7 @@ export interface SortPref {
 export interface ServerProfile {
   id: string
   name: string
+  serverType: ServerType
   host: string
   port: number
   useTls: boolean
@@ -50,6 +76,7 @@ export interface ServerProfile {
 export interface ProfileInput {
   id?: string
   name: string
+  serverType: ServerType
   host: string
   port: number
   useTls: boolean
@@ -80,10 +107,42 @@ export interface RpcError {
  */
 export type RpcResult<T = unknown> = { ok: true; data: T } | { ok: false; error: RpcError }
 
-export interface RpcRequest {
+/**
+ * Intent-level operations the renderer asks of a server, independent of which
+ * daemon protocol backs it. The main process routes each op to the active
+ * profile's adapter, which returns already-normalized shared types (ADR-0004).
+ */
+export type TorrentOp =
+  | 'getCapabilities'
+  | 'getSession'
+  | 'setSession'
+  | 'getSessionStats'
+  | 'portTest'
+  | 'blocklistUpdate'
+  | 'getGroups'
+  | 'setGroup'
+  | 'freeSpace'
+  | 'getTorrents'
+  | 'getTorrentDetail'
+  | 'torrentAction'
+  | 'queueMove'
+  | 'removeTorrent'
+  | 'addTorrent'
+  | 'setTorrent'
+  | 'renamePath'
+  | 'setLocation'
+
+/** Renderer→main payload for a single intent-level operation. */
+export interface InvokeRequest {
   profileId: string
-  method: string
-  arguments?: Record<string, unknown>
+  op: TorrentOp
+  params?: Record<string, unknown>
+}
+
+/** Normalized result of an add-torrent op, keyed by infohash regardless of daemon. */
+export interface AddResult {
+  added?: { id: string; name: string }
+  duplicate?: { id: string; name: string }
 }
 
 export interface AppPrefs {
@@ -193,7 +252,7 @@ export interface WorkspaceLayout {
  * `src/main/ipc.ts`, forward it in `src/preload/index.ts`.
  */
 export interface Api {
-  rpc: <T = unknown>(req: RpcRequest) => Promise<RpcResult<T>>
+  invoke: <T = unknown>(req: InvokeRequest) => Promise<RpcResult<T>>
   testConnection: (input: ProfileInput) => Promise<RpcResult<{ version: string }>>
   profiles: {
     list: () => Promise<ServerProfile[]>

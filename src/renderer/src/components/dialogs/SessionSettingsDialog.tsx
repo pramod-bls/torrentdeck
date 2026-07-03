@@ -8,6 +8,7 @@ import {
   usePortTestMutation,
   useSetSessionMutation
 } from '@/services/rpcApi'
+import { can, useServerCapabilities } from '@/features/connection/useCapabilities'
 import {
   ALL_DAYS,
   DAY_LABELS,
@@ -28,6 +29,7 @@ export function SessionSettingsDialog(): React.JSX.Element | null {
   const dispatch = useAppDispatch()
   const open = useAppSelector((s) => s.ui.sessionSettingsOpen)
   const profileId = useActiveProfileId()
+  const caps = useServerCapabilities(profileId)
   const { data: session } = useGetSessionQuery(
     { profileId: profileId ?? '' },
     { skip: !profileId || !open }
@@ -135,28 +137,30 @@ export function SessionSettingsDialog(): React.JSX.Element | null {
             />
           </div>
 
-          <div className="space-y-2">
-            <p className="text-xs font-semibold text-surface-500 uppercase">Alternative limits</p>
-            <LabeledCheckbox
-              checked={draft['alt-speed-enabled'] ?? false}
-              onCheckedChange={(v) => set('alt-speed-enabled', v)}
-              label="Alternative limits on"
-            />
-            <Field label="Alt download (kB/s)">
-              <Input
-                type="number"
-                value={num(draft['alt-speed-down'])}
-                onChange={(e) => set('alt-speed-down', Number(e.target.value))}
+          {can(caps, 'altSpeedScheduler') && (
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-surface-500 uppercase">Alternative limits</p>
+              <LabeledCheckbox
+                checked={draft['alt-speed-enabled'] ?? false}
+                onCheckedChange={(v) => set('alt-speed-enabled', v)}
+                label="Alternative limits on"
               />
-            </Field>
-            <Field label="Alt upload (kB/s)">
-              <Input
-                type="number"
-                value={num(draft['alt-speed-up'])}
-                onChange={(e) => set('alt-speed-up', Number(e.target.value))}
-              />
-            </Field>
-          </div>
+              <Field label="Alt download (kB/s)">
+                <Input
+                  type="number"
+                  value={num(draft['alt-speed-down'])}
+                  onChange={(e) => set('alt-speed-down', Number(e.target.value))}
+                />
+              </Field>
+              <Field label="Alt upload (kB/s)">
+                <Input
+                  type="number"
+                  value={num(draft['alt-speed-up'])}
+                  onChange={(e) => set('alt-speed-up', Number(e.target.value))}
+                />
+              </Field>
+            </div>
+          )}
 
           <div className="space-y-2">
             <p className="text-xs font-semibold text-surface-500 uppercase">Seeding</p>
@@ -233,6 +237,7 @@ export function SessionSettingsDialog(): React.JSX.Element | null {
             )}
           </div>
 
+          {can(caps, 'altSpeedScheduler') && (
           <div className="space-y-2">
             <p className="text-xs font-semibold text-surface-500 uppercase">Alt-speed schedule</p>
             <LabeledCheckbox
@@ -287,7 +292,9 @@ export function SessionSettingsDialog(): React.JSX.Element | null {
               })}
             </div>
           </div>
+          )}
 
+          {can(caps, 'blocklist') && (
           <div className="space-y-2">
             <p className="text-xs font-semibold text-surface-500 uppercase">Blocklist</p>
             <LabeledCheckbox
@@ -319,6 +326,7 @@ export function SessionSettingsDialog(): React.JSX.Element | null {
               <p className="text-xs text-surface-500 dark:text-surface-400">{blocklistResult}</p>
             )}
           </div>
+          )}
         </div>
 
         <div className="mt-4 flex justify-end gap-2">

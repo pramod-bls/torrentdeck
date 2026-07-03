@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { useAppDispatch, useAppSelector, useActiveProfileId } from '@/app/hooks'
 import { setActiveProfile } from '@/features/connection/connectionSlice'
+import { can, useServerCapabilities } from '@/features/connection/useCapabilities'
 import {
   openAddTorrent,
   openLabelsEditor,
@@ -47,6 +48,7 @@ import { AddPanelMenu } from '@/components/workspace/AddPanelMenu'
 export function Toolbar(): React.JSX.Element {
   const dispatch = useAppDispatch()
   const defaultProfileId = useActiveProfileId()
+  const caps = useServerCapabilities(defaultProfileId)
   const profiles = useAppSelector((s) => s.connection.profiles)
   const active = profiles.find((p) => p.id === defaultProfileId)
   const selection = useAppSelector((s) => s.ui.selection)
@@ -146,9 +148,11 @@ export function Toolbar(): React.JSX.Element {
           <DropdownMenuItem onSelect={() => dispatch(setSessionSettingsOpen(true))}>
             <SlidersHorizontal size={14} /> Server settings…
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => dispatch(setGroupsOpen(true))}>
-            <Gauge size={14} /> Bandwidth groups…
-          </DropdownMenuItem>
+          {can(caps, 'bandwidthGroups') && (
+            <DropdownMenuItem onSelect={() => dispatch(setGroupsOpen(true))}>
+              <Gauge size={14} /> Bandwidth groups…
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem onSelect={() => dispatch(setPrefsOpen(true))}>
             <Settings2 size={14} /> Preferences…
           </DropdownMenuItem>

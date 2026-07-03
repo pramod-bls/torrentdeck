@@ -50,10 +50,10 @@ export function ServerGroup({
   // Drag-to-reorder is only meaningful when the visual order IS the queue order.
   const reorderable = config.sort.key === 'queuePosition' && !config.sort.desc
   const [setTorrent] = useSetTorrentMutation()
-  const [dragId, setDragId] = useState<number | null>(null)
-  const [dropId, setDropId] = useState<number | null>(null)
+  const [dragId, setDragId] = useState<string | null>(null)
+  const [dropId, setDropId] = useState<string | null>(null)
 
-  const buildReorder = (targetId: number): RowReorder | undefined => {
+  const buildReorder = (targetId: string): RowReorder | undefined => {
     if (!reorderable) return undefined
     return {
       onDragStart: () => setDragId(targetId),

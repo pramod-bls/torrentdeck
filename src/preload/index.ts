@@ -12,8 +12,8 @@ import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import type {
   Api,
   AppPrefs,
+  InvokeRequest,
   ProfileInput,
-  RpcRequest,
   SortPref,
   TorrentFilePayload,
   WorkspaceLayout
@@ -26,7 +26,7 @@ function subscribe<T>(channel: string, cb: (payload: T) => void): () => void {
 }
 
 const api: Api & { getPathForFile: (file: File) => string; rendererReady: () => void } = {
-  rpc: (req: RpcRequest) => ipcRenderer.invoke('rpc:call', req),
+  invoke: (req: InvokeRequest) => ipcRenderer.invoke('rpc:invoke', req),
   testConnection: (input: ProfileInput) => ipcRenderer.invoke('rpc:test', input),
   profiles: {
     list: () => ipcRenderer.invoke('profiles:list'),

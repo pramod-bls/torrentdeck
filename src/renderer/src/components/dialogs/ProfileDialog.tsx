@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { ProfileInput } from '@shared/types'
+import type { ProfileInput, ServerType } from '@shared/types'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { deleteProfile, saveProfile, setActiveProfile } from '@/features/connection/connectionSlice'
 import { closeProfileEditor } from '@/features/ui/uiSlice'
@@ -8,8 +8,15 @@ import { Button } from '@/components/ui/button'
 import { Input, Field } from '@/components/ui/input'
 import { LabeledCheckbox } from '@/components/ui/checkbox'
 
+/** Per-server-type connection defaults, applied when the type is switched. */
+const TYPE_DEFAULTS: Record<ServerType, { port: number; rpcPath: string; label: string }> = {
+  transmission: { port: 9091, rpcPath: '/transmission/rpc', label: 'Transmission' },
+  deluge: { port: 8112, rpcPath: '/json', label: 'Deluge' }
+}
+
 const EMPTY: ProfileInput = {
   name: '',
+  serverType: 'transmission',
   host: '',
   port: 9091,
   useTls: false,
@@ -50,6 +57,20 @@ export function ProfileDialog(): React.JSX.Element | null {
   const set = <K extends keyof ProfileInput>(key: K, value: ProfileInput[K]): void =>
     setForm((f) => ({ ...f, [key]: value }))
 
+  // Switching server type re-applies that type's default port/path when the
+  // current values are still a known default (never clobbers custom entries).
+  const setServerType = (serverType: ServerType): void =>
+    setForm((f) => {
+      const wasDefault = Object.values(TYPE_DEFAULTS)
+      const port = wasDefault.some((d) => d.port === f.port) ? TYPE_DEFAULTS[serverType].port : f.port
+      const rpcPath = wasDefault.some((d) => d.rpcPath === f.rpcPath)
+        ? TYPE_DEFAULTS[serverType].rpcPath
+        : f.rpcPath
+      return { ...f, serverType, port, rpcPath }
+    })
+
+  const isDeluge = form.serverType === 'deluge'
+
   const inputWithPassword = (): ProfileInput => ({
     ...form,
     id: editing?.id,
@@ -63,7 +84,7 @@ export function ProfileDialog(): React.JSX.Element | null {
     setTesting(false)
     setTestResult(
       res.ok
-        ? `Connected — Transmission ${(res.data as { version: string }).version}`
+        ? `Connected — ${TYPE_DEFAULTS[form.serverType].label} ${(res.data as { version: string }).version}`
         : res.error.message
     )
   }
@@ -91,9 +112,21 @@ export function ProfileDialog(): React.JSX.Element | null {
     <Dialog open={open} onOpenChange={(v) => !v && close()}>
       <DialogContent title={editing ? 'Edit server' : 'Add server'}>
         <div className="space-y-3">
-          <Field label="Display name">
-            <Input value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="Home NAS" autoFocus />
-          </Field>
+          <div className="grid grid-cols-3 gap-2">
+            <Field label="Display name" className="col-span-2">
+              <Input value={form.name} onChange={(e) => set('name', e.target.value)} placeholder="Home NAS" autoFocus />
+            </Field>
+            <Field label="Server type">
+              <select
+                value={form.serverType}
+                onChange={(e) => setServerType(e.target.value as ServerType)}
+                className="h-9 w-full rounded-md border border-surface-300 bg-surface-50 px-2 text-sm dark:border-surface-600 dark:bg-surface-900"
+              >
+                <option value="transmission">Transmission</option>
+                <option value="deluge">Deluge</option>
+              </select>
+            </Field>
+          </div>
           <div className="grid grid-cols-3 gap-2">
             <Field label="Host" className="col-span-2">
               <Input value={form.host} onChange={(e) => set('host', e.target.value)} placeholder="nas.local" />
@@ -106,7 +139,7 @@ export function ProfileDialog(): React.JSX.Element | null {
               />
             </Field>
           </div>
-          <Field label="RPC path">
+          <Field label={isDeluge ? 'Web UI path' : 'RPC path'}>
             <Input value={form.rpcPath} onChange={(e) => set('rpcPath', e.target.value)} />
           </Field>
           <div className="space-y-2">
@@ -123,11 +156,13 @@ export function ProfileDialog(): React.JSX.Element | null {
               />
             )}
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <Field label="Username">
-              <Input value={form.username} onChange={(e) => set('username', e.target.value)} autoComplete="off" />
-            </Field>
-            <Field label="Password">
+          <div className={isDeluge ? '' : 'grid grid-cols-2 gap-2'}>
+            {!isDeluge && (
+              <Field label="Username">
+                <Input value={form.username} onChange={(e) => set('username', e.target.value)} autoComplete="off" />
+              </Field>
+            )}
+            <Field label={isDeluge ? 'Web UI password' : 'Password'}>
               <Input
                 type="password"
                 value={password}
