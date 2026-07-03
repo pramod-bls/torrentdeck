@@ -15,7 +15,11 @@ import electronUpdater from 'electron-updater'
 import { readFile } from 'node:fs/promises'
 import { basename } from 'node:path'
 import { registerIpc } from './ipc'
+import { createTray, destroyTray, updateTraySpeeds } from './tray'
+import { getPrefs } from './profiles'
 import type { TorrentFilePayload } from '@shared/types'
+
+let isQuitting = false
 
 let mainWindow: BrowserWindow | null = null
 let rendererReady = false
@@ -66,6 +70,14 @@ function createWindow(): void {
   })
 
   mainWindow.on('ready-to-show', () => mainWindow?.show())
+  // Close-to-tray: intercept the close and hide instead of quitting, unless
+  // the user is actually quitting the app (Cmd-Q / menu / tray Quit).
+  mainWindow.on('close', (e) => {
+    if (!isQuitting && getPrefs().closeToTray) {
+      e.preventDefault()
+      mainWindow?.hide()
+    }
+  })
   mainWindow.on('closed', () => {
     mainWindow = null
     rendererReady = false
@@ -142,15 +154,24 @@ if (!gotTheLock) {
         mainWindow.focus()
       }
     })
+    ipcMain.on('tray:setSpeeds', (_e, down: number, up: number) => updateTraySpeeds(down, up))
 
     createWindow()
+    if (mainWindow) createTray(mainWindow)
 
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) createWindow()
+      else mainWindow?.show()
     })
   })
 
+  app.on('before-quit', () => {
+    isQuitting = true
+    destroyTray()
+  })
+
   app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') app.quit()
+    // With a tray + close-to-tray the app intentionally outlives its window.
+    if (process.platform !== 'darwin' && !getPrefs().closeToTray) app.quit()
   })
 }

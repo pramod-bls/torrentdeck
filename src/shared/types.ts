@@ -90,6 +90,8 @@ export interface AppPrefs {
   theme: 'system' | 'light' | 'dark'
   pollingIntervalMs: number
   notifyOnComplete: boolean
+  /** When true, closing the window hides it to the tray instead of quitting. */
+  closeToTray: boolean
 }
 
 export interface TorrentFilePayload {
@@ -210,6 +212,7 @@ export interface Api {
   readDroppedTorrents: (paths: string[]) => Promise<TorrentFilePayload[]>
   readClipboardText: () => Promise<string>
   focusWindow: () => Promise<void>
+  setTraySpeeds: (down: number, up: number) => void
   onOpenMagnet: (cb: (url: string) => void) => () => void
   onOpenTorrentFiles: (cb: (files: TorrentFilePayload[]) => void) => () => void
 }

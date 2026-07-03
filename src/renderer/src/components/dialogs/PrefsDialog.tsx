@@ -52,6 +52,11 @@ export function PrefsDialog(): React.JSX.Element | null {
             onCheckedChange={(v) => update({ notifyOnComplete: v })}
             label="Notify when a download completes"
           />
+          <LabeledCheckbox
+            checked={prefs.closeToTray}
+            onCheckedChange={(v) => update({ closeToTray: v })}
+            label="Keep running in the tray when the window is closed"
+          />
         </div>
       </DialogContent>
     </Dialog>

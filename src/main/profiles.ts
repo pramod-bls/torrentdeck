@@ -27,7 +27,7 @@ const store = new Store<StoreSchema>({
     profiles: [],
     passwords: {},
     activeProfileId: null,
-    prefs: { theme: 'system', pollingIntervalMs: 3000, notifyOnComplete: true },
+    prefs: { theme: 'system', pollingIntervalMs: 3000, notifyOnComplete: true, closeToTray: false },
     workspaces: {}
   }
 })
@@ -124,7 +124,13 @@ export function getPrefs(): AppPrefs {
   // Spread over defaults so prefs added in later versions surface for
   // stores written by older builds (electron-store defaults don't deep-merge)
   const stored = store.get('prefs') as Partial<AppPrefs>
-  return { theme: 'system', pollingIntervalMs: 3000, notifyOnComplete: true, ...stored }
+  return {
+    theme: 'system',
+    pollingIntervalMs: 3000,
+    notifyOnComplete: true,
+    closeToTray: false,
+    ...stored
+  }
 }
 
 export function setPrefs(partial: Partial<AppPrefs>): AppPrefs {

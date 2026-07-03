@@ -9,6 +9,7 @@ import { formatBytes, formatDate, formatEta, formatPercent, formatRatio } from '
 import { Input, Field } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { PiecesMap } from './PiecesMap'
+import { TorrentLimits } from './TorrentLimits'
 
 function Row({ label, value }: { label: string; value: string }): React.JSX.Element {
   return (
@@ -103,6 +104,8 @@ export function GeneralTab({
       </div>
 
       <PiecesMap pieces={torrent.pieces} pieceCount={torrent.pieceCount} availability={torrent.availability} mode="strip" />
+
+      <TorrentLimits torrent={torrent} profileId={profileId} />
 
       <Field label="Location">
         <div className="flex gap-1.5">

@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { ArrowDown, ArrowUp, Turtle } from 'lucide-react'
 import { useAppSelector, useActiveProfileId, usePollingInterval } from '@/app/hooks'
 import {
@@ -16,6 +17,11 @@ export function StatusBar(): React.JSX.Element {
   const profiles = useAppSelector((s) => s.connection.profiles)
   const profileName = profiles.find((p) => p.id === profileId)?.name
   const { data: stats } = useGetSessionStatsQuery({ profileId }, { pollingInterval })
+
+  // Feed the tray tooltip with the default server's aggregate speeds
+  useEffect(() => {
+    window.api.setTraySpeeds(stats?.downloadSpeed ?? 0, stats?.uploadSpeed ?? 0)
+  }, [stats?.downloadSpeed, stats?.uploadSpeed])
   const { data: session } = useGetSessionQuery({ profileId })
   const [setSession] = useSetSessionMutation()
 

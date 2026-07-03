@@ -148,6 +148,17 @@ export interface TorrentDetail extends Torrent {
   fileStats: FileStat[]
   peers: Peer[]
   trackerStats: TrackerStat[]
+  // Per-torrent limits (torrent-get/torrent-set)
+  downloadLimited: boolean
+  downloadLimit: number
+  uploadLimited: boolean
+  uploadLimit: number
+  /** 0 = use global ratio, 1 = use this torrent's seedRatioLimit, 2 = seed forever */
+  seedRatioMode: 0 | 1 | 2
+  seedRatioLimit: number
+  honorsSessionLimits: boolean
+  bandwidthPriority: -1 | 0 | 1
+  'peer-limit': number
 }
 
 export const TORRENT_DETAIL_FIELDS: (keyof TorrentDetail | 'trackerStats')[] = [
@@ -169,7 +180,16 @@ export const TORRENT_DETAIL_FIELDS: (keyof TorrentDetail | 'trackerStats')[] = [
   'files',
   'fileStats',
   'peers',
-  'trackerStats'
+  'trackerStats',
+  'downloadLimited',
+  'downloadLimit',
+  'uploadLimited',
+  'uploadLimit',
+  'seedRatioMode',
+  'seedRatioLimit',
+  'honorsSessionLimits',
+  'bandwidthPriority',
+  'peer-limit'
 ]
 
 export interface SessionInfo {
