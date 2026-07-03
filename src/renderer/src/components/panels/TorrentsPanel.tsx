@@ -73,7 +73,7 @@ export function TorrentsPanel({ item }: { item: WorkspaceItem }): React.JSX.Elem
         onClick={() => dispatch(clearSelection())}
       >
         {scopedIds.length === 0 ? (
-          <p className="p-6 text-center text-sm text-neutral-500">
+          <p className="p-6 text-center text-sm text-surface-500">
             No servers in scope — pick servers from the dropdown above
           </p>
         ) : (

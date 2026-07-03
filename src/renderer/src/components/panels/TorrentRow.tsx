@@ -4,7 +4,7 @@ import type { Torrent } from '@shared/transmission'
 import { TorrentStatus } from '@shared/transmission'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { useTorrentActionMutation } from '@/services/rpcApi'
-import { statusText } from '@/features/torrents/derive'
+import { statusColor, statusText } from '@/features/torrents/derive'
 import { openLabelsEditor, openRemoveConfirm, selectTorrent } from '@/features/ui/uiSlice'
 import { formatBytes, formatEta, formatPercent, formatRatio, formatSpeed } from '@/lib/format'
 import { cn } from '@/lib/cn'
@@ -14,14 +14,14 @@ export function ProgressBar({ torrent }: { torrent: Torrent }): React.JSX.Elemen
   const fraction = checking ? torrent.recheckProgress : torrent.percentDone
   const color =
     torrent.error !== 0
-      ? 'bg-red-500'
+      ? 'bg-danger-500'
       : torrent.status === TorrentStatus.Stopped
-        ? 'bg-neutral-400 dark:bg-neutral-500'
+        ? 'bg-surface-400 dark:bg-surface-500'
         : torrent.percentDone >= 1
-          ? 'bg-green-500'
-          : 'bg-blue-500'
+          ? 'bg-success-500'
+          : 'bg-accent-500'
   return (
-    <div className="h-1 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
+    <div className="h-1 w-full overflow-hidden rounded-full bg-surface-200 dark:bg-surface-700">
       <div className={cn('h-full rounded-full', color)} style={{ width: `${fraction * 100}%` }} />
     </div>
   )
@@ -45,7 +45,7 @@ function LabelChips({
             e.stopPropagation()
             onLabelClick?.(l)
           }}
-          className="rounded-full bg-blue-100 px-1.5 text-[10px] text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900"
+          className="rounded-full bg-accent-100 px-1.5 text-[10px] text-accent-700 hover:bg-accent-200 dark:bg-accent-900/50 dark:text-accent-300 dark:hover:bg-accent-900"
         >
           {l}
         </button>
@@ -55,29 +55,33 @@ function LabelChips({
 }
 
 function RowStats({ torrent }: { torrent: Torrent }): React.JSX.Element {
-  const parts: string[] = []
+  const before: string[] = []
+  const after: string[] = []
   const isDone = torrent.percentDone >= 1
-  parts.push(
+  before.push(
     isDone
       ? formatBytes(torrent.totalSize)
       : `${formatPercent(torrent.percentDone)} of ${formatBytes(torrent.sizeWhenDone)}`
   )
-  parts.push(statusText(torrent))
   if (torrent.status === TorrentStatus.Downloading) {
-    if (torrent.eta >= 0) parts.push(formatEta(torrent.eta))
-    parts.push(`${torrent.peersSendingToUs}/${torrent.peersConnected} peers`)
+    if (torrent.eta >= 0) after.push(formatEta(torrent.eta))
+    after.push(`${torrent.peersSendingToUs}/${torrent.peersConnected} peers`)
   }
-  if (torrent.status === TorrentStatus.Seeding) parts.push(`ratio ${formatRatio(torrent.uploadRatio)}`)
+  if (torrent.status === TorrentStatus.Seeding) after.push(`ratio ${formatRatio(torrent.uploadRatio)}`)
   return (
-    <span className="flex items-center gap-2 truncate text-xs text-neutral-500 dark:text-neutral-400">
-      <span className="truncate">{parts.join(' · ')}</span>
+    <span className="flex items-center gap-2 truncate text-xs text-surface-500 dark:text-surface-400">
+      <span className="truncate">
+        {before.join(' · ')} ·{' '}
+        <span className={statusColor(torrent).text}>{statusText(torrent)}</span>
+        {after.length ? ` · ${after.join(' · ')}` : ''}
+      </span>
       {torrent.rateDownload > 0 && (
-        <span className="flex shrink-0 items-center gap-0.5 text-blue-600 dark:text-blue-400">
+        <span className="flex shrink-0 items-center gap-0.5 text-accent-600 dark:text-accent-400">
           <ArrowDown size={11} /> {formatSpeed(torrent.rateDownload)}
         </span>
       )}
       {torrent.rateUpload > 0 && (
-        <span className="flex shrink-0 items-center gap-0.5 text-green-600 dark:text-green-400">
+        <span className="flex shrink-0 items-center gap-0.5 text-success-600 dark:text-success-400">
           <ArrowUp size={11} /> {formatSpeed(torrent.rateUpload)}
         </span>
       )}
@@ -135,8 +139,8 @@ export function TorrentRowShell({
             if (!selected) dispatch(selectTorrent({ profileId, id: torrent.id, additive: false }))
           }}
           className={cn(
-            'border-b border-neutral-100 dark:border-neutral-800',
-            selected ? 'bg-blue-50 dark:bg-blue-950/40' : 'hover:bg-neutral-50 dark:hover:bg-neutral-800/50',
+            'border-b border-surface-100 dark:border-surface-800',
+            selected ? 'bg-accent-50 dark:bg-accent-950/40' : 'hover:bg-surface-50 dark:hover:bg-surface-800/50',
             className
           )}
         >
@@ -144,7 +148,7 @@ export function TorrentRowShell({
         </div>
       </ContextMenu.Trigger>
       <ContextMenu.Portal>
-        <ContextMenu.Content className="z-50 min-w-44 rounded-md border border-neutral-200 bg-white p-1 text-sm shadow-lg dark:border-neutral-700 dark:bg-neutral-800">
+        <ContextMenu.Content className="z-50 min-w-44 rounded-md border border-surface-200 bg-surface-50 p-1 text-sm shadow-lg dark:border-surface-700 dark:bg-surface-800">
           {(
             [
               ['Start', act('torrent-start')],
@@ -158,15 +162,15 @@ export function TorrentRowShell({
             <ContextMenu.Item
               key={label}
               onSelect={fn}
-              className="rounded px-2 py-1.5 outline-none select-none data-highlighted:bg-neutral-100 dark:data-highlighted:bg-neutral-700"
+              className="rounded px-2 py-1.5 outline-none select-none data-highlighted:bg-surface-100 dark:data-highlighted:bg-surface-700"
             >
               {label}
             </ContextMenu.Item>
           ))}
-          <ContextMenu.Separator className="my-1 h-px bg-neutral-200 dark:bg-neutral-700" />
+          <ContextMenu.Separator className="my-1 h-px bg-surface-200 dark:bg-surface-700" />
           <ContextMenu.Item
             onSelect={() => dispatch(openRemoveConfirm({ profileId, ids: ctxIds }))}
-            className="rounded px-2 py-1.5 text-red-600 outline-none select-none data-highlighted:bg-neutral-100 dark:text-red-400 dark:data-highlighted:bg-neutral-700"
+            className="rounded px-2 py-1.5 text-danger-600 outline-none select-none data-highlighted:bg-surface-100 dark:text-danger-400 dark:data-highlighted:bg-surface-700"
           >
             Remove…
           </ContextMenu.Item>
@@ -192,7 +196,10 @@ export function TorrentRow({
     <TorrentRowShell
       torrent={torrent}
       profileId={profileId}
-      className="flex h-14 flex-col justify-center gap-1 px-3"
+      className={cn(
+        'flex h-14 flex-col justify-center gap-1 border-l-2 px-3',
+        statusColor(torrent).stripe
+      )}
     >
       <span className="flex items-center gap-2">
         <span className={cn('min-w-0 flex-1 truncate text-sm', selected && 'font-medium')}>

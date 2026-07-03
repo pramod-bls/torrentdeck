@@ -62,7 +62,7 @@ export function Toolbar(): React.JSX.Element {
   }
 
   return (
-    <div className="titlebar-drag flex items-center gap-2 border-b border-neutral-200 bg-neutral-50 py-2 pr-3 pl-20 dark:border-neutral-700 dark:bg-neutral-800/60">
+    <div className="titlebar-drag flex items-center gap-2 border-b border-surface-200 bg-surface-50 py-2 pr-3 pl-20 dark:border-surface-700 dark:bg-surface-800/60">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button size="sm">
@@ -79,7 +79,7 @@ export function Toolbar(): React.JSX.Element {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <div className="mx-1 h-5 w-px bg-neutral-300 dark:bg-neutral-600" />
+      <div className="mx-1 h-5 w-px bg-surface-300 dark:bg-surface-600" />
 
       <Button variant="ghost" size="icon" aria-label="Start selected" disabled={!hasSelection} onClick={act('torrent-start')}>
         <Play size={15} />

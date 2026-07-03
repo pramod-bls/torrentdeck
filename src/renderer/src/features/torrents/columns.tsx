@@ -6,7 +6,7 @@
  */
 import type { ColumnKey, SortKey } from '@shared/types'
 import type { Torrent } from '@shared/transmission'
-import { statusText } from './derive'
+import { statusColor, statusText } from './derive'
 import { formatBytes, formatDate, formatEta, formatPercent, formatRatio, formatSpeed } from '@/lib/format'
 
 export interface ColumnDef {
@@ -48,13 +48,13 @@ export const COLUMNS: Record<ColumnKey, ColumnDef> = {
     sortKey: 'percentDone',
     cell: (t) => (
       <span className="flex w-full items-center gap-1.5">
-        <span className="h-1 min-w-0 flex-1 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
+        <span className="h-1 min-w-0 flex-1 overflow-hidden rounded-full bg-surface-200 dark:bg-surface-700">
           <span
-            className={`block h-full rounded-full ${t.error !== 0 ? 'bg-red-500' : t.percentDone >= 1 ? 'bg-green-500' : 'bg-blue-500'}`}
+            className={`block h-full rounded-full ${t.error !== 0 ? 'bg-danger-500' : t.percentDone >= 1 ? 'bg-success-500' : 'bg-accent-500'}`}
             style={{ width: `${t.percentDone * 100}%` }}
           />
         </span>
-        <span className="w-10 shrink-0 text-right text-[11px] text-neutral-500">
+        <span className="w-10 shrink-0 text-right text-[11px] text-surface-500">
           {formatPercent(t.percentDone)}
         </span>
       </span>
@@ -66,11 +66,7 @@ export const COLUMNS: Record<ColumnKey, ColumnDef> = {
     track: '96px',
     align: 'left',
     sortKey: 'status',
-    cell: (t) => (
-      <span className={`truncate ${t.error !== 0 ? 'text-red-600 dark:text-red-400' : ''}`}>
-        {statusText(t)}
-      </span>
-    )
+    cell: (t) => <span className={`truncate ${statusColor(t).text}`}>{statusText(t)}</span>
   },
   downSpeed: {
     key: 'downSpeed',
@@ -80,7 +76,7 @@ export const COLUMNS: Record<ColumnKey, ColumnDef> = {
     sortKey: 'rateDownload',
     cell: (t) =>
       t.rateDownload > 0 ? (
-        <span className="text-blue-600 dark:text-blue-400">{formatSpeed(t.rateDownload)}</span>
+        <span className="text-accent-600 dark:text-accent-400">{formatSpeed(t.rateDownload)}</span>
       ) : (
         '—'
       )
@@ -93,7 +89,7 @@ export const COLUMNS: Record<ColumnKey, ColumnDef> = {
     sortKey: 'rateUpload',
     cell: (t) =>
       t.rateUpload > 0 ? (
-        <span className="text-green-600 dark:text-green-400">{formatSpeed(t.rateUpload)}</span>
+        <span className="text-success-600 dark:text-success-400">{formatSpeed(t.rateUpload)}</span>
       ) : (
         '—'
       )
@@ -128,7 +124,7 @@ export const COLUMNS: Record<ColumnKey, ColumnDef> = {
     track: 'minmax(70px, 1fr)',
     align: 'left',
     cell: (t) => (
-      <span className="truncate text-[11px] text-blue-700 dark:text-blue-300">
+      <span className="truncate text-[11px] text-accent-700 dark:text-accent-300">
         {t.labels.join(', ')}
       </span>
     )

@@ -36,14 +36,14 @@ export function TrackersTab({
 
   return (
     <div className="space-y-3 p-3">
-      <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
+      <div className="divide-y divide-surface-100 dark:divide-surface-800">
         {torrent.trackerStats.map((t) => (
           <div key={t.id} className="flex items-start gap-2 py-2">
             <div className="min-w-0 flex-1">
               <p className="truncate text-xs font-medium" title={t.announce}>
                 {t.host || t.announce}
               </p>
-              <p className="text-[11px] text-neutral-500">
+              <p className="text-[11px] text-surface-500">
                 {t.lastAnnounceSucceeded
                   ? `OK · ${t.seederCount >= 0 ? `${t.seederCount} seeders` : 'seeders n/a'} · ${
                       t.leecherCount >= 0 ? `${t.leecherCount} leechers` : 'leechers n/a'
@@ -51,7 +51,7 @@ export function TrackersTab({
                   : t.lastAnnounceResult || 'No announce yet'}
               </p>
               {t.lastAnnounceTime > 0 && (
-                <p className="text-[11px] text-neutral-400">
+                <p className="text-[11px] text-surface-400">
                   Last announce {formatDate(t.lastAnnounceTime)}
                 </p>
               )}
@@ -60,14 +60,14 @@ export function TrackersTab({
               type="button"
               aria-label={`Remove tracker ${t.host}`}
               onClick={() => saveTrackerList(announces.filter((a) => a !== t.announce))}
-              className="rounded p-1 text-neutral-400 hover:bg-neutral-200 hover:text-red-600 dark:hover:bg-neutral-700"
+              className="rounded p-1 text-surface-400 hover:bg-surface-200 hover:text-danger-600 dark:hover:bg-surface-700"
             >
               <Trash2 size={13} />
             </button>
           </div>
         ))}
         {!torrent.trackerStats.length && (
-          <p className="py-4 text-center text-sm text-neutral-500">No trackers</p>
+          <p className="py-4 text-center text-sm text-surface-500">No trackers</p>
         )}
       </div>
 

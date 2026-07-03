@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Torrent } from '@shared/transmission'
 import { TorrentStatus } from '@shared/transmission'
-import { filterTorrents, sortTorrents, deriveSidebar } from './derive'
+import { filterTorrents, sortTorrents, deriveSidebar, statusColor } from './derive'
 
 function torrent(partial: Partial<Torrent>): Torrent {
   return {
@@ -105,5 +105,15 @@ describe('deriveSidebar', () => {
     expect(sb.seeding).toBe(1)
     expect(sb.trackers).toEqual([{ host: 'a.example', count: 1 }])
     expect(sb.labels).toEqual([{ label: 'isos', count: 2 }])
+  })
+})
+
+describe('statusColor', () => {
+  it('maps status groups to semantic tints', () => {
+        expect(statusColor(torrent({ status: TorrentStatus.Downloading })).stripe).toContain('accent')
+    expect(statusColor(torrent({ status: TorrentStatus.Seeding })).stripe).toContain('success')
+    expect(statusColor(torrent({ status: TorrentStatus.Checking })).stripe).toContain('warning')
+    expect(statusColor(torrent({ status: TorrentStatus.Stopped })).stripe).toContain('surface')
+    expect(statusColor(torrent({ status: TorrentStatus.Downloading, error: 3 })).stripe).toContain('danger')
   })
 })

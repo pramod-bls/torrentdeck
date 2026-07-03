@@ -2,6 +2,75 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * Semantic color system. All component classes use these tokens (accent,
+ * success, danger, warning, surface) — never raw Tailwind hues — so the whole
+ * app's character is tuned here. The palette is deliberately soft: muted
+ * indigo accent, sage success, dusty rose danger, warm gray surfaces, and a
+ * charcoal (not black) dark mode.
+ */
+@theme {
+  --color-accent-50: #eef1fb;
+  --color-accent-100: #dfe4f7;
+  --color-accent-200: #c3cdf0;
+  --color-accent-300: #9dade4;
+  --color-accent-400: #7c8fd8;
+  --color-accent-500: #6478cb;
+  --color-accent-600: #5163b4;
+  --color-accent-700: #445292;
+  --color-accent-800: #3a4577;
+  --color-accent-900: #333c62;
+  --color-accent-950: #23294a;
+
+  --color-success-50: #edf7f1;
+  --color-success-100: #d8efe2;
+  --color-success-200: #b3dfc7;
+  --color-success-300: #85c8a6;
+  --color-success-400: #5cae88;
+  --color-success-500: #429470;
+  --color-success-600: #33775b;
+  --color-success-700: #2b5f4a;
+  --color-success-800: #264c3d;
+  --color-success-900: #203f34;
+  --color-success-950: #12281f;
+
+  --color-danger-50: #fbeff0;
+  --color-danger-100: #f7dcdf;
+  --color-danger-200: #efbec3;
+  --color-danger-300: #e3959e;
+  --color-danger-400: #d3707c;
+  --color-danger-500: #bd5361;
+  --color-danger-600: #a03e4e;
+  --color-danger-700: #853441;
+  --color-danger-800: #6f2e39;
+  --color-danger-900: #5e2a33;
+  --color-danger-950: #3f1a20;
+
+  --color-warning-50: #faf4e8;
+  --color-warning-100: #f5e8cd;
+  --color-warning-200: #ead09a;
+  --color-warning-300: #dcb264;
+  --color-warning-400: #cf983f;
+  --color-warning-500: #c08230;
+  --color-warning-600: #a56a28;
+  --color-warning-700: #855224;
+  --color-warning-800: #6d4322;
+  --color-warning-900: #5c391f;
+  --color-warning-950: #3d2513;
+
+  --color-surface-50: #fafaf8;
+  --color-surface-100: #f3f3f0;
+  --color-surface-200: #e6e6e2;
+  --color-surface-300: #d4d4cf;
+  --color-surface-400: #a6a6a1;
+  --color-surface-500: #787873;
+  --color-surface-600: #575753;
+  --color-surface-700: #3d3e40;
+  --color-surface-800: #2a2b2e;
+  --color-surface-900: #1d1e21;
+  --color-surface-950: #141518;
+}
+
 html,
 body,
 #root {

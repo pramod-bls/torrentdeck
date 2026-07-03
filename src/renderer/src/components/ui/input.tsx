@@ -6,7 +6,7 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
     <input
       ref={ref}
       className={cn(
-        'h-8 w-full rounded-md border border-neutral-300 bg-white px-2.5 text-sm placeholder:text-neutral-400 focus-visible:outline-2 focus-visible:outline-blue-500 dark:border-neutral-600 dark:bg-neutral-800 dark:placeholder:text-neutral-500',
+        'h-8 w-full rounded-md border border-surface-300 bg-surface-50 px-2.5 text-sm placeholder:text-surface-400 focus-visible:outline-2 focus-visible:outline-accent-500 dark:border-surface-600 dark:bg-surface-800 dark:placeholder:text-surface-500',
         className
       )}
       {...props}
@@ -26,7 +26,7 @@ export function Field({
 }): React.JSX.Element {
   return (
     <label className={cn('block space-y-1', className)}>
-      <span className="text-xs font-medium text-neutral-600 dark:text-neutral-400">{label}</span>
+      <span className="text-xs font-medium text-surface-600 dark:text-surface-400">{label}</span>
       {children}
     </label>
   )

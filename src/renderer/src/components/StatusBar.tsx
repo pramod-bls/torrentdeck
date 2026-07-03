@@ -20,11 +20,11 @@ export function StatusBar(): React.JSX.Element {
   const altOn = session?.['alt-speed-enabled'] ?? false
 
   return (
-    <div className="flex items-center gap-4 border-t border-neutral-200 bg-neutral-50 px-3 py-1 text-xs text-neutral-600 dark:border-neutral-700 dark:bg-neutral-800/60 dark:text-neutral-400">
-      <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
+    <div className="flex items-center gap-4 border-t border-surface-200 bg-surface-50 px-3 py-1 text-xs text-surface-600 dark:border-surface-700 dark:bg-surface-800/60 dark:text-surface-400">
+      <span className="flex items-center gap-1 text-accent-600 dark:text-accent-400">
         <ArrowDown size={12} /> {formatSpeed(stats?.downloadSpeed ?? 0)}
       </span>
-      <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
+      <span className="flex items-center gap-1 text-success-600 dark:text-success-400">
         <ArrowUp size={12} /> {formatSpeed(stats?.uploadSpeed ?? 0)}
       </span>
       <button
@@ -35,8 +35,8 @@ export function StatusBar(): React.JSX.Element {
         className={cn(
           'flex items-center rounded px-1 py-0.5',
           altOn
-            ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300'
-            : 'hover:bg-neutral-200 dark:hover:bg-neutral-700'
+            ? 'bg-warning-100 text-warning-700 dark:bg-warning-900/50 dark:text-warning-300'
+            : 'hover:bg-surface-200 dark:hover:bg-surface-700'
         )}
       >
         <Turtle size={13} />

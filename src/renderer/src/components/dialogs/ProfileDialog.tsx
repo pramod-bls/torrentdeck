@@ -145,8 +145,8 @@ export function ProfileDialog(): React.JSX.Element | null {
             <p
               className={
                 testResult.startsWith('Connected')
-                  ? 'text-xs text-green-600 dark:text-green-400'
-                  : 'text-xs text-red-600 dark:text-red-400'
+                  ? 'text-xs text-success-600 dark:text-success-400'
+                  : 'text-xs text-danger-600 dark:text-danger-400'
               }
             >
               {testResult}

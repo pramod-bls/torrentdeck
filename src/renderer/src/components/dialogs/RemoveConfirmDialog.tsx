@@ -38,7 +38,7 @@ export function RemoveConfirmDialog(): React.JSX.Element | null {
         title={target.ids.length === 1 ? 'Remove torrent' : `Remove ${target.ids.length} torrents`}
       >
         <div className="space-y-3">
-          <p className="text-sm text-neutral-600 dark:text-neutral-300">
+          <p className="text-sm text-surface-600 dark:text-surface-300">
             {deleteData
               ? `The torrent and its downloaded files will be deleted from ${serverName ?? 'the server'}.`
               : `The torrent will be removed from ${serverName ?? 'the server'}. Downloaded files stay on disk.`}

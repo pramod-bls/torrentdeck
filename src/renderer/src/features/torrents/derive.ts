@@ -116,6 +116,32 @@ export function deriveSidebar(torrents: Torrent[]): SidebarCounts {
   }
 }
 
+/**
+ * Status → color coding for list rows (v0.4): a left stripe class and a text
+ * tint class per Status group, using the semantic palette. Kept subtle by
+ * design — stripe + status text only, no row fills.
+ */
+export function statusColor(t: Torrent): { stripe: string; text: string } {
+  if (t.error !== 0)
+    return { stripe: 'border-l-danger-400', text: 'text-danger-600 dark:text-danger-400' }
+  switch (t.status) {
+    case TorrentStatus.Downloading:
+    case TorrentStatus.DownloadWait:
+      return { stripe: 'border-l-accent-400', text: 'text-accent-600 dark:text-accent-300' }
+    case TorrentStatus.Seeding:
+    case TorrentStatus.SeedWait:
+      return { stripe: 'border-l-success-400', text: 'text-success-600 dark:text-success-400' }
+    case TorrentStatus.Checking:
+    case TorrentStatus.CheckWait:
+      return { stripe: 'border-l-warning-400', text: 'text-warning-600 dark:text-warning-400' }
+    default:
+      return {
+        stripe: 'border-l-surface-300 dark:border-l-surface-600',
+        text: 'text-surface-500 dark:text-surface-400'
+      }
+  }
+}
+
 export function statusText(t: Torrent): string {
   if (t.error !== 0) return t.errorString || 'Error'
   switch (t.status) {

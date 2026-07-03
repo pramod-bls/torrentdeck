@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 function Row({ label, value }: { label: string; value: string }): React.JSX.Element {
   return (
     <div className="flex justify-between gap-3 py-1 text-xs">
-      <span className="shrink-0 text-neutral-500 dark:text-neutral-400">{label}</span>
+      <span className="shrink-0 text-surface-500 dark:text-surface-400">{label}</span>
       <span className="truncate text-right" title={value}>
         {value}
       </span>
@@ -51,11 +51,11 @@ export function GeneralTab({
       <div>
         <p className="text-sm font-medium break-all">{torrent.name}</p>
         {torrent.error !== 0 && (
-          <p className="mt-1 text-xs text-red-600 dark:text-red-400">{torrent.errorString}</p>
+          <p className="mt-1 text-xs text-danger-600 dark:text-danger-400">{torrent.errorString}</p>
         )}
       </div>
 
-      <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
+      <div className="divide-y divide-surface-100 dark:divide-surface-800">
         <Row label="Status" value={statusText(torrent)} />
         <Row label="Progress" value={formatPercent(torrent.percentDone)} />
         <Row label="Size" value={formatBytes(torrent.totalSize)} />

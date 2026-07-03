@@ -42,7 +42,7 @@ export function Workspace(): React.JSX.Element {
   )
 
   return (
-    <div ref={containerRef} className="min-h-0 flex-1 overflow-y-auto bg-neutral-100 dark:bg-neutral-950">
+    <div ref={containerRef} className="min-h-0 flex-1 overflow-y-auto bg-surface-100 dark:bg-surface-950">
       {mounted && layout && (
         <GridLayout
           width={width}
@@ -63,7 +63,7 @@ export function Workspace(): React.JSX.Element {
       )}
       {layout && layout.items.length === 0 && (
         <div className="flex h-full items-center justify-center">
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm text-surface-500">
             All panels removed — use Panels → Add panel, or Reset layout
           </p>
         </div>

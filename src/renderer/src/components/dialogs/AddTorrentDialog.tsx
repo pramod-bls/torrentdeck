@@ -136,17 +136,17 @@ export function AddTorrentDialog(): React.JSX.Element | null {
             <Input value={dir} onChange={(e) => setDir(e.target.value)} />
           </Field>
           {freeSpace && freeSpace['size-bytes'] >= 0 && (
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-surface-500">
               Free space: {formatBytes(freeSpace['size-bytes'])}
             </p>
           )}
 
           {preview && preview.files.length > 1 && (
-            <div className="max-h-52 overflow-y-auto rounded border border-neutral-200 dark:border-neutral-700">
+            <div className="max-h-52 overflow-y-auto rounded border border-surface-200 dark:border-surface-700">
               {preview.files.map((f, i) => (
                 <div
                   key={f.path}
-                  className="flex items-center gap-2 border-b border-neutral-100 px-2 py-1.5 last:border-b-0 dark:border-neutral-800"
+                  className="flex items-center gap-2 border-b border-surface-100 px-2 py-1.5 last:border-b-0 dark:border-surface-800"
                 >
                   <Checkbox
                     checked={!unwanted.has(i)}
@@ -156,7 +156,7 @@ export function AddTorrentDialog(): React.JSX.Element | null {
                   <span className="min-w-0 flex-1 truncate text-xs" title={f.path}>
                     {f.path}
                   </span>
-                  <span className="shrink-0 text-[11px] text-neutral-500">{formatBytes(f.length)}</span>
+                  <span className="shrink-0 text-[11px] text-surface-500">{formatBytes(f.length)}</span>
                 </div>
               ))}
             </div>
@@ -168,7 +168,7 @@ export function AddTorrentDialog(): React.JSX.Element | null {
 
           <LabeledCheckbox checked={paused} onCheckedChange={setPaused} label="Add paused" />
 
-          {error && <p className="text-xs text-red-600 dark:text-red-400">{error}</p>}
+          {error && <p className="text-xs text-danger-600 dark:text-danger-400">{error}</p>}
 
           <div className="flex justify-end gap-2 pt-1">
             <Button variant="secondary" onClick={close}>

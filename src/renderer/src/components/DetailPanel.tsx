@@ -24,7 +24,7 @@ const TABS: { value: UiState['detailTab']; label: string }[] = [
 
 function EmptyState({ hint }: { hint: string }): React.JSX.Element {
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-2 p-4 text-neutral-400">
+    <div className="flex h-full flex-col items-center justify-center gap-2 p-4 text-surface-400">
       <MousePointerClick size={20} />
       <p className="text-center text-xs">{hint}</p>
     </div>
@@ -64,7 +64,7 @@ export function DetailTabsPanel(): React.JSX.Element {
       onValueChange={(v) => dispatch(setDetailTab(v as UiState['detailTab']))}
       className="flex h-full min-h-0 flex-col"
     >
-      <Tabs.List className="flex gap-1 border-b border-neutral-200 px-2 py-1.5 dark:border-neutral-700">
+      <Tabs.List className="flex gap-1 border-b border-surface-200 px-2 py-1.5 dark:border-surface-700">
         {TABS.map(({ value, label }) => (
           <Tabs.Trigger
             key={value}
@@ -72,8 +72,8 @@ export function DetailTabsPanel(): React.JSX.Element {
             className={cn(
               'rounded px-2 py-1 text-xs',
               tab === value
-                ? 'bg-white font-medium shadow-sm dark:bg-neutral-700'
-                : 'text-neutral-500 hover:text-neutral-800 dark:hover:text-neutral-200'
+                ? 'bg-surface-50 font-medium shadow-sm dark:bg-surface-700'
+                : 'text-surface-500 hover:text-surface-800 dark:hover:text-surface-200'
             )}
           >
             {label}
@@ -82,7 +82,7 @@ export function DetailTabsPanel(): React.JSX.Element {
       </Tabs.List>
 
       {!torrent ? (
-        <div className="flex flex-1 items-center justify-center text-sm text-neutral-500">
+        <div className="flex flex-1 items-center justify-center text-sm text-surface-500">
           Loading…
         </div>
       ) : (
@@ -117,7 +117,7 @@ export function SingleDetailTab({
   const profileId = target.profileId
   if (!torrent) {
     return (
-      <div className="flex h-full items-center justify-center text-sm text-neutral-500">
+      <div className="flex h-full items-center justify-center text-sm text-surface-500">
         Loading…
       </div>
     )

@@ -27,7 +27,7 @@ export function PrefsDialog(): React.JSX.Element | null {
             <select
               value={prefs.theme}
               onChange={(e) => update({ theme: e.target.value as AppPrefs['theme'] })}
-              className="h-8 w-full rounded-md border border-neutral-300 bg-white px-2 text-sm dark:border-neutral-600 dark:bg-neutral-800"
+              className="h-8 w-full rounded-md border border-surface-300 bg-surface-50 px-2 text-sm dark:border-surface-600 dark:bg-surface-800"
             >
               <option value="system">System</option>
               <option value="light">Light</option>
@@ -38,7 +38,7 @@ export function PrefsDialog(): React.JSX.Element | null {
             <select
               value={prefs.pollingIntervalMs}
               onChange={(e) => update({ pollingIntervalMs: Number(e.target.value) })}
-              className="h-8 w-full rounded-md border border-neutral-300 bg-white px-2 text-sm dark:border-neutral-600 dark:bg-neutral-800"
+              className="h-8 w-full rounded-md border border-surface-300 bg-surface-50 px-2 text-sm dark:border-surface-600 dark:bg-surface-800"
             >
               <option value={1000}>1 second</option>
               <option value={3000}>3 seconds</option>

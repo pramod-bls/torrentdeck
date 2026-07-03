@@ -52,21 +52,21 @@ export function ServerGroup({
         <button
           type="button"
           onClick={() => onToggleCollapse(profileId)}
-          className="sticky top-0 z-10 flex w-full items-center gap-1.5 border-b border-neutral-200 bg-neutral-100 px-2 py-1 text-left text-xs font-semibold text-neutral-600 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300"
+          className="sticky top-0 z-10 flex w-full items-center gap-1.5 border-b border-surface-200 bg-surface-100 px-2 py-1 text-left text-xs font-semibold text-surface-600 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300"
         >
           {collapsed ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
           <span className="truncate">{profileName}</span>
-          <span className="font-normal text-neutral-400">
+          <span className="font-normal text-surface-400">
             {error ? '' : `${visible.length}${visible.length !== torrents.length ? ` of ${torrents.length}` : ''}`}
           </span>
-          {error && <ServerCrash size={12} className="text-red-500" />}
+          {error && <ServerCrash size={12} className="text-danger-500" />}
         </button>
       )}
 
       {!collapsed && (
         <>
           {error ? (
-            <div className="flex items-center gap-2 px-3 py-3 text-xs text-red-600 dark:text-red-400">
+            <div className="flex items-center gap-2 px-3 py-3 text-xs text-danger-600 dark:text-danger-400">
               <ServerCrash size={14} className="shrink-0" />
               <span>
                 Can't reach {profileName}
@@ -74,9 +74,9 @@ export function ServerGroup({
               </span>
             </div>
           ) : isLoading ? (
-            <p className="px-3 py-3 text-xs text-neutral-500">Loading…</p>
+            <p className="px-3 py-3 text-xs text-surface-500">Loading…</p>
           ) : visible.length === 0 ? (
-            <p className={cn('px-3 py-3 text-xs text-neutral-500', !showHeader && 'py-6 text-center')}>
+            <p className={cn('px-3 py-3 text-xs text-surface-500', !showHeader && 'py-6 text-center')}>
               {torrents.length === 0 ? 'No torrents' : 'Nothing matches the filters'}
             </p>
           ) : (
@@ -94,7 +94,7 @@ export function ServerGroup({
                 )
               )}
               {visible.length > ROW_RENDER_CAP && (
-                <p className="px-3 py-2 text-center text-xs text-neutral-400">
+                <p className="px-3 py-2 text-center text-xs text-surface-400">
                   Showing {ROW_RENDER_CAP} of {visible.length} — narrow the filters to see the rest
                 </p>
               )}

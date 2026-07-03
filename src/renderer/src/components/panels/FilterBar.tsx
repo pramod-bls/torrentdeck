@@ -38,7 +38,7 @@ const STATUS_LABELS: Record<StatusFilter, string> = {
 }
 
 const selectCls =
-  'h-6 max-w-32 rounded border border-neutral-300 bg-white px-1 text-xs text-neutral-700 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-300'
+  'h-6 max-w-32 rounded border border-surface-300 bg-surface-50 px-1 text-xs text-surface-700 dark:border-surface-600 dark:bg-surface-800 dark:text-surface-300'
 
 /**
  * The per-panel control strip: server scope, status/tracker/label filters,
@@ -84,7 +84,7 @@ export function FilterBar({
         : `${scopedIds.length} servers`
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5 border-b border-neutral-200 px-2 py-1.5 dark:border-neutral-700">
+    <div className="flex flex-wrap items-center gap-1.5 border-b border-surface-200 px-2 py-1.5 dark:border-surface-700">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="secondary" size="sm" className="h-6 px-1.5 text-xs">
@@ -115,7 +115,7 @@ export function FilterBar({
           patch({ filters: { ...config.filters, status: e.target.value as StatusFilter } })
         }
         aria-label="Status filter"
-        className={cn(selectCls, config.filters.status !== 'all' && 'border-blue-400')}
+        className={cn(selectCls, config.filters.status !== 'all' && 'border-accent-400')}
       >
         {(Object.keys(STATUS_LABELS) as StatusFilter[]).map((k) => (
           <option key={k} value={k}>
@@ -128,7 +128,7 @@ export function FilterBar({
         value={config.filters.tracker ?? ''}
         onChange={(e) => patch({ filters: { ...config.filters, tracker: e.target.value || null } })}
         aria-label="Tracker filter"
-        className={cn(selectCls, config.filters.tracker && 'border-blue-400')}
+        className={cn(selectCls, config.filters.tracker && 'border-accent-400')}
       >
         <option value="">All trackers</option>
         {sidebar.trackers.map(({ host, count }) => (
@@ -142,7 +142,7 @@ export function FilterBar({
         value={config.filters.label ?? ''}
         onChange={(e) => patch({ filters: { ...config.filters, label: e.target.value || null } })}
         aria-label="Label filter"
-        className={cn(selectCls, config.filters.label && 'border-blue-400')}
+        className={cn(selectCls, config.filters.label && 'border-accent-400')}
       >
         <option value="">All labels</option>
         {sidebar.labels.map(({ label, count }) => (
@@ -187,7 +187,7 @@ export function FilterBar({
         aria-label={config.view === 'cards' ? 'Switch to table view' : 'Switch to card view'}
         title={config.view === 'cards' ? 'Table view' : 'Card view'}
         onClick={() => patch({ view: config.view === 'cards' ? 'table' : 'cards' })}
-        className="rounded p-1 text-neutral-400 hover:bg-neutral-200 hover:text-neutral-700 dark:hover:bg-neutral-700 dark:hover:text-neutral-200"
+        className="rounded p-1 text-surface-400 hover:bg-surface-200 hover:text-surface-700 dark:hover:bg-surface-700 dark:hover:text-surface-200"
       >
         {config.view === 'cards' ? <Table2 size={13} /> : <LayoutList size={13} />}
       </button>
@@ -195,14 +195,14 @@ export function FilterBar({
       <span className="relative ml-auto">
         <Search
           size={11}
-          className="pointer-events-none absolute top-1/2 left-1.5 -translate-y-1/2 text-neutral-400"
+          className="pointer-events-none absolute top-1/2 left-1.5 -translate-y-1/2 text-surface-400"
         />
         <input
           value={config.filters.search}
           onChange={(e) => patch({ filters: { ...config.filters, search: e.target.value } })}
           placeholder="Search"
           data-panel-search
-          className="h-6 w-36 rounded border border-neutral-300 bg-white pl-5 text-xs placeholder:text-neutral-400 focus-visible:outline-1 focus-visible:outline-blue-500 dark:border-neutral-600 dark:bg-neutral-800"
+          className="h-6 w-36 rounded border border-surface-300 bg-surface-50 pl-5 text-xs placeholder:text-surface-400 focus-visible:outline-1 focus-visible:outline-accent-500 dark:border-surface-600 dark:bg-surface-800"
         />
       </span>
     </div>

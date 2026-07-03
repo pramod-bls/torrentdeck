@@ -4,8 +4,8 @@ import { formatBytes, formatSpeed } from '@/lib/format'
 
 function Stat({ label, value }: { label: string; value: string }): React.JSX.Element {
   return (
-    <div className="rounded-md bg-neutral-100 px-3 py-2 dark:bg-neutral-800">
-      <p className="text-[11px] text-neutral-500 dark:text-neutral-400">{label}</p>
+    <div className="rounded-md bg-surface-100 px-3 py-2 dark:bg-surface-800">
+      <p className="text-[11px] text-surface-500 dark:text-surface-400">{label}</p>
       <p className="text-sm font-medium">{value}</p>
     </div>
   )
@@ -19,7 +19,7 @@ export function StatsPanel(): React.JSX.Element {
 
   if (!stats) {
     return (
-      <div className="flex h-full items-center justify-center text-sm text-neutral-500">
+      <div className="flex h-full items-center justify-center text-sm text-surface-500">
         Loading…
       </div>
     )

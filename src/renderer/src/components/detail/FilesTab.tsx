@@ -31,11 +31,11 @@ export function FilesTab({
   }
 
   if (!torrent.files.length) {
-    return <p className="p-4 text-center text-sm text-neutral-500">No file metadata yet</p>
+    return <p className="p-4 text-center text-sm text-surface-500">No file metadata yet</p>
   }
 
   return (
-    <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
+    <div className="divide-y divide-surface-100 dark:divide-surface-800">
       {torrent.files.map((file, i) => {
         const stat = torrent.fileStats[i]
         const progress = file.length > 0 ? file.bytesCompleted / file.length : 1
@@ -50,7 +50,7 @@ export function FilesTab({
               <p className="truncate text-xs" title={file.name}>
                 {file.name}
               </p>
-              <p className="text-[11px] text-neutral-500">
+              <p className="text-[11px] text-surface-500">
                 {formatBytes(file.length)} · {formatPercent(progress)}
               </p>
             </div>
@@ -58,7 +58,7 @@ export function FilesTab({
               value={String(stat?.priority ?? 0)}
               onChange={(e) => setPriority(i, e.target.value)}
               aria-label={`Priority for ${file.name}`}
-              className="h-6 rounded border border-neutral-300 bg-white text-xs dark:border-neutral-600 dark:bg-neutral-800"
+              className="h-6 rounded border border-surface-300 bg-surface-50 text-xs dark:border-surface-600 dark:bg-surface-800"
             >
               <option value="1">High</option>
               <option value="0">Normal</option>

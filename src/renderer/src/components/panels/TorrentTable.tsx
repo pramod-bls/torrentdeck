@@ -8,6 +8,7 @@ import {
   visibleColumnDefs
 } from '@/features/torrents/columns'
 import { TorrentRowShell } from './TorrentRow'
+import { statusColor } from '@/features/torrents/derive'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,7 +54,7 @@ export function TableHeader({
   }
 
   return (
-    <div className="flex items-center border-b border-neutral-200 bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-800/60">
+    <div className="flex items-center border-b border-surface-200 bg-surface-50 dark:border-surface-700 dark:bg-surface-800/60">
       <div
         className="grid min-w-0 flex-1 gap-2 px-3"
         style={{ gridTemplateColumns: gridTemplateFor(defs) }}
@@ -67,10 +68,10 @@ export function TableHeader({
               disabled={!d.sortKey}
               onClick={() => cycleSort(d.key)}
               className={cn(
-                'truncate py-1 text-[11px] font-semibold text-neutral-500 uppercase dark:text-neutral-400',
+                'truncate py-1 text-[11px] font-semibold text-surface-500 uppercase dark:text-surface-400',
                 d.align === 'right' ? 'text-right' : 'text-left',
-                d.sortKey && 'hover:text-neutral-800 dark:hover:text-neutral-200',
-                isSorted && 'text-blue-600 dark:text-blue-400'
+                d.sortKey && 'hover:text-surface-800 dark:hover:text-surface-200',
+                isSorted && 'text-accent-600 dark:text-accent-400'
               )}
             >
               {d.label}
@@ -84,7 +85,7 @@ export function TableHeader({
           <button
             type="button"
             aria-label="Choose columns"
-            className="shrink-0 rounded p-1 text-neutral-400 hover:bg-neutral-200 hover:text-neutral-700 dark:hover:bg-neutral-700 dark:hover:text-neutral-200"
+            className="shrink-0 rounded p-1 text-surface-400 hover:bg-surface-200 hover:text-surface-700 dark:hover:bg-surface-700 dark:hover:text-surface-200"
           >
             <Columns3 size={13} />
           </button>
@@ -117,7 +118,11 @@ export function TorrentTableRow({
 }): React.JSX.Element {
   const defs = visibleColumnDefs(visibleColumns)
   return (
-    <TorrentRowShell torrent={torrent} profileId={profileId} className="block px-3">
+    <TorrentRowShell
+      torrent={torrent}
+      profileId={profileId}
+      className={cn('block border-l-2 px-3', statusColor(torrent).stripe)}
+    >
       <div
         className="grid h-7 items-center gap-2 text-xs"
         style={{ gridTemplateColumns: gridTemplateFor(defs) }}

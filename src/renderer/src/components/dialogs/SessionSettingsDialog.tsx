@@ -64,7 +64,7 @@ export function SessionSettingsDialog(): React.JSX.Element | null {
     return (
       <Dialog open={open} onOpenChange={(v) => !v && close()}>
         <DialogContent title="Server settings">
-          <p className="py-4 text-center text-sm text-neutral-500">Loading…</p>
+          <p className="py-4 text-center text-sm text-surface-500">Loading…</p>
         </DialogContent>
       </Dialog>
     )
@@ -84,7 +84,7 @@ export function SessionSettingsDialog(): React.JSX.Element | null {
           </div>
 
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-neutral-500 uppercase">Speed limits</p>
+            <p className="text-xs font-semibold text-surface-500 uppercase">Speed limits</p>
             <LabeledCheckbox
               checked={draft['speed-limit-down-enabled'] ?? false}
               onCheckedChange={(v) => set('speed-limit-down-enabled', v)}
@@ -110,7 +110,7 @@ export function SessionSettingsDialog(): React.JSX.Element | null {
           </div>
 
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-neutral-500 uppercase">Alternative limits</p>
+            <p className="text-xs font-semibold text-surface-500 uppercase">Alternative limits</p>
             <LabeledCheckbox
               checked={draft['alt-speed-enabled'] ?? false}
               onCheckedChange={(v) => set('alt-speed-enabled', v)}
@@ -133,7 +133,7 @@ export function SessionSettingsDialog(): React.JSX.Element | null {
           </div>
 
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-neutral-500 uppercase">Seeding</p>
+            <p className="text-xs font-semibold text-surface-500 uppercase">Seeding</p>
             <LabeledCheckbox
               checked={draft['seedRatioLimited'] ?? false}
               onCheckedChange={(v) => set('seedRatioLimited', v)}
@@ -154,7 +154,7 @@ export function SessionSettingsDialog(): React.JSX.Element | null {
           </div>
 
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-neutral-500 uppercase">Peers and network</p>
+            <p className="text-xs font-semibold text-surface-500 uppercase">Peers and network</p>
             <div className="grid grid-cols-2 gap-2">
               <Field label="Global peer limit">
                 <Input
@@ -175,7 +175,7 @@ export function SessionSettingsDialog(): React.JSX.Element | null {
               <select
                 value={draft.encryption ?? 'preferred'}
                 onChange={(e) => set('encryption', e.target.value as SessionInfo['encryption'])}
-                className="h-8 w-full rounded-md border border-neutral-300 bg-white px-2 text-sm dark:border-neutral-600 dark:bg-neutral-800"
+                className="h-8 w-full rounded-md border border-surface-300 bg-surface-50 px-2 text-sm dark:border-surface-600 dark:bg-surface-800"
               >
                 <option value="required">Required</option>
                 <option value="preferred">Preferred</option>
@@ -198,8 +198,8 @@ export function SessionSettingsDialog(): React.JSX.Element | null {
               <p
                 className={
                   portResult === 'Port is open'
-                    ? 'text-xs text-green-600 dark:text-green-400'
-                    : 'text-xs text-red-600 dark:text-red-400'
+                    ? 'text-xs text-success-600 dark:text-success-400'
+                    : 'text-xs text-danger-600 dark:text-danger-400'
                 }
               >
                 {portResult}
