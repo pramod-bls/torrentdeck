@@ -79,7 +79,8 @@ Status reflects the current build.
 | L7 | Optional multi-column table view (transgui-style spreadsheet): sortable headers, column show/hide, per panel | P1 | ✅ v0.3 |
 | L8 | Keyboard navigation (arrows, ⇧-extend, ⌘A, space, delete) and global shortcuts with cheat sheet | P1 | ✅ v0.3 |
 | L9 | Status-coded rows (stripe + tinted status text) on a soft semantic palette | P1 | ✅ v0.4 |
-| L10 | Queue controls (move top/up/down/bottom) via context menu | P1 | ✅ v0.4 |
+| L10 | Queue controls: move top/up/down/bottom (context menu), visible # column + card badge, set-exact-position dialog, drag-to-reorder rows (when queue-sorted) | P1 | ✅ v0.4/v0.6 |
+| L12 | Reorder table columns by dragging headers (order persisted per panel) | P2 | ✅ v0.6 |
 | L11 | Swarm health: best seeder/leecher counts with health tint, sortable table columns | P1 | ✅ v0.4 |
 
 ### 4.3 Adding torrents
