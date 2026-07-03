@@ -159,9 +159,13 @@ export interface TorrentDetail extends Torrent {
   honorsSessionLimits: boolean
   bandwidthPriority: -1 | 0 | 1
   'peer-limit': number
+  /** Bandwidth group name, '' = none. */
+  group: string
+  /** Download pieces in order (4.1+/rpc17+ via rpc-version >= 18). */
+  sequentialDownload: boolean
 }
 
-export const TORRENT_DETAIL_FIELDS: (keyof TorrentDetail | 'trackerStats')[] = [
+export const TORRENT_DETAIL_FIELDS: (keyof TorrentDetail | 'trackerStats' | 'sequential_download')[] = [
   ...TORRENT_LIST_FIELDS,
   'comment',
   'creator',
@@ -189,7 +193,12 @@ export const TORRENT_DETAIL_FIELDS: (keyof TorrentDetail | 'trackerStats')[] = [
   'seedRatioLimit',
   'honorsSessionLimits',
   'bandwidthPriority',
-  'peer-limit'
+  'peer-limit',
+  'group',
+  // Sequential download: set as camelCase, returned as snake_case — request
+  // both spellings so the daemon answers regardless, normalize in the transform.
+  'sequentialDownload',
+  'sequential_download'
 ]
 
 export interface SessionInfo {
@@ -212,6 +221,27 @@ export interface SessionInfo {
   'port-forwarding-enabled': boolean
   encryption: 'required' | 'preferred' | 'tolerated'
   'start-added-torrents': boolean
+  // Alt-speed schedule
+  'alt-speed-time-enabled': boolean
+  /** minutes past local midnight */
+  'alt-speed-time-begin': number
+  'alt-speed-time-end': number
+  /** bitfield of weekdays; bit 0 = Sunday … bit 6 = Saturday; 127 = every day */
+  'alt-speed-time-day': number
+  // Blocklist
+  'blocklist-enabled': boolean
+  'blocklist-url': string
+  'blocklist-size': number
+}
+
+/** A bandwidth group: named speed-limit pool torrents can be assigned to. */
+export interface BandwidthGroup {
+  name: string
+  honorsSessionLimits: boolean
+  'speed-limit-down': number
+  'speed-limit-down-enabled': boolean
+  'speed-limit-up': number
+  'speed-limit-up-enabled': boolean
 }
 
 export interface SessionStats {

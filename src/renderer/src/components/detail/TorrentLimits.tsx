@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import type { TorrentDetail } from '@shared/transmission'
-import { useSetTorrentMutation } from '@/services/rpcApi'
+import { useGetGroupsQuery, useGetSessionQuery, useSetTorrentMutation } from '@/services/rpcApi'
 import { Input } from '@/components/ui/input'
 import { LabeledCheckbox } from '@/components/ui/checkbox'
 
@@ -22,6 +22,9 @@ export function TorrentLimits({
 }): React.JSX.Element {
   const [open, setOpen] = useState(false)
   const [setTorrent] = useSetTorrentMutation()
+  const { data: session } = useGetSessionQuery({ profileId })
+  const { data: groups = [] } = useGetGroupsQuery({ profileId })
+  const supportsSequential = (session?.['rpc-version'] ?? 0) >= 18
 
   const set = (fields: Record<string, unknown>): void => {
     void setTorrent({ profileId, ids: [torrent.id], fields })
@@ -68,6 +71,13 @@ export function TorrentLimits({
               onCheckedChange={(v) => set({ honorsSessionLimits: v })}
               label="Honor global speed limits"
             />
+            {supportsSequential && (
+              <LabeledCheckbox
+                checked={torrent.sequentialDownload}
+                onCheckedChange={(v) => set({ sequentialDownload: v })}
+                label="Download pieces sequentially (for previewing)"
+              />
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-2">
@@ -112,6 +122,24 @@ export function TorrentLimits({
                 value={torrent['peer-limit']}
                 onChange={(e) => set({ 'peer-limit': Number(e.target.value) })}
               />
+            </label>
+            <label className="col-span-2 space-y-1">
+              <span className="text-xs text-surface-500 dark:text-surface-400">Bandwidth group</span>
+              <select
+                value={torrent.group}
+                onChange={(e) => set({ group: e.target.value })}
+                className={selectCls}
+              >
+                <option value="">No group</option>
+                {groups.map((g) => (
+                  <option key={g.name} value={g.name}>
+                    {g.name}
+                  </option>
+                ))}
+                {torrent.group && !groups.some((g) => g.name === torrent.group) && (
+                  <option value={torrent.group}>{torrent.group}</option>
+                )}
+              </select>
             </label>
           </div>
         </div>

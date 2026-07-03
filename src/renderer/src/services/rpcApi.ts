@@ -21,6 +21,7 @@ import {
   deriveSwarm,
   tableToObjects,
   type SessionInfo,
+  type BandwidthGroup,
   type SessionStats,
   type Torrent,
   type TorrentDetail,
@@ -55,7 +56,7 @@ export interface AddTorrentArgs {
 export const rpcApi = createApi({
   reducerPath: 'rpcApi',
   baseQuery: ipcBaseQuery,
-  tagTypes: ['Torrents', 'Torrent', 'Session', 'SessionStats'],
+  tagTypes: ['Torrents', 'Torrent', 'Session', 'SessionStats', 'Groups'],
   endpoints: (build) => ({
     getSession: build.query<SessionInfo, { profileId: string }>({
       query: ({ profileId }) => ({ profileId, method: 'session-get' }),
@@ -71,6 +72,19 @@ export const rpcApi = createApi({
     }),
     portTest: build.mutation<{ 'port-is-open': boolean }, { profileId: string }>({
       query: ({ profileId }) => ({ profileId, method: 'port-test' })
+    }),
+    blocklistUpdate: build.mutation<{ 'blocklist-size': number }, { profileId: string }>({
+      query: ({ profileId }) => ({ profileId, method: 'blocklist-update' }),
+      invalidatesTags: ['Session']
+    }),
+    getGroups: build.query<BandwidthGroup[], { profileId: string }>({
+      query: ({ profileId }) => ({ profileId, method: 'group-get' }),
+      transformResponse: (raw: { group: BandwidthGroup[] }) => raw.group ?? [],
+      providesTags: ['Groups']
+    }),
+    setGroup: build.mutation<unknown, { profileId: string; group: Partial<BandwidthGroup> & { name: string } }>({
+      query: ({ profileId, group }) => ({ profileId, method: 'group-set', arguments: group }),
+      invalidatesTags: ['Groups']
     }),
     freeSpace: build.query<{ path: string; 'size-bytes': number }, { profileId: string; path: string }>({
       query: ({ profileId, path }) => ({ profileId, method: 'free-space', arguments: { path } })
@@ -100,13 +114,15 @@ export const rpcApi = createApi({
         method: 'torrent-get',
         arguments: { ids: [id], fields: TORRENT_DETAIL_FIELDS }
       }),
-      transformResponse: (raw: { torrents: TorrentDetail[] }) => {
+      transformResponse: (raw: { torrents: (TorrentDetail & { sequential_download?: boolean })[] }) => {
         const t = raw.torrents[0]
         return t
           ? {
               ...t,
               ...deriveSwarm(t.trackerStats),
-              availRatio: deriveAvailRatio(t.leftUntilDone, t.desiredAvailable)
+              availRatio: deriveAvailRatio(t.leftUntilDone, t.desiredAvailable),
+              // daemon returns snake_case; older daemons omit it entirely
+              sequentialDownload: t.sequential_download ?? t.sequentialDownload ?? false
             }
           : t
       },
@@ -202,6 +218,9 @@ export const {
   useSetSessionMutation,
   useGetSessionStatsQuery,
   usePortTestMutation,
+  useBlocklistUpdateMutation,
+  useGetGroupsQuery,
+  useSetGroupMutation,
   useFreeSpaceQuery,
   useGetTorrentsQuery,
   useGetTorrentDetailQuery,

@@ -46,6 +46,7 @@ export interface UiState {
   sessionSettingsOpen: boolean
   prefsOpen: boolean
   shortcutsOpen: boolean
+  groupsOpen: boolean
 }
 
 const initialState: UiState = {
@@ -60,7 +61,8 @@ const initialState: UiState = {
   renameTarget: null,
   sessionSettingsOpen: false,
   prefsOpen: false,
-  shortcutsOpen: false
+  shortcutsOpen: false,
+  groupsOpen: false
 }
 
 const uiSlice = createSlice({
@@ -136,6 +138,9 @@ const uiSlice = createSlice({
     },
     setShortcutsOpen(state, action: PayloadAction<boolean>) {
       state.shortcutsOpen = action.payload
+    },
+    setGroupsOpen(state, action: PayloadAction<boolean>) {
+      state.groupsOpen = action.payload
     }
   }
 })
@@ -158,6 +163,7 @@ export const {
   closeRename,
   setSessionSettingsOpen,
   setPrefsOpen,
-  setShortcutsOpen
+  setShortcutsOpen,
+  setGroupsOpen
 } = uiSlice.actions
 export default uiSlice.reducer

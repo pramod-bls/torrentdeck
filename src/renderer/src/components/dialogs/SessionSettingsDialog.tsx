@@ -2,11 +2,25 @@ import { useEffect, useState } from 'react'
 import type { SessionInfo } from '@shared/transmission'
 import { useAppDispatch, useAppSelector, useActiveProfileId } from '@/app/hooks'
 import { setSessionSettingsOpen } from '@/features/ui/uiSlice'
-import { useGetSessionQuery, usePortTestMutation, useSetSessionMutation } from '@/services/rpcApi'
+import {
+  useBlocklistUpdateMutation,
+  useGetSessionQuery,
+  usePortTestMutation,
+  useSetSessionMutation
+} from '@/services/rpcApi'
+import {
+  ALL_DAYS,
+  DAY_LABELS,
+  hhmmToMinutes,
+  isDayEnabled,
+  minutesToHHMM,
+  toggleDay
+} from '@/lib/schedule'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input, Field } from '@/components/ui/input'
 import { LabeledCheckbox } from '@/components/ui/checkbox'
+import { cn } from '@/lib/cn'
 
 type Draft = Partial<SessionInfo>
 
@@ -20,7 +34,9 @@ export function SessionSettingsDialog(): React.JSX.Element | null {
   )
   const [setSession, { isLoading: saving }] = useSetSessionMutation()
   const [portTest, { isLoading: testingPort }] = usePortTestMutation()
+  const [blocklistUpdate, { isLoading: updatingBlocklist }] = useBlocklistUpdateMutation()
   const [portResult, setPortResult] = useState<string | null>(null)
+  const [blocklistResult, setBlocklistResult] = useState<string | null>(null)
   const [draft, setDraft] = useState<Draft>({})
 
   useEffect(() => {
@@ -58,6 +74,16 @@ export function SessionSettingsDialog(): React.JSX.Element | null {
     } else {
       setPortResult('Port test failed')
     }
+  }
+
+  const updateBlocklist = async (): Promise<void> => {
+    setBlocklistResult('Updating…')
+    const res = await blocklistUpdate({ profileId })
+    setBlocklistResult(
+      'data' in res && res.data
+        ? `${res.data['blocklist-size'].toLocaleString()} rules loaded`
+        : 'Update failed (check the URL)'
+    )
   }
 
   if (!session) {
@@ -204,6 +230,93 @@ export function SessionSettingsDialog(): React.JSX.Element | null {
               >
                 {portResult}
               </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-surface-500 uppercase">Alt-speed schedule</p>
+            <LabeledCheckbox
+              checked={draft['alt-speed-time-enabled'] ?? false}
+              onCheckedChange={(v) => set('alt-speed-time-enabled', v)}
+              label="Turn on alternative limits on a schedule"
+            />
+            <div className="grid grid-cols-2 gap-2">
+              <Field label="From">
+                <Input
+                  type="time"
+                  value={minutesToHHMM(num(draft['alt-speed-time-begin']))}
+                  disabled={!draft['alt-speed-time-enabled']}
+                  onChange={(e) => {
+                    const m = hhmmToMinutes(e.target.value)
+                    if (m !== null) set('alt-speed-time-begin', m)
+                  }}
+                />
+              </Field>
+              <Field label="To">
+                <Input
+                  type="time"
+                  value={minutesToHHMM(num(draft['alt-speed-time-end']))}
+                  disabled={!draft['alt-speed-time-enabled']}
+                  onChange={(e) => {
+                    const m = hhmmToMinutes(e.target.value)
+                    if (m !== null) set('alt-speed-time-end', m)
+                  }}
+                />
+              </Field>
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {DAY_LABELS.map((label, i) => {
+                const mask = num(draft['alt-speed-time-day']) || ALL_DAYS
+                const on = isDayEnabled(mask, i)
+                return (
+                  <button
+                    key={label}
+                    type="button"
+                    disabled={!draft['alt-speed-time-enabled']}
+                    onClick={() => set('alt-speed-time-day', toggleDay(mask, i))}
+                    className={cn(
+                      'rounded px-1.5 py-0.5 text-[11px] disabled:opacity-40',
+                      on
+                        ? 'bg-accent-500 text-surface-50'
+                        : 'bg-surface-200 text-surface-600 dark:bg-surface-700 dark:text-surface-300'
+                    )}
+                  >
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-surface-500 uppercase">Blocklist</p>
+            <LabeledCheckbox
+              checked={draft['blocklist-enabled'] ?? false}
+              onCheckedChange={(v) => set('blocklist-enabled', v)}
+              label="Enable blocklist"
+            />
+            <Field label="Blocklist URL">
+              <Input
+                value={draft['blocklist-url'] ?? ''}
+                disabled={!draft['blocklist-enabled']}
+                onChange={(e) => set('blocklist-url', e.target.value)}
+              />
+            </Field>
+            <div className="flex items-center gap-2">
+              <span className="flex-1 text-xs text-surface-500 dark:text-surface-400">
+                {num(draft['blocklist-size']).toLocaleString()} rules
+              </span>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => void updateBlocklist()}
+                disabled={updatingBlocklist || !draft['blocklist-enabled']}
+              >
+                {updatingBlocklist ? 'Updating…' : 'Update now'}
+              </Button>
+            </div>
+            {blocklistResult && (
+              <p className="text-xs text-surface-500 dark:text-surface-400">{blocklistResult}</p>
             )}
           </div>
         </div>

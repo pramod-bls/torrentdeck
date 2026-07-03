@@ -11,7 +11,8 @@ import {
   Plus,
   Pencil,
   SlidersHorizontal,
-  Keyboard
+  Keyboard,
+  Gauge
 } from 'lucide-react'
 import { useAppDispatch, useAppSelector, useActiveProfileId } from '@/app/hooks'
 import { setActiveProfile } from '@/features/connection/connectionSlice'
@@ -20,6 +21,7 @@ import {
   openLabelsEditor,
   openProfileEditor,
   openRemoveConfirm,
+  setGroupsOpen,
   setPrefsOpen,
   setSessionSettingsOpen,
   setShortcutsOpen
@@ -143,6 +145,9 @@ export function Toolbar(): React.JSX.Element {
         <DropdownMenuContent align="end">
           <DropdownMenuItem onSelect={() => dispatch(setSessionSettingsOpen(true))}>
             <SlidersHorizontal size={14} /> Server settings…
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => dispatch(setGroupsOpen(true))}>
+            <Gauge size={14} /> Bandwidth groups…
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => dispatch(setPrefsOpen(true))}>
             <Settings2 size={14} /> Preferences…
