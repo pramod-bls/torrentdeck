@@ -14,8 +14,8 @@ import {
   Keyboard,
   Gauge
 } from 'lucide-react'
-import { useAppDispatch, useAppSelector, useActiveProfileId } from '@/app/hooks'
-import { setActiveProfile } from '@/features/connection/connectionSlice'
+import { useAppDispatch, useAppSelector } from '@/app/hooks'
+import { serverColor } from '@/features/connection/serverColor'
 import {
   openAddTorrent,
   openLabelsEditor,
@@ -46,9 +46,7 @@ import { AddPanelMenu } from '@/components/workspace/AddPanelMenu'
  */
 export function Toolbar(): React.JSX.Element {
   const dispatch = useAppDispatch()
-  const defaultProfileId = useActiveProfileId()
   const profiles = useAppSelector((s) => s.connection.profiles)
-  const active = profiles.find((p) => p.id === defaultProfileId)
   const selection = useAppSelector((s) => s.ui.selection)
   const [torrentAction] = useTorrentActionMutation()
 
@@ -113,26 +111,26 @@ export function Toolbar(): React.JSX.Element {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="secondary" size="sm">
-            <Server size={13} /> {active?.name ?? 'Server'} <ChevronDown size={12} />
+            <Server size={13} /> Servers <ChevronDown size={12} />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Default server</DropdownMenuLabel>
+          <DropdownMenuLabel>Servers</DropdownMenuLabel>
           {profiles.map((p) => (
-            <DropdownMenuItem key={p.id} onSelect={() => void dispatch(setActiveProfile(p.id))}>
-              <span className="w-3 text-xs">{p.id === defaultProfileId ? '•' : ''}</span>
+            <DropdownMenuItem key={p.id} onSelect={() => dispatch(openProfileEditor(p.id))}>
+              <span
+                className="h-2.5 w-2.5 shrink-0 rounded-full"
+                style={{ backgroundColor: serverColor(p.id) }}
+                aria-hidden
+              />
               {p.name}
+              <Pencil size={13} className="ml-auto text-surface-400" />
             </DropdownMenuItem>
           ))}
-          <DropdownMenuSeparator />
+          {profiles.length > 0 && <DropdownMenuSeparator />}
           <DropdownMenuItem onSelect={() => dispatch(openProfileEditor(null))}>
             <Plus size={14} /> Add server…
           </DropdownMenuItem>
-          {defaultProfileId && (
-            <DropdownMenuItem onSelect={() => dispatch(openProfileEditor(defaultProfileId))}>
-              <Pencil size={14} /> Edit default server…
-            </DropdownMenuItem>
-          )}
         </DropdownMenuContent>
       </DropdownMenu>
 

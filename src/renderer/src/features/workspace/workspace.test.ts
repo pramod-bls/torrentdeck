@@ -94,14 +94,28 @@ describe('normalizeLayout migrations', () => {
 })
 
 describe('placeNewItem', () => {
-  it('places below the lowest existing item with registry default size', () => {
-    const items = defaultLayout().items
-    const it = placeNewItem('stats', items)
+  it('falls through to the bottom-left when nothing fits alongside', () => {
+    const items = defaultLayout().items // full-width top rows leave no gap
+    const it = placeNewItem('detail', items)
     expect(it.y).toBe(14)
     expect(it.x).toBe(0)
-    expect(it.w).toBe(PANELS.stats.w)
-    expect(it.h).toBe(PANELS.stats.h)
+    expect(it.w).toBe(PANELS.detail.w)
+    expect(it.h).toBe(PANELS.detail.h)
     expect(it.config).toBeUndefined()
+  })
+
+  it('tucks a new panel into a horizontal gap when one fits', () => {
+    const existing = [
+      { i: 'a', type: 'stats', x: 0, y: 0, w: 3, h: 4 },
+      { i: 'b', type: 'stats', x: 6, y: 0, w: 3, h: 4 }
+    ] as ReturnType<typeof defaultLayout>['items']
+    const it = placeNewItem('stats', existing) // stats is 3 wide → fits the x3–5 gap
+    expect({ x: it.x, y: it.y }).toEqual({ x: 3, y: 0 })
+  })
+
+  it('stamps default server config onto new stats panels', () => {
+    const it = placeNewItem('stats', defaultLayout().items)
+    expect(it.config).toEqual({ server: 'default' })
   })
 
   it('stamps default config onto new torrent-list panels', () => {
@@ -111,7 +125,7 @@ describe('placeNewItem', () => {
 })
 
 describe('workspaceSlice', () => {
-  const state = (): WorkspaceState => ({ layout: defaultLayout(), profileId: 'p1' })
+  const state = (): WorkspaceState => ({ layout: defaultLayout() })
 
   it('adds and removes panels', () => {
     let s = reducer(state(), panelAdded('stats'))

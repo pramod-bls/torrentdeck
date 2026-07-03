@@ -16,7 +16,8 @@ import type { TorrentFilePayload } from '@shared/types'
 
 export interface Selection {
   profileId: string
-  ids: number[]
+  /** Torrent identities = infohash strings (ADR-0004). */
+  ids: string[]
 }
 
 export interface AddTorrentPayload {
@@ -26,7 +27,7 @@ export interface AddTorrentPayload {
 
 export interface RenameTarget {
   profileId: string
-  id: number
+  id: string
   /** Full path within the torrent of the thing being renamed */
   path: string
   /** Its current basename (prefill) */
@@ -35,7 +36,7 @@ export interface RenameTarget {
 
 export interface UiState {
   selection: Selection | null
-  detailTarget: { profileId: string; id: number } | null
+  detailTarget: { profileId: string; id: string } | null
   focusedPanelId: string | null
   detailTab: 'general' | 'files' | 'peers' | 'trackers' | 'pieces'
   addTorrent: AddTorrentPayload | null
@@ -43,7 +44,7 @@ export interface UiState {
   removeConfirm: Selection | null
   labelsEditor: Selection | null
   renameTarget: RenameTarget | null
-  queueEditor: { profileId: string; id: number; current: number; name: string } | null
+  queueEditor: { profileId: string; id: string; current: number; name: string } | null
   sessionSettingsOpen: boolean
   prefsOpen: boolean
   shortcutsOpen: boolean
@@ -73,7 +74,7 @@ const uiSlice = createSlice({
   reducers: {
     selectTorrent(
       state,
-      action: PayloadAction<{ profileId: string; id: number; additive: boolean }>
+      action: PayloadAction<{ profileId: string; id: string; additive: boolean }>
     ) {
       const { profileId, id, additive } = action.payload
       const sameServer = state.selection?.profileId === profileId
@@ -134,7 +135,7 @@ const uiSlice = createSlice({
     },
     openQueueEditor(
       state,
-      action: PayloadAction<{ profileId: string; id: number; current: number; name: string }>
+      action: PayloadAction<{ profileId: string; id: string; current: number; name: string }>
     ) {
       state.queueEditor = action.payload
     },

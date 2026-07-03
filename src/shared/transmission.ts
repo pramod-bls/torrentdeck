@@ -20,7 +20,10 @@ export interface TrackerRef {
 }
 
 export interface Torrent {
-  id: number
+  /** Canonical identity = infohash string (ADR-0004), uniform across daemons.
+   * For Transmission this is `hashString`; its numeric id never leaves the
+   * main process (its RPC accepts hashes wherever it accepts numeric ids). */
+  id: string
   name: string
   status: TorrentStatusValue
   hashString: string

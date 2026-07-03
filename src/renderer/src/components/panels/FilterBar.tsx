@@ -1,4 +1,5 @@
 import { ArrowDownUp, Check, ChevronDown, LayoutList, Server, Search, Table2 } from 'lucide-react'
+import { serverColor } from '@/features/connection/serverColor'
 import type { ServerProfile, SortKey, TorrentsPanelConfig } from '@shared/types'
 import type { Torrent } from '@shared/transmission'
 import type { StatusFilter } from '@shared/types'
@@ -80,7 +81,7 @@ export function FilterBar({
 
   const scopeLabel =
     config.servers === 'default'
-      ? 'Default'
+      ? 'All servers'
       : scopedIds.length === 1
         ? (profiles.find((p) => p.id === scopedIds[0])?.name ?? '1 server')
         : `${scopedIds.length} servers`
@@ -97,7 +98,7 @@ export function FilterBar({
           <DropdownMenuLabel>Servers shown</DropdownMenuLabel>
           <DropdownMenuItem onSelect={() => patch({ servers: 'default' })}>
             <span className="w-3">{config.servers === 'default' ? <Check size={12} /> : null}</span>
-            Follow default server
+            All servers
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           {profiles.map((p) => (
@@ -105,6 +106,11 @@ export function FilterBar({
               <span className="w-3">
                 {config.servers !== 'default' && scopedIds.includes(p.id) ? <Check size={12} /> : null}
               </span>
+              <span
+                className="mr-1.5 h-2 w-2 shrink-0 rounded-full"
+                style={{ backgroundColor: serverColor(p.id) }}
+                aria-hidden
+              />
               {p.name}
             </DropdownMenuItem>
           ))}

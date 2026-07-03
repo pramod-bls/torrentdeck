@@ -6,7 +6,7 @@
  */
 import { app, Menu, Tray, nativeImage, type BrowserWindow } from 'electron'
 import { join } from 'node:path'
-import { TransmissionClient } from './rpc/client'
+import { createAdapter } from './rpc/adapters'
 import * as profiles from './profiles'
 
 let tray: Tray | null = null
@@ -19,28 +19,20 @@ function formatSpeed(bytesPerSec: number): string {
   return `${v >= 100 || i === 0 ? Math.round(v) : v.toFixed(1)} ${units[i]}/s`
 }
 
-function defaultClient(): TransmissionClient | null {
-  const id = profiles.getActiveProfileId()
-  if (!id) return null
-  const p = profiles.getProfile(id)
-  if (!p) return null
-  return new TransmissionClient({
-    host: p.host,
-    port: p.port,
-    useTls: p.useTls,
-    allowSelfSignedCert: p.allowSelfSignedCert,
-    rpcPath: p.rpcPath || '/transmission/rpc',
-    username: p.username || undefined,
-    password: profiles.getPassword(id)
-  })
-}
-
 async function setAllPaused(paused: boolean): Promise<void> {
-  const client = defaultClient()
-  if (!client) return
-  const method = paused ? 'torrent-stop' : 'torrent-start'
-  // Omitting ids targets all torrents (Transmission RPC convention)
-  await client.call(method)
+  // Act on every configured server (there's no single "active" server anymore).
+  const action = paused ? 'torrent-stop' : 'torrent-start'
+  await Promise.all(
+    profiles.listProfiles().map(async (p) => {
+      try {
+        const client = createAdapter(p, profiles.getPassword(p.id))
+        // Empty ids = "all torrents" per the TorrentClient contract.
+        await client.torrentAction(action, [])
+      } catch {
+        // skip unreachable / not-yet-supported servers
+      }
+    })
+  )
 }
 
 function rebuildMenu(window: BrowserWindow): void {

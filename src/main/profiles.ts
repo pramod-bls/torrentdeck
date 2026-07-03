@@ -16,28 +16,41 @@ interface StoreSchema {
   profiles: ServerProfile[]
   /** profile id -> safeStorage-encrypted password, base64 */
   passwords: Record<string, string>
-  activeProfileId: string | null
   prefs: AppPrefs
-  /** profile id -> panel workspace layout (opaque to main; renderer validates) */
-  workspaces: Record<string, WorkspaceLayout>
+  /** The single app-wide panel workspace (renderer validates). */
+  workspace: WorkspaceLayout | null
+  // Deprecated (read once for migration to `workspace`): per-profile layouts +
+  // the old active-server pointer. No longer written.
+  activeProfileId?: string | null
+  workspaces?: Record<string, WorkspaceLayout>
 }
 
 const store = new Store<StoreSchema>({
   defaults: {
     profiles: [],
     passwords: {},
-    activeProfileId: null,
     prefs: { theme: 'system', pollingIntervalMs: 3000, notifyOnComplete: true, closeToTray: false },
-    workspaces: {}
+    workspace: null
   }
 })
 
+/** Default RPC path for a server type when the user leaves the field blank. */
+export function defaultRpcPath(serverType: ServerProfile['serverType']): string {
+  return serverType === 'deluge' ? '/json' : '/transmission/rpc'
+}
+
+/** Backfill `serverType` for profiles saved before the field existed. */
+function normalizeProfile(p: ServerProfile): ServerProfile {
+  return p.serverType ? p : { ...p, serverType: 'transmission' }
+}
+
 export function listProfiles(): ServerProfile[] {
-  return store.get('profiles')
+  return store.get('profiles').map(normalizeProfile)
 }
 
 export function getProfile(id: string): ServerProfile | undefined {
-  return store.get('profiles').find((p) => p.id === id)
+  const p = store.get('profiles').find((p) => p.id === id)
+  return p ? normalizeProfile(p) : undefined
 }
 
 export function saveProfile(input: ProfileInput): ServerProfile {
@@ -55,14 +68,16 @@ export function saveProfile(input: ProfileInput): ServerProfile {
     store.set('passwords', passwords)
   }
 
+  const serverType = input.serverType ?? 'transmission'
   const profile: ServerProfile = {
     id,
     name: input.name,
+    serverType,
     host: input.host,
     port: input.port,
     useTls: input.useTls,
     allowSelfSignedCert: input.allowSelfSignedCert,
-    rpcPath: input.rpcPath || '/transmission/rpc',
+    rpcPath: input.rpcPath || defaultRpcPath(serverType),
     username: input.username,
     hasPassword: passwords[id] !== undefined,
     sort: existing?.sort
@@ -81,18 +96,27 @@ export function deleteProfile(id: string): void {
   const passwords = store.get('passwords')
   delete passwords[id]
   store.set('passwords', passwords)
-  const workspaces = store.get('workspaces')
-  delete workspaces[id]
-  store.set('workspaces', workspaces)
-  if (store.get('activeProfileId') === id) store.set('activeProfileId', null)
 }
 
-export function getWorkspace(profileId: string): WorkspaceLayout | null {
-  return store.get('workspaces')[profileId] ?? null
+/** The single app-wide workspace. Migrates a pre-v0.8 per-profile layout on
+ * first read (prefers the old active server's layout, else any). */
+export function getWorkspace(): WorkspaceLayout | null {
+  const current = store.get('workspace')
+  if (current) return current
+  const legacy = store.get('workspaces')
+  if (legacy && Object.keys(legacy).length > 0) {
+    const active = store.get('activeProfileId')
+    const migrated = (active && legacy[active]) || Object.values(legacy)[0]
+    if (migrated) {
+      store.set('workspace', migrated)
+      return migrated
+    }
+  }
+  return null
 }
 
-export function setWorkspace(profileId: string, layout: WorkspaceLayout): void {
-  store.set('workspaces', { ...store.get('workspaces'), [profileId]: layout })
+export function setWorkspace(layout: WorkspaceLayout): void {
+  store.set('workspace', layout)
 }
 
 export function getPassword(id: string): string | undefined {
@@ -103,14 +127,6 @@ export function getPassword(id: string): string | undefined {
   } catch {
     return undefined
   }
-}
-
-export function getActiveProfileId(): string | null {
-  return store.get('activeProfileId')
-}
-
-export function setActiveProfileId(id: string | null): void {
-  store.set('activeProfileId', id)
 }
 
 export function setProfileSort(id: string, sort: SortPref): void {

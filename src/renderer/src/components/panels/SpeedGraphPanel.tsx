@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import type { SpeedGraphConfig, WorkspaceItem } from '@shared/types'
-import { useAppDispatch, useAppSelector, useActiveProfileId, usePollingInterval } from '@/app/hooks'
+import { useAppDispatch, useAppSelector, useFirstProfileId, usePollingInterval } from '@/app/hooks'
 import { useGetSessionStatsQuery } from '@/services/rpcApi'
 import { panelConfigChanged } from '@/features/workspace/workspaceSlice'
 import { getGraphConfig } from '@/features/workspace/panels'
@@ -37,7 +37,7 @@ export function SpeedGraphPanel({ item }: { item: WorkspaceItem }): React.JSX.El
   const dispatch = useAppDispatch()
   const config: SpeedGraphConfig = getGraphConfig(item)
   const profiles = useAppSelector((s) => s.connection.profiles)
-  const defaultProfileId = useActiveProfileId()
+  const defaultProfileId = useFirstProfileId()
   const pollingInterval = usePollingInterval()
 
   const profileId = config.server === 'default' ? defaultProfileId : config.server
@@ -78,7 +78,7 @@ export function SpeedGraphPanel({ item }: { item: WorkspaceItem }): React.JSX.El
           aria-label="Graph server"
           className="h-6 rounded border border-surface-300 bg-surface-50 px-1 text-xs dark:border-surface-600 dark:bg-surface-800"
         >
-          <option value="default">Default server</option>
+          <option value="default">First server</option>
           {profiles.map((p) => (
             <option key={p.id} value={p.id}>
               {p.name}

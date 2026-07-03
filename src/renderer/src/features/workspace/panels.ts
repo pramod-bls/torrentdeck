@@ -9,6 +9,7 @@ import type {
   PanelTypeId,
   SortPref,
   SpeedGraphConfig,
+  StatsPanelConfig,
   TorrentsPanelConfig,
   WorkspaceItem,
   WorkspaceLayout
@@ -172,6 +173,50 @@ export function defaultGraphConfig(): SpeedGraphConfig {
   return { server: 'default', windowSec: 300 }
 }
 
+export function defaultStatsConfig(): StatsPanelConfig {
+  return { server: 'default' }
+}
+
+/** Narrow a workspace item's config to the Session Stats shape. */
+export function getStatsConfig(item: WorkspaceItem): StatsPanelConfig {
+  return (item.config as StatsPanelConfig | undefined) ?? defaultStatsConfig()
+}
+
+/**
+ * Which server(s) a panel currently represents, for header color-coding.
+ * Torrents 'default' scope = all servers; Stats/Speed 'default' = the first;
+ * detail panels follow the selected torrent's server. Ids not in `allProfileIds`
+ * are dropped (stale config).
+ */
+export function panelServerIds(
+  item: WorkspaceItem,
+  allProfileIds: string[],
+  detailProfileId: string | null
+): string[] {
+  const keep = (ids: (string | null | undefined)[]): string[] =>
+    ids.filter((id): id is string => !!id && allProfileIds.includes(id))
+  switch (item.type) {
+    case 'torrent-list': {
+      const cfg = getListConfig(item)
+      return keep(cfg.servers === 'default' ? allProfileIds : cfg.servers)
+    }
+    case 'stats':
+    case 'speed-graph': {
+      const server = item.type === 'stats' ? getStatsConfig(item).server : getGraphConfig(item).server
+      return keep([server === 'default' ? allProfileIds[0] : server])
+    }
+    case 'detail':
+    case 'detail-general':
+    case 'detail-files':
+    case 'detail-peers':
+    case 'detail-trackers':
+    case 'detail-pieces':
+      return keep([detailProfileId])
+    default:
+      return []
+  }
+}
+
 /** Narrow a workspace item's config to the Torrents panel shape (filled by withConfig). */
 export function getListConfig(item: WorkspaceItem): TorrentsPanelConfig {
   return (item.config as TorrentsPanelConfig | undefined) ?? defaultPanelConfig()
@@ -193,6 +238,13 @@ function withConfig(item: WorkspaceItem, seedSort?: SortPref): WorkspaceItem {
         server: typeof cfg.server === 'string' ? cfg.server : base.server,
         windowSec: cfg.windowSec === 60 || cfg.windowSec === 900 ? cfg.windowSec : base.windowSec
       }
+    }
+  }
+  if (item.type === 'stats') {
+    const cfg = (item.config ?? {}) as Partial<StatsPanelConfig>
+    return {
+      ...item,
+      config: { server: typeof cfg.server === 'string' ? cfg.server : defaultStatsConfig().server }
     }
   }
   if (item.type !== 'torrent-list') return item
@@ -230,12 +282,40 @@ export function normalizeLayout(raw: unknown, seedSort?: SortPref): WorkspaceLay
   return { version: CURRENT_LAYOUT_VERSION, items }
 }
 
-/** Grid position for a newly added panel: full-left, below everything else. */
+interface Rect {
+  x: number
+  y: number
+  w: number
+  h: number
+}
+
+function overlaps(a: Rect, b: Rect): boolean {
+  return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h
+}
+
+/**
+ * First empty w×h slot in the grid, scanning top-to-bottom then left-to-right,
+ * so a new panel tucks into a gap beside existing panels instead of always
+ * starting a new row. Falls through to the bottom-left (always free) when
+ * nothing fits alongside — the loop is bounded by the current lowest edge.
+ */
+export function firstFreeSlot(existing: Rect[], w: number, h: number, cols = GRID_COLS): { x: number; y: number } {
+  const maxY = existing.reduce((m, it) => Math.max(m, it.y + it.h), 0)
+  for (let y = 0; y <= maxY; y++) {
+    for (let x = 0; x + w <= cols; x++) {
+      if (!existing.some((it) => overlaps({ x, y, w, h }, it))) return { x, y }
+    }
+  }
+  return { x: 0, y: maxY }
+}
+
+/** Grid position for a newly added panel: the first empty slot that fits. */
 export function placeNewItem(type: PanelTypeId, existing: WorkspaceItem[]): WorkspaceItem {
   const meta = PANELS[type]
-  const bottom = existing.reduce((max, it) => Math.max(max, it.y + it.h), 0)
-  const item: WorkspaceItem = { i: crypto.randomUUID(), type, x: 0, y: bottom, w: meta.w, h: meta.h }
+  const { x, y } = firstFreeSlot(existing, meta.w, meta.h)
+  const item: WorkspaceItem = { i: crypto.randomUUID(), type, x, y, w: meta.w, h: meta.h }
   if (type === 'torrent-list') return { ...item, config: defaultPanelConfig() }
   if (type === 'speed-graph') return { ...item, config: defaultGraphConfig() }
+  if (type === 'stats') return { ...item, config: defaultStatsConfig() }
   return item
 }

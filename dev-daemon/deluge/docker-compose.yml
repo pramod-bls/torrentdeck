@@ -1,0 +1,19 @@
+services:
+  deluge:
+    image: linuxserver/deluge:latest
+    container_name: deluge-remote-dev
+    environment:
+      - PUID=506
+      - PGID=20
+      - TZ=Etc/UTC
+      # deluge-web's default password is "deluge"; set it explicitly for the app profile.
+      - DELUGE_LOGLEVEL=info
+    volumes:
+      - ./config:/config
+      - ./downloads:/downloads
+    ports:
+      - '8112:8112'   # deluge-web JSON-RPC (/json)
+      - '58846:58846' # deluged (native RPC; not used by the app, exposed for debugging)
+      - '6881:6881'
+      - '6881:6881/udp'
+    restart: unless-stopped

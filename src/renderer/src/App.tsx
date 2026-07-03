@@ -76,7 +76,7 @@ function useTorrentFileDrop(): void {
 
 export default function App(): React.JSX.Element {
   const dispatch = useAppDispatch()
-  const { loaded, profiles, activeProfileId } = useAppSelector((s) => s.connection)
+  const { loaded, profiles } = useAppSelector((s) => s.connection)
 
   useTheme()
   useOsOpenHandlers()
@@ -87,13 +87,14 @@ export default function App(): React.JSX.Element {
     void dispatch(bootstrap())
   }, [dispatch])
 
+  // One app-wide workspace, loaded once the app state is ready.
   useEffect(() => {
-    if (activeProfileId) void dispatch(loadWorkspace(activeProfileId))
-  }, [dispatch, activeProfileId])
+    if (loaded) void dispatch(loadWorkspace())
+  }, [dispatch, loaded])
 
   if (!loaded) return <div className="flex h-full items-center justify-center" />
 
-  const showMain = profiles.length > 0 && activeProfileId
+  const showMain = profiles.length > 0
 
   return (
     <div className="flex h-full flex-col">

@@ -4,6 +4,7 @@ import type { TorrentsPanelConfig } from '@shared/types'
 import { useAppSelector, usePollingInterval } from '@/app/hooks'
 import { useGetTorrentsQuery, useSetTorrentMutation } from '@/services/rpcApi'
 import { applyPanelFilters, sortTorrents } from '@/features/torrents/derive'
+import { serverColor } from '@/features/connection/serverColor'
 import { TorrentRow, type RowReorder } from './TorrentRow'
 import { TorrentTableRow } from './TorrentTable'
 import { cn } from '@/lib/cn'
@@ -50,10 +51,10 @@ export function ServerGroup({
   // Drag-to-reorder is only meaningful when the visual order IS the queue order.
   const reorderable = config.sort.key === 'queuePosition' && !config.sort.desc
   const [setTorrent] = useSetTorrentMutation()
-  const [dragId, setDragId] = useState<number | null>(null)
-  const [dropId, setDropId] = useState<number | null>(null)
+  const [dragId, setDragId] = useState<string | null>(null)
+  const [dropId, setDropId] = useState<string | null>(null)
 
-  const buildReorder = (targetId: number): RowReorder | undefined => {
+  const buildReorder = (targetId: string): RowReorder | undefined => {
     if (!reorderable) return undefined
     return {
       onDragStart: () => setDragId(targetId),
@@ -84,6 +85,11 @@ export function ServerGroup({
           className="sticky top-0 z-10 flex w-full items-center gap-1.5 border-b border-surface-200 bg-surface-100 px-2 py-1 text-left text-xs font-semibold text-surface-600 dark:border-surface-700 dark:bg-surface-800 dark:text-surface-300"
         >
           {collapsed ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
+          <span
+            className="h-2 w-2 shrink-0 rounded-full"
+            style={{ backgroundColor: serverColor(profileId) }}
+            aria-hidden
+          />
           <span className="truncate">{profileName}</span>
           <span className="font-normal text-surface-400">
             {error ? '' : `${visible.length}${visible.length !== torrents.length ? ` of ${torrents.length}` : ''}`}
