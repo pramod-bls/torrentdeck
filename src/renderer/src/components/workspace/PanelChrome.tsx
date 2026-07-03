@@ -46,16 +46,20 @@ export function PanelChrome({
           : 'border-surface-200 dark:border-surface-700'
       )}
     >
-      {serverIds.length > 0 && (
-        <div className="flex h-1 shrink-0" aria-hidden>
-          {serverIds.map((sid) => (
-            <span key={sid} className="flex-1" style={{ backgroundColor: serverColor(sid) }} />
-          ))}
-        </div>
-      )}
       <div className="panel-drag-handle flex shrink-0 cursor-grab items-center gap-1.5 border-b border-surface-200 bg-surface-50 px-2 py-1 select-none active:cursor-grabbing dark:border-surface-700 dark:bg-surface-800/60">
         <GripHorizontal size={12} className="text-surface-400" />
         <span className="text-xs font-medium text-surface-600 dark:text-surface-300">{title}</span>
+        {serverIds.length > 0 && (
+          <span className="flex items-center gap-1" aria-hidden title="Servers shown">
+            {serverIds.map((sid) => (
+              <span
+                key={sid}
+                className="h-2.5 w-2.5 rounded-[3px]"
+                style={{ backgroundColor: serverColor(sid) }}
+              />
+            ))}
+          </span>
+        )}
         <span className="flex-1" />
         <button
           type="button"
