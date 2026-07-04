@@ -5,6 +5,7 @@ dist/
 .DS_Store
 .env
 .env.*
+!.env.release.example
 coverage/
 dev-daemon/**/downloads/
 dev-daemon/**/config/

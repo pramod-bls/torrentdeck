@@ -92,15 +92,23 @@ Run tests with `npm test`, typecheck with `npm run typecheck`.
 Releases publish to GitHub and are consumed by the in-app auto-updater
 (electron-updater reads each release's `latest*.yml`).
 
+**One-time setup:** copy `.env.release.example` → `.env.release` (git-ignored) and fill in
+your GitHub token + Apple notarization creds. Or run `gh auth login` and leave `GH_TOKEN`
+blank — the script reads it from `gh`.
+
 - **macOS & Windows — built locally** (macOS signs + notarizes with the developer's
-  keychain; the `.p12` import into a keychain is unreliable on CI runners):
+  keychain; the `.p12` import into a keychain is unreliable on CI runners). Bump the
+  version in `package.json`, then:
 
   ```sh
-  export GH_TOKEN=…                         # token with repo scope
-  export APPLE_ID=… APPLE_APP_SPECIFIC_PASSWORD=… APPLE_TEAM_ID=3U86H8PJF6   # notarization
-  npm run release:mac                        # signed + notarized dmg/zip → GitHub release
-  npm run release:win                        # NSIS x64/arm64 → same release
+  scripts/release.sh mac    # signed + notarized dmg/zip → GitHub draft release
+  scripts/release.sh win    # NSIS x64/arm64 → same release
+  # (or `scripts/release.sh all` for both)
   ```
+
+  The script loads `.env.release`, pre-creates the draft release (so multi-arch
+  publishers don't race into duplicate drafts), builds, and publishes. The lower-level
+  `npm run release:mac` / `release:win` still work if you export the env vars yourself.
 
 - **Linux (AppImage + deb) — built by CI**, which needs a Linux host: push a `v*` tag (or
   run the *Release (Linux)* workflow manually) and it publishes to the same release.
