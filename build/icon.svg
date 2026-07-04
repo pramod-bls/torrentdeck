@@ -2,7 +2,7 @@
   <!-- TorrentDeck app icon: a flat, wireframe "deck" of torrent panels (download
        arrow, torrent rows, a seeding ring) on a muted-orange tile.
        Original artwork for this project (GPL-2.0-or-later). -->
-  <rect x="0" y="0" width="1024" height="1024" rx="232" fill="#b06336"/>
+  <rect x="0" y="0" width="1024" height="1024" rx="232" fill="#f97316"/>
 
   <g fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round">
     <!-- four wireframe panels -->
@@ -27,5 +27,6 @@
 
     <!-- BR: seeding ring -->
     <circle cx="690" cy="690" r="80" stroke-width="20"/>
+    <!-- (all wireframe strokes are white; the tile carries the brand orange) -->
   </g>
 </svg>

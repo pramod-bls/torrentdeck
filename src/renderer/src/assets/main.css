@@ -5,22 +5,29 @@
 /*
  * Semantic color system. All component classes use these tokens (accent,
  * success, danger, warning, surface) — never raw Tailwind hues — so the whole
- * app's character is tuned here. The palette is deliberately soft: warm
- * orange accent, sage success, dusty rose danger, warm gray surfaces, and a
- * charcoal (not black) dark mode.
+ * app's character is tuned here. The palette is deliberately soft: a muted
+ * electric-blue accent (the orange logo stays a fixed brand mark — see
+ * --color-brand-*), sage success, dusty rose danger, warm gray surfaces, and a
+ * charcoal (not black) dark mode. The blue is tuned to read on both the light
+ * and dark surfaces (600 for links on light, 400 on dark).
  */
 @theme {
-  --color-accent-50: #f9f2ed;
-  --color-accent-100: #f1e2d6;
-  --color-accent-200: #e3c4ae;
-  --color-accent-300: #d09f7e;
-  --color-accent-400: #bd7d54;
-  --color-accent-500: #a96437;
-  --color-accent-600: #92522c;
-  --color-accent-700: #774227;
-  --color-accent-800: #613626;
-  --color-accent-900: #522f23;
-  --color-accent-950: #2c1811;
+  --color-accent-50: #eef2fb;
+  --color-accent-100: #dbe4f5;
+  --color-accent-200: #bccdea;
+  --color-accent-300: #93aedb;
+  --color-accent-400: #6a8dca;
+  --color-accent-500: #4a70b8;
+  --color-accent-600: #3c5c9c;
+  --color-accent-700: #344e82;
+  --color-accent-800: #2f436a;
+  --color-accent-900: #2b3b58;
+  --color-accent-950: #1b2740;
+
+  /* Fixed orange brand mark (logo + wordmark "Deck"), independent of the accent. */
+  --color-brand-400: #fb923c;
+  --color-brand-500: #f97316;
+  --color-brand-600: #ea6a0e;
 
   --color-success-50: #edf7f1;
   --color-success-100: #d8efe2;
