@@ -87,8 +87,8 @@ export class DelugeAdapter implements TorrentClient {
       anonymousMode: hasKey('anonymous_mode'), // present only on some builds
       utp: hasKey('utp'), // not exposed by the Web UI config on some builds
       idleSeedingLimit: false, // no idle-based seeding stop
-      totalSeedTimeLimit: true, // seed_time_limit (minutes)
-      seedLimitAction: true, // stop_seed_at_ratio / remove_seed_at_ratio
+      totalSeedTimeLimit: false, // seed_time_limit has no clear enable toggle; not exposed
+      seedLimitAction: true, // remove_seed_at_ratio → pause/remove when ratio is hit
       seedLimitActionDelete: false // remove from session, no data delete
     }
     // Only cache once the probe actually succeeded, so a failure while the
@@ -123,6 +123,9 @@ export class DelugeAdapter implements TorrentClient {
       'alt-speed-enabled': false,
       seedRatioLimit: num('stop_seed_ratio'),
       seedRatioLimited: bool('stop_seed_at_ratio'),
+      'idle-seeding-limit': 0, // Deluge has no idle-based seeding stop
+      'idle-seeding-limit-enabled': false,
+      'seed-limit-action': bool('remove_seed_at_ratio') ? 'remove' : 'pause',
       'peer-limit-global': num('max_connections_global'),
       'peer-limit-per-torrent': num('max_connections_per_torrent'),
       'peer-port': num('listen_ports'),
@@ -159,6 +162,7 @@ export class DelugeAdapter implements TorrentClient {
     }
     if ('seedRatioLimited' in fields) cfg['stop_seed_at_ratio'] = fields['seedRatioLimited']
     if ('seedRatioLimit' in fields) cfg['stop_seed_ratio'] = fields['seedRatioLimit']
+    if ('seed-limit-action' in fields) cfg['remove_seed_at_ratio'] = fields['seed-limit-action'] === 'remove'
     if ('peer-limit-global' in fields) cfg['max_connections_global'] = fields['peer-limit-global']
     if ('peer-limit-per-torrent' in fields)
       cfg['max_connections_per_torrent'] = fields['peer-limit-per-torrent']

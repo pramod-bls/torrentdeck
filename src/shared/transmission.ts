@@ -217,6 +217,14 @@ export interface SessionInfo {
   'alt-speed-enabled': boolean
   'seedRatioLimit': number
   'seedRatioLimited': boolean
+  // Extended seeding limits (canonical = Transmission field names where they exist)
+  'idle-seeding-limit': number // minutes
+  'idle-seeding-limit-enabled': boolean
+  /** Total seeding time before stopping, minutes (qBittorrent). */
+  'seed-time-limit'?: number
+  'seed-time-limit-enabled'?: boolean
+  /** What to do when a seeding limit is reached (qBittorrent, Deluge). */
+  'seed-limit-action'?: 'pause' | 'remove'
   'peer-limit-global': number
   'peer-limit-per-torrent': number
   'peer-port': number

@@ -177,6 +177,48 @@ function ServerSettingsForm({
             disabled={!draft['seedRatioLimited']}
             onChange={(e) => set('seedRatioLimit', Number(e.target.value))}
           />
+          {can(caps, 'idleSeedingLimit') && (
+            <>
+              <LabeledCheckbox
+                checked={draft['idle-seeding-limit-enabled'] ?? false}
+                onCheckedChange={(v) => set('idle-seeding-limit-enabled', v)}
+                label="Stop seeding when idle (minutes)"
+              />
+              <Input
+                type="number"
+                value={num(draft['idle-seeding-limit'])}
+                disabled={!draft['idle-seeding-limit-enabled']}
+                onChange={(e) => set('idle-seeding-limit', Number(e.target.value))}
+              />
+            </>
+          )}
+          {can(caps, 'totalSeedTimeLimit') && (
+            <>
+              <LabeledCheckbox
+                checked={draft['seed-time-limit-enabled'] ?? false}
+                onCheckedChange={(v) => set('seed-time-limit-enabled', v)}
+                label="Stop seeding after a total time (minutes)"
+              />
+              <Input
+                type="number"
+                value={num(draft['seed-time-limit'])}
+                disabled={!draft['seed-time-limit-enabled']}
+                onChange={(e) => set('seed-time-limit', Number(e.target.value))}
+              />
+            </>
+          )}
+          {can(caps, 'seedLimitAction') && (
+            <Field label="When a seeding limit is reached">
+              <select
+                value={draft['seed-limit-action'] ?? 'pause'}
+                onChange={(e) => set('seed-limit-action', e.target.value as 'pause' | 'remove')}
+                className="h-8 w-full rounded-md border border-surface-300 bg-surface-50 px-2 text-sm dark:border-surface-600 dark:bg-surface-800"
+              >
+                <option value="pause">Pause the torrent</option>
+                <option value="remove">Remove the torrent (keep data)</option>
+              </select>
+            </Field>
+          )}
           <LabeledCheckbox
             checked={draft['start-added-torrents'] ?? true}
             onCheckedChange={(v) => set('start-added-torrents', v)}

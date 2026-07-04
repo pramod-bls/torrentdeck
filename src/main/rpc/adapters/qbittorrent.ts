@@ -72,8 +72,8 @@ export class QbittorrentAdapter implements TorrentClient {
         utp: false, // no dedicated µTP toggle in the WebUI prefs
         idleSeedingLimit: true, // max_inactive_seeding_time
         totalSeedTimeLimit: true, // max_seeding_time
-        seedLimitAction: true, // max_ratio_act
-        seedLimitActionDelete: true // remove + delete data
+        seedLimitAction: true, // max_ratio_act (0 pause / 1 remove)
+        seedLimitActionDelete: false // delete-files enum value unverified; deferred
       }
     })
   }
@@ -101,6 +101,11 @@ export class QbittorrentAdapter implements TorrentClient {
       'alt-speed-enabled': false,
       seedRatioLimit: num(p.max_ratio, 0),
       seedRatioLimited: p.max_ratio_enabled === true,
+      'idle-seeding-limit': Math.max(0, num(p.max_inactive_seeding_time)),
+      'idle-seeding-limit-enabled': p.max_inactive_seeding_time_enabled === true,
+      'seed-time-limit': Math.max(0, num(p.max_seeding_time)),
+      'seed-time-limit-enabled': p.max_seeding_time_enabled === true,
+      'seed-limit-action': num(p.max_ratio_act) === 1 ? 'remove' : 'pause',
       'peer-limit-global': num(p.max_connec, 0),
       'peer-limit-per-torrent': num(p.max_connec_per_torrent, 0),
       'peer-port': num(p.listen_port),
@@ -133,6 +138,13 @@ export class QbittorrentAdapter implements TorrentClient {
       prefs.up_limit = fields['speed-limit-up-enabled'] ? toBytes(fields['speed-limit-up'] ?? 0) : 0
     if ('seedRatioLimited' in fields) prefs.max_ratio_enabled = fields.seedRatioLimited
     if ('seedRatioLimit' in fields) prefs.max_ratio = fields.seedRatioLimit
+    if ('idle-seeding-limit-enabled' in fields)
+      prefs.max_inactive_seeding_time_enabled = fields['idle-seeding-limit-enabled']
+    if ('idle-seeding-limit' in fields) prefs.max_inactive_seeding_time = fields['idle-seeding-limit']
+    if ('seed-time-limit-enabled' in fields)
+      prefs.max_seeding_time_enabled = fields['seed-time-limit-enabled']
+    if ('seed-time-limit' in fields) prefs.max_seeding_time = fields['seed-time-limit']
+    if ('seed-limit-action' in fields) prefs.max_ratio_act = fields['seed-limit-action'] === 'remove' ? 1 : 0
     if ('peer-limit-global' in fields) prefs.max_connec = fields['peer-limit-global']
     if ('peer-limit-per-torrent' in fields) prefs.max_connec_per_torrent = fields['peer-limit-per-torrent']
     if ('start-added-torrents' in fields) prefs.add_stopped_enabled = !fields['start-added-torrents']
