@@ -100,6 +100,24 @@ How much of a Torrent's still-missing data connected peers can currently provide
 per piece (the overlay on the Pieces Map) and as a ratio per Torrent (the "avail"
 badge/column — 100% means the download can finish with the current swarm).
 
+### Size Filter
+A rule that keeps a Torrent's smaller Files from being downloaded, so junk bundled into
+a release (tiny readme, ad, or sample files) never lands on disk. Applies per Server
+Profile as the default for every add, and can be overridden for a single add in the Add
+dialog. Files below the Size Threshold are set not-wanted; the daemon skips them. Never
+skips a Torrent's only File, and never leaves a Torrent with nothing to download.
+
+### Size Threshold
+The minimum File size the Size Filter keeps: Files at or above it download, Files below
+it are skipped. A per–Server Profile value, off when zero.
+
+### Watch Folder
+A folder on the machine running TorrentDeck that the app scans for new `.torrent` files
+and auto-adds them to one Server Profile. Client-side and per–Server Profile — it works
+with a remote daemon (the file's contents travel over RPC), but only while the app is
+running. Ingested files move to an `.added/` subfolder (failures to `.failed/`); the
+Server Profile's Size Filter and add defaults apply.
+
 ### Bandwidth Group
 A named speed-limit pool on the daemon. Torrents assigned to a group share its
 download/upload caps. Created and edited in the Bandwidth Groups manager; a torrent

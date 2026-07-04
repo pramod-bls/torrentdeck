@@ -60,7 +60,13 @@ export class TransmissionAdapter implements TorrentClient {
         perTrackerSwarm: true,
         labels: true,
         renamePath: true,
-        portTest: true
+        portTest: true,
+        anonymousMode: false, // Transmission has no anonymous mode
+        utp: true, // utp-enabled
+        idleSeedingLimit: true, // idle-seeding-limit(-enabled)
+        totalSeedTimeLimit: false, // no total seeding-time limit
+        seedLimitAction: false, // ratio/idle limit only pauses
+        seedLimitActionDelete: false
       }
     }
   }

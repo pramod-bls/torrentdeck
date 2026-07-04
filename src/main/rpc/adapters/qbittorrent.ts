@@ -67,7 +67,13 @@ export class QbittorrentAdapter implements TorrentClient {
         perTrackerSwarm: true,
         labels: true,
         renamePath: true,
-        portTest: false
+        portTest: false,
+        anonymousMode: true, // preferences.anonymous_mode
+        utp: false, // no dedicated µTP toggle in the WebUI prefs
+        idleSeedingLimit: true, // max_inactive_seeding_time
+        totalSeedTimeLimit: true, // max_seeding_time
+        seedLimitAction: true, // max_ratio_act
+        seedLimitActionDelete: true // remove + delete data
       }
     })
   }

@@ -77,7 +77,13 @@ export class DelugeAdapter implements TorrentClient {
       perTrackerSwarm: false,
       labels: plugins.ok && Array.isArray(plugins.data) && plugins.data.includes('Label'),
       renamePath: false,
-      portTest: false
+      portTest: false,
+      anonymousMode: true, // core config anonymous_mode
+      utp: true, // core config utp
+      idleSeedingLimit: false, // no idle-based seeding stop
+      totalSeedTimeLimit: true, // seed_time_limit (minutes)
+      seedLimitAction: true, // stop_seed_at_ratio / remove_seed_at_ratio
+      seedLimitActionDelete: false // remove from session, no data delete
     }
     // Only cache once the probe actually succeeded, so a failure while the
     // server is briefly unreachable doesn't pin `labels:false` forever.

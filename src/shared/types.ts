@@ -53,6 +53,19 @@ export interface Capabilities {
   labels: boolean
   renamePath: boolean
   portTest: boolean
+  /** Privacy toggle: anonymous mode (Deluge, qBittorrent). Transmission lacks it. */
+  anonymousMode: boolean
+  /** Privacy toggle: µTP transport (Transmission, Deluge). */
+  utp: boolean
+  /** Seeding: stop after an idle period (Transmission, qBittorrent). */
+  idleSeedingLimit: boolean
+  /** Seeding: stop after a total seeding time (Deluge, qBittorrent). */
+  totalSeedTimeLimit: boolean
+  /** Seeding: choose an action when a limit is reached (Deluge, qBittorrent).
+   *  Transmission only pauses, so it exposes no selector. */
+  seedLimitAction: boolean
+  /** Seeding action can also delete downloaded data (qBittorrent). */
+  seedLimitActionDelete: boolean
 }
 
 /**
@@ -72,6 +85,23 @@ export interface ServerProfile {
   username: string
   hasPassword: boolean
   sort?: SortPref
+  /** Size Filter: skip files smaller than this many bytes on add. 0/undefined = Off. */
+  sizeThresholdBytes?: number
+  /** Client-side Watch Folder for this server (see docs/adr/0006-watch-folders.md). */
+  watchFolder?: WatchFolderConfig
+}
+
+/** Per–Server Profile client-side watch folder (ADR-0006). */
+export interface WatchFolderConfig {
+  enabled: boolean
+  /** Absolute path to the folder scanned for new `.torrent` files. */
+  path: string
+  /** Override download dir for watch-added torrents; server default when unset. */
+  downloadDir?: string
+  /** Add watch-ingested torrents paused. */
+  paused: boolean
+  /** Optional label applied to watch-ingested torrents. */
+  label?: string
 }
 
 /** Renderer→main payload for creating (`id` absent) or updating a profile. */
@@ -87,6 +117,10 @@ export interface ProfileInput {
   username: string
   /** New password to store; undefined = keep existing, empty string = clear */
   password?: string
+  /** Size Filter threshold in bytes; undefined/0 = Off. */
+  sizeThresholdBytes?: number
+  /** Client-side watch folder config. */
+  watchFolder?: WatchFolderConfig
 }
 
 /**
