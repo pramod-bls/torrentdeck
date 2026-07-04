@@ -69,7 +69,7 @@ for updates…**).
 
 | Platform | Artifacts | Signing | Auto-update |
 | --- | --- | --- | --- |
-| macOS (arm64 + x64) | `.dmg`, `.zip` (+ blockmaps), `latest-mac.yml` | Developer ID **signed + notarized** | ✅ (updates from the `.zip`) |
+| macOS (arm64 only — Apple Silicon) | `.dmg`, `.zip` (+ blockmaps), `latest-mac.yml` | Developer ID **signed + notarized** | ✅ (updates from the `.zip`) |
 | Windows (x64 + arm64) | `TorrentDeck-Setup-*.exe` (+ blockmap), `latest.yml` | unsigned (SmartScreen warns) | ✅ |
 | Linux | `.AppImage`, `.deb`, `latest-linux.yml` | unsigned | AppImage ✅ · **deb: manual** (apt/dpkg) |
 
@@ -93,7 +93,7 @@ for updates…**).
   for a legacy (RC2) `.p12` (Sequoia dropped RC2). **Resolution: build macOS locally.**
 - **base64 `CSC_LINK` is misread as a file path** by electron-builder (base64 can contain
   `/`). Irrelevant now (local signing uses the keychain), but don't reintroduce it.
-- **Duplicate-draft race** — when no release exists, the mac arm64 + x64 publishers each
+- **Duplicate-draft race** — when no release exists, the mac dmg + zip publishers can each
   create a draft → two releases. **Resolution:** `scripts/release.sh` pre-creates the draft
   first. If you ever see two drafts, delete one with
   `gh api -X DELETE repos/pramod-bls/torrentdeck/releases/<id>`.

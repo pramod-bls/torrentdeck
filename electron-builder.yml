@@ -28,15 +28,14 @@ mac:
   # Signing/notarization pick up CSC_LINK / CSC_KEY_PASSWORD and
   # APPLE_ID / APPLE_APP_SPECIFIC_PASSWORD / APPLE_TEAM_ID from the environment.
   notarize: true
+  # Apple Silicon only — Intel (x64) macOS support was dropped.
   target:
     - target: dmg
       arch:
         - arm64
-        - x64
     - target: zip
       arch:
         - arm64
-        - x64
 win:
   target:
     - target: nsis
