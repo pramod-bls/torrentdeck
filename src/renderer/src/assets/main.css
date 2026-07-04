@@ -6,10 +6,10 @@
  * Semantic color system. All component classes use these tokens (accent,
  * success, danger, warning, surface) — never raw Tailwind hues — so the whole
  * app's character is tuned here. The palette is deliberately soft: a muted
- * electric-blue accent (the orange logo stays a fixed brand mark — see
- * --color-brand-*), sage success, dusty rose danger, warm gray surfaces, and a
- * charcoal (not black) dark mode. The blue is tuned to read on both the light
- * and dark surfaces (600 for links on light, 400 on dark).
+ * electric-blue accent for the UI and the logo glyph, with the wordmark "Deck"
+ * kept orange (--color-brand-*) as a signature pop; sage success, dusty rose
+ * danger, warm gray surfaces, and a charcoal (not black) dark mode. The blue is
+ * tuned to read on both light and dark surfaces (600 for links on light, 400 on dark).
  */
 @theme {
   --color-accent-50: #eef2fb;
@@ -24,7 +24,7 @@
   --color-accent-900: #2b3b58;
   --color-accent-950: #1b2740;
 
-  /* Fixed orange brand mark (logo + wordmark "Deck"), independent of the accent. */
+  /* Orange used only for the wordmark "Deck" pop — the rest of the brand is blue. */
   --color-brand-400: #fb923c;
   --color-brand-500: #f97316;
   --color-brand-600: #ea6a0e;

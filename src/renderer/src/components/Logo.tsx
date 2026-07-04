@@ -19,7 +19,7 @@ export function Logo({
   return (
     <span className={cn('inline-flex items-center gap-2', className)}>
       <svg width={size} height={size} viewBox="0 0 1024 1024" role="img" aria-label="TorrentDeck" className="shrink-0">
-        <rect x="0" y="0" width="1024" height="1024" rx="232" fill="#f97316" />
+        <rect x="0" y="0" width="1024" height="1024" rx="232" fill="#4a70b8" />
         <g fill="none" stroke="#ffffff" strokeLinecap="round" strokeLinejoin="round">
           <rect x="176" y="176" width="316" height="316" rx="48" strokeWidth="40" />
           <rect x="532" y="176" width="316" height="316" rx="48" strokeWidth="40" />
