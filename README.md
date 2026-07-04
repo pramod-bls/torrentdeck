@@ -16,6 +16,7 @@ Each server profile picks a **Server Type**:
 - **Transmission 4.x** (RPC version 17+) — full feature set.
 - **Deluge 2.x** via its Web UI (`deluge-web`, default `:8112/json`). The Web UI must be
   running; the app does not speak to `deluged` directly.
+- **qBittorrent 4.1+ / 5.x** via its WebUI API (default `:8080`).
 
 Features a server doesn't support are hidden automatically per profile (see the matrix below).
 
@@ -30,22 +31,24 @@ Features a server doesn't support are hidden automatically per profile (see the 
 
 ## Supported features by server type
 
-| Feature | Transmission 4.x | Deluge 2.x (Web UI) |
-| --- | --- | --- |
-| List / add (magnet + file) / remove / start / pause / verify / reannounce | ✓ | ✓ |
-| Detail: general, files (+ priorities), peers, trackers | ✓ | ✓ |
-| Per-torrent limits, seed-ratio, queue reorder, free space, global speed limits | ✓ | ✓ |
-| Sequential download | ✓ (RPC ≥ 18) | ✓ |
-| Labels | ✓ | ✓ *(Label plugin; single label per torrent)* |
-| Per-piece availability map | ✓ | — *(progress only; Deluge exposes only distributed copies)* |
-| Per-tracker swarm scrape | ✓ | approximate *(swarm totals)* |
-| Bandwidth groups | ✓ | — |
-| Alt-speed scheduler | ✓ | — |
-| Blocklist | ✓ | — |
-| Path rename, port test | ✓ | — |
+| Feature | Transmission 4.x | Deluge 2.x (Web UI) | qBittorrent 4.1+/5.x |
+| --- | --- | --- | --- |
+| List / add (magnet + file) / remove / start / pause / verify / reannounce | ✓ | ✓ | ✓ |
+| Detail: general, files (+ priorities), peers, trackers | ✓ | ✓ | ✓ |
+| Per-torrent limits, seed-ratio, queue reorder, free space, global speed limits | ✓ | ✓ | ✓ |
+| Sequential download | ✓ (RPC ≥ 18) | ✓ | ✓ |
+| Labels | ✓ | ✓ *(Label plugin; single label)* | ✓ *(tags; multiple)* |
+| Pieces map | ✓ *(+ per-piece availability)* | — *(progress only)* | ✓ *(have-state; no availability)* |
+| Per-tracker swarm scrape | ✓ | approximate *(swarm totals)* | ✓ |
+| Path rename | ✓ | — | ✓ |
+| Bandwidth groups | ✓ | — | — |
+| Alt-speed scheduler | ✓ | — | — |
+| Blocklist | ✓ | — | — |
+| Port test | ✓ | — | — |
 
-See [docs/DELUGE.md](docs/DELUGE.md) for the full breakdown — what has full parity, what
-degrades (and to what), and why each unsupported feature is hidden.
+See [docs/DELUGE.md](docs/DELUGE.md) for the full Deluge-vs-Transmission breakdown; each
+server type's exact support is reported live via capabilities and unsupported controls
+are hidden per profile.
 
 ## Features
 
@@ -68,8 +71,9 @@ project's GPL-licensed icon (recolored, remote badge added) — see `build/icon.
 ```sh
 nvm use               # Node 22
 npm install
-cd dev-daemon && docker compose up -d && cd ..          # Transmission at localhost:9091 (dev/devpass)
-cd dev-daemon/deluge && docker compose up -d && cd ../.. # Deluge Web UI at localhost:8112 (password "deluge")
+cd dev-daemon && docker compose up -d && cd ..               # Transmission at localhost:9091 (dev/devpass)
+cd dev-daemon/deluge && docker compose up -d && cd ../..      # Deluge Web UI at localhost:8112 (password "deluge")
+cd dev-daemon/qbittorrent && docker compose up -d && cd ../.. # qBittorrent WebUI at localhost:8080 (admin/adminadmin)
 npm run dev
 ```
 

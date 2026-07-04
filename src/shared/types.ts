@@ -34,7 +34,7 @@ export interface SortPref {
  * and only branches on Capabilities. Defaults to 'transmission' for profiles
  * saved before this field existed.
  */
-export type ServerType = 'transmission' | 'deluge'
+export type ServerType = 'transmission' | 'deluge' | 'qbittorrent'
 
 /**
  * What a given server can actually do, so the UI can hide controls the daemon

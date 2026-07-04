@@ -36,7 +36,9 @@ const store = new Store<StoreSchema>({
 
 /** Default RPC path for a server type when the user leaves the field blank. */
 export function defaultRpcPath(serverType: ServerProfile['serverType']): string {
-  return serverType === 'deluge' ? '/json' : '/transmission/rpc'
+  if (serverType === 'deluge') return '/json'
+  if (serverType === 'qbittorrent') return '' // API base is fixed at /api/v2
+  return '/transmission/rpc'
 }
 
 /** Backfill `serverType` for profiles saved before the field existed. */

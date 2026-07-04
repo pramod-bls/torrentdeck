@@ -11,7 +11,8 @@ import { LabeledCheckbox } from '@/components/ui/checkbox'
 /** Per-server-type connection defaults, applied when the type is switched. */
 const TYPE_DEFAULTS: Record<ServerType, { port: number; rpcPath: string; label: string }> = {
   transmission: { port: 9091, rpcPath: '/transmission/rpc', label: 'Transmission' },
-  deluge: { port: 8112, rpcPath: '/json', label: 'Deluge' }
+  deluge: { port: 8112, rpcPath: '/json', label: 'Deluge' },
+  qbittorrent: { port: 8080, rpcPath: '', label: 'qBittorrent' }
 }
 
 const EMPTY: ProfileInput = {
@@ -70,6 +71,8 @@ export function ProfileDialog(): React.JSX.Element | null {
     })
 
   const isDeluge = form.serverType === 'deluge'
+  // qBittorrent's API base is fixed (/api/v2) — no user-editable path.
+  const showRpcPath = form.serverType !== 'qbittorrent'
 
   const inputWithPassword = (): ProfileInput => ({
     ...form,
@@ -123,6 +126,7 @@ export function ProfileDialog(): React.JSX.Element | null {
               >
                 <option value="transmission">Transmission</option>
                 <option value="deluge">Deluge</option>
+                <option value="qbittorrent">qBittorrent</option>
               </select>
             </Field>
           </div>
@@ -138,9 +142,11 @@ export function ProfileDialog(): React.JSX.Element | null {
               />
             </Field>
           </div>
-          <Field label={isDeluge ? 'Web UI path' : 'RPC path'}>
-            <Input value={form.rpcPath} onChange={(e) => set('rpcPath', e.target.value)} />
-          </Field>
+          {showRpcPath && (
+            <Field label={isDeluge ? 'Web UI path' : 'RPC path'}>
+              <Input value={form.rpcPath} onChange={(e) => set('rpcPath', e.target.value)} />
+            </Field>
+          )}
           <div className="space-y-2">
             <LabeledCheckbox
               checked={form.useTls}
