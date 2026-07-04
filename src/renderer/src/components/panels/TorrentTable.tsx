@@ -174,13 +174,15 @@ export function TorrentTableRow({
   profileId,
   visibleColumns,
   columnWidths,
-  reorder
+  reorder,
+  orderedIds
 }: {
   torrent: Torrent
   profileId: string
   visibleColumns: ColumnKey[] | undefined
   columnWidths?: Record<string, number>
   reorder?: RowReorder
+  orderedIds?: string[]
 }): React.JSX.Element {
   const defs = visibleColumnDefs(visibleColumns)
   return (
@@ -188,6 +190,7 @@ export function TorrentTableRow({
       torrent={torrent}
       profileId={profileId}
       reorder={reorder}
+      orderedIds={orderedIds}
       className={cn('block border-l-2 px-3', statusColor(torrent).stripe)}
     >
       <div

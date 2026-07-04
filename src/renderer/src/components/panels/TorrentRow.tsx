@@ -15,6 +15,7 @@ import {
   openLabelsEditor,
   openQueueEditor,
   openRemoveConfirm,
+  selectRange,
   selectTorrent
 } from '@/features/ui/uiSlice'
 import { formatBytes, formatEta, formatPercent, formatRatio, formatSpeed } from '@/lib/format'
@@ -139,6 +140,7 @@ export function TorrentRowShell({
   profileId,
   className,
   reorder,
+  orderedIds,
   children
 }: {
   torrent: Torrent
@@ -146,10 +148,13 @@ export function TorrentRowShell({
   className?: string
   /** Present only when the panel is queue-sorted (drag-to-reorder enabled). */
   reorder?: RowReorder
+  /** This group's row ids in display order, for Shift-click range selection. */
+  orderedIds?: string[]
   children: React.ReactNode
 }): React.JSX.Element {
   const dispatch = useAppDispatch()
   const selection = useAppSelector((s) => s.ui.selection)
+  const anchor = useAppSelector((s) => s.ui.detailTarget)
   const selected = selection?.profileId === profileId && selection.ids.includes(torrent.id)
   const [torrentAction] = useTorrentActionMutation()
   const [queueMove] = useQueueMoveMutation()
@@ -178,6 +183,17 @@ export function TorrentRowShell({
           draggable={reorder !== undefined}
           onClick={(e) => {
             e.stopPropagation()
+            // Shift-click: select the range from the anchor to this row, within
+            // this server group's display order (selection is server-qualified).
+            if (e.shiftKey && orderedIds && anchor?.profileId === profileId) {
+              const a = orderedIds.indexOf(anchor.id)
+              const b = orderedIds.indexOf(torrent.id)
+              if (a !== -1 && b !== -1) {
+                const [lo, hi] = a < b ? [a, b] : [b, a]
+                dispatch(selectRange({ profileId, ids: orderedIds.slice(lo, hi + 1) }))
+                return
+              }
+            }
             dispatch(selectTorrent({ profileId, id: torrent.id, additive: e.metaKey || e.ctrlKey }))
           }}
           onContextMenu={() => {
@@ -292,12 +308,14 @@ export function TorrentRow({
   torrent,
   profileId,
   onLabelClick,
-  reorder
+  reorder,
+  orderedIds
 }: {
   torrent: Torrent
   profileId: string
   onLabelClick?: (label: string) => void
   reorder?: RowReorder
+  orderedIds?: string[]
 }): React.JSX.Element {
   const selection = useAppSelector((s) => s.ui.selection)
   const selected = selection?.profileId === profileId && selection.ids.includes(torrent.id)
@@ -306,6 +324,7 @@ export function TorrentRow({
       torrent={torrent}
       profileId={profileId}
       reorder={reorder}
+      orderedIds={orderedIds}
       className={cn(
         'flex h-14 flex-col justify-center gap-1 border-l-2 px-3',
         statusColor(torrent).stripe

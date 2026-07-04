@@ -116,26 +116,32 @@ export function ServerGroup({
             </p>
           ) : (
             <>
-              {visible.slice(0, ROW_RENDER_CAP).map((t) =>
-                config.view === 'table' ? (
-                  <TorrentTableRow
-                    key={t.id}
-                    torrent={t}
-                    profileId={profileId}
-                    visibleColumns={config.visibleColumns}
-                    columnWidths={config.columnWidths}
-                    reorder={buildReorder(t.id)}
-                  />
-                ) : (
-                  <TorrentRow
-                    key={t.id}
-                    torrent={t}
-                    profileId={profileId}
-                    onLabelClick={onLabelClick}
-                    reorder={buildReorder(t.id)}
-                  />
+              {(() => {
+                const rendered = visible.slice(0, ROW_RENDER_CAP)
+                const orderedIds = rendered.map((t) => t.id)
+                return rendered.map((t) =>
+                  config.view === 'table' ? (
+                    <TorrentTableRow
+                      key={t.id}
+                      torrent={t}
+                      profileId={profileId}
+                      visibleColumns={config.visibleColumns}
+                      columnWidths={config.columnWidths}
+                      reorder={buildReorder(t.id)}
+                      orderedIds={orderedIds}
+                    />
+                  ) : (
+                    <TorrentRow
+                      key={t.id}
+                      torrent={t}
+                      profileId={profileId}
+                      onLabelClick={onLabelClick}
+                      reorder={buildReorder(t.id)}
+                      orderedIds={orderedIds}
+                    />
+                  )
                 )
-              )}
+              })()}
               {visible.length > ROW_RENDER_CAP && (
                 <p className="px-3 py-2 text-center text-xs text-surface-400">
                   Showing {ROW_RENDER_CAP} of {visible.length} — narrow the filters to see the rest

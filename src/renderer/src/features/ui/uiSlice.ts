@@ -93,6 +93,12 @@ const uiSlice = createSlice({
       state.selection = ids.length ? { profileId, ids } : null
       state.detailTarget = ids.length ? { profileId, id: ids[ids.length - 1] } : null
     },
+    /** Shift-click range select: set the selection but keep detailTarget (the
+     *  anchor) fixed, so successive shift-clicks extend from the same origin. */
+    selectRange(state, action: PayloadAction<Selection>) {
+      const { profileId, ids } = action.payload
+      state.selection = ids.length ? { profileId, ids } : null
+    },
     clearSelection(state) {
       state.selection = null
       state.detailTarget = null
@@ -160,6 +166,7 @@ const uiSlice = createSlice({
 export const {
   selectTorrent,
   selectMany,
+  selectRange,
   clearSelection,
   setFocusedPanel,
   setDetailTab,
