@@ -1,3 +1,5 @@
+<p align="center"><img src="build/icon.png" width="132" alt="TorrentDeck"></p>
+
 # TorrentDeck
 
 A modern cross-platform desktop client for remote-controlling
@@ -69,8 +71,8 @@ capabilities and unsupported controls are hidden per profile.
 - Session settings (speed limits, alt-speed turtle, seeding limits, encryption, port test)
 - Light/dark theme
 
-The app icon is derived from the [Transmission](https://github.com/transmission/transmission)
-project's GPL-licensed icon (recolored, remote badge added) — see `build/icon.svg`.
+The app icon is original artwork for this project (a color-coded "deck" of torrent
+panels) — see `build/icon.svg` (GPL-2.0-or-later, like the rest of the project).
 
 ## Development
 
