@@ -88,7 +88,11 @@ export function saveProfile(input: ProfileInput): ServerProfile {
     rpcPath: input.rpcPath || defaultRpcPath(serverType),
     username: input.username,
     hasPassword: passwords[id] !== undefined,
-    sort: existing?.sort
+    sort: existing?.sort,
+    // Size Filter threshold comes straight from the editor (0/undefined = Off).
+    sizeThresholdBytes: input.sizeThresholdBytes,
+    // Watch folder isn't in the editor yet (T6); preserve any existing value.
+    watchFolder: input.watchFolder ?? existing?.watchFolder
   }
 
   const next = existing ? profiles.map((p) => (p.id === id ? profile : p)) : [...profiles, profile]

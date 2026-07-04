@@ -7,6 +7,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input, Field } from '@/components/ui/input'
 import { LabeledCheckbox } from '@/components/ui/checkbox'
+import { MB } from '@shared/sizeFilter'
 
 /** Per-server-type connection defaults, applied when the type is switched. */
 const TYPE_DEFAULTS: Record<ServerType, { port: number; rpcPath: string; label: string }> = {
@@ -180,6 +181,18 @@ export function ProfileDialog(): React.JSX.Element | null {
               />
             </Field>
           </div>
+
+          <Field label="Size filter — skip files smaller than (MB, 0 = off)">
+            <Input
+              type="number"
+              min={0}
+              value={form.sizeThresholdBytes ? Math.round(form.sizeThresholdBytes / MB) : 0}
+              onChange={(e) => {
+                const mb = Math.max(0, Number(e.target.value) || 0)
+                set('sizeThresholdBytes', mb > 0 ? mb * MB : undefined)
+              }}
+            />
+          </Field>
 
           {testResult && (
             <p

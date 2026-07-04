@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
+import type { TorrentFilePayload } from '@shared/types'
+import { MB, unwantedBySizeThreshold } from '@shared/sizeFilter'
 import { useAppDispatch, useAppSelector, useFirstProfileId } from '@/app/hooks'
 import { closeAddTorrent } from '@/features/ui/uiSlice'
 import { useAddTorrentMutation, useFreeSpaceQuery, useGetSessionQuery } from '@/services/rpcApi'
@@ -15,6 +17,18 @@ const LAST_ADD_KEY = 'lastAddProfileId'
 /** Per-server remembered destination folder (presence = "remember" is on). */
 const rememberDirKey = (profileId: string): string => `rememberAddDir:${profileId}`
 
+/** Log-ish snap stops for the size slider, in MB (0 = Off). */
+const STOPS = [0, 1, 5, 10, 25, 50, 100, 250, 500, 1000, 2000]
+const nearestStopIndex = (mb: number): number => {
+  let best = 0
+  for (let i = 1; i < STOPS.length; i++) {
+    if (Math.abs(STOPS[i] - mb) < Math.abs(STOPS[best] - mb)) best = i
+  }
+  return best
+}
+
+const NO_FILES: TorrentFilePayload[] = []
+
 export function AddTorrentDialog(): React.JSX.Element | null {
   const dispatch = useAppDispatch()
   const payload = useAppSelector((s) => s.ui.addTorrent)
@@ -27,6 +41,8 @@ export function AddTorrentDialog(): React.JSX.Element | null {
   const [addTorrent, { isLoading: adding }] = useAddTorrentMutation()
   const caps = useServerCapabilities(profileId)
 
+  const [mode, setMode] = useState<'magnet' | 'file'>('magnet')
+  const [pickedFiles, setPickedFiles] = useState<TorrentFilePayload[] | null>(null)
   const [magnet, setMagnet] = useState('')
   const [dir, setDir] = useState('')
   const [labels, setLabels] = useState('')
@@ -36,11 +52,12 @@ export function AddTorrentDialog(): React.JSX.Element | null {
   const [skipHash, setSkipHash] = useState(false)
   const [rememberDir, setRememberDir] = useState(false)
   const [unwanted, setUnwanted] = useState<Set<number>>(new Set())
+  const [thresholdMB, setThresholdMB] = useState(0)
   const [error, setError] = useState<string | null>(null)
 
   const open = payload !== null
-  const files = payload?.files ?? []
-  const isMagnetMode = payload?.magnet !== undefined
+  const files = pickedFiles ?? payload?.files ?? NO_FILES
+  const isMagnetMode = mode === 'magnet'
 
   const preview = useMemo(
     () => (files.length === 1 ? parseTorrentPreview(files[0].base64) : null),
@@ -68,6 +85,8 @@ export function AddTorrentDialog(): React.JSX.Element | null {
         last && profiles.some((p) => p.id === last) ? last : (firstProfileId ?? profiles[0]?.id ?? null)
       if (chosen) applyServer(chosen)
       else setProfileId(null)
+      setMode(payload?.files?.length ? 'file' : 'magnet')
+      setPickedFiles(null)
       setMagnet(payload?.magnet ?? '')
       setLabels('')
       setPaused(false)
@@ -75,6 +94,7 @@ export function AddTorrentDialog(): React.JSX.Element | null {
       setTopOfQueue(false)
       setSkipHash(false)
       setUnwanted(new Set())
+      setThresholdMB(0)
       setError(null)
       // Convenience: a magnet link sitting in the clipboard prefills the field
       if (payload?.magnet === '') {
@@ -91,6 +111,17 @@ export function AddTorrentDialog(): React.JSX.Element | null {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, open])
 
+  // When a .torrent is loaded (or the server changes), seed the threshold from
+  // that server's Size Filter and derive the initial not-wanted set from it.
+  useEffect(() => {
+    if (!preview) return
+    const p = profiles.find((x) => x.id === profileId)
+    const mb = p?.sizeThresholdBytes ? Math.round(p.sizeThresholdBytes / MB) : 0
+    setThresholdMB(mb)
+    setUnwanted(new Set(unwantedBySizeThreshold(preview.files, mb * MB)))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preview, profileId])
+
   const { data: freeSpace } = useFreeSpaceQuery(
     { profileId: profileId ?? '', path: dir },
     { skip: !profileId || !dir || !open }
@@ -106,6 +137,52 @@ export function AddTorrentDialog(): React.JSX.Element | null {
     applyServer(id)
     localStorage.setItem(LAST_ADD_KEY, id)
   }
+
+  const chooseFile = async (): Promise<void> => {
+    const picked = await window.api.pickTorrentFiles()
+    if (picked.length) {
+      setPickedFiles(picked)
+      setMode('file')
+    }
+  }
+
+  // Slider is master: moving it re-derives the whole checked set purely by size.
+  const applyThreshold = (mb: number): void => {
+    setThresholdMB(mb)
+    if (preview) setUnwanted(new Set(unwantedBySizeThreshold(preview.files, mb * MB)))
+  }
+
+  const toggleUnwanted = (index: number, wanted: boolean): void => {
+    if (!preview) return
+    const next = new Set(unwanted)
+    if (wanted) next.delete(index)
+    else {
+      // Never leave the torrent with nothing to download.
+      if (next.size + 1 >= preview.files.length) return
+      next.add(index)
+    }
+    setUnwanted(next)
+  }
+
+  // Live selection summary for the file list.
+  const summary = preview
+    ? preview.files.reduce(
+        (acc, f, i) => {
+          if (unwanted.has(i)) acc.skipped++
+          else {
+            acc.selected++
+            acc.selectedBytes += f.length
+          }
+          return acc
+        },
+        { selected: 0, skipped: 0, selectedBytes: 0 }
+      )
+    : null
+
+  const serverThresholdMB = (() => {
+    const p = profiles.find((x) => x.id === profileId)
+    return p?.sizeThresholdBytes ? Math.round(p.sizeThresholdBytes / MB) : 0
+  })()
 
   const submit = async (): Promise<void> => {
     setError(null)
@@ -137,6 +214,10 @@ export function AddTorrentDialog(): React.JSX.Element | null {
         if (res.duplicate) setError('That torrent is already on the server')
         else close()
       } else {
+        if (!files.length) {
+          setError('Choose a .torrent file')
+          return
+        }
         for (const f of files) {
           await addTorrent({
             ...common,
@@ -149,13 +230,6 @@ export function AddTorrentDialog(): React.JSX.Element | null {
     } catch (e) {
       setError((e as { message?: string })?.message ?? 'Adding the torrent failed')
     }
-  }
-
-  const toggleUnwanted = (index: number, wanted: boolean): void => {
-    const next = new Set(unwanted)
-    if (wanted) next.delete(index)
-    else next.add(index)
-    setUnwanted(next)
   }
 
   return (
@@ -178,21 +252,57 @@ export function AddTorrentDialog(): React.JSX.Element | null {
             </Field>
           )}
 
+          {/* Source: magnet link or a local .torrent file */}
+          <div className="inline-flex rounded-md border border-surface-300 p-0.5 text-xs dark:border-surface-600">
+            <button
+              type="button"
+              onClick={() => setMode('magnet')}
+              className={`rounded px-3 py-1 ${isMagnetMode ? 'bg-accent-500 text-white' : 'text-surface-600 dark:text-surface-300'}`}
+            >
+              Magnet link
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('file')}
+              className={`rounded px-3 py-1 ${!isMagnetMode ? 'bg-accent-500 text-white' : 'text-surface-600 dark:text-surface-300'}`}
+            >
+              .torrent file
+            </button>
+          </div>
+
           {isMagnetMode ? (
-            <Field label="Magnet link">
-              <Input
-                value={magnet}
-                onChange={(e) => setMagnet(e.target.value)}
-                placeholder="magnet:?xt=urn:btih:…"
-                autoFocus
-              />
-            </Field>
+            <>
+              <Field label="Magnet link">
+                <Input
+                  value={magnet}
+                  onChange={(e) => setMagnet(e.target.value)}
+                  placeholder="magnet:?xt=urn:btih:…"
+                  autoFocus
+                />
+              </Field>
+              {serverThresholdMB > 0 && (
+                <p className="text-xs text-surface-500">
+                  This server&apos;s Size Filter ({serverThresholdMB} MB) will skip small files
+                  automatically once the daemon fetches the file list.
+                </p>
+              )}
+            </>
           ) : (
-            <div className="text-sm">
-              {files.length === 1 ? (
-                <p className="break-all">{preview?.name ?? files[0].name}</p>
-              ) : (
-                <ul className="max-h-24 list-inside list-disc overflow-y-auto text-xs">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Button variant="secondary" size="sm" onClick={() => void chooseFile()}>
+                  Choose .torrent…
+                </Button>
+                <span className="min-w-0 flex-1 truncate text-xs text-surface-500">
+                  {files.length === 0
+                    ? 'No file chosen'
+                    : files.length === 1
+                      ? (preview?.name ?? files[0].name)
+                      : `${files.length} torrents`}
+                </span>
+              </div>
+              {files.length > 1 && (
+                <ul className="max-h-24 list-inside list-disc overflow-y-auto text-xs text-surface-500">
                   {files.map((f) => (
                     <li key={f.name}>{f.name}</li>
                   ))}
@@ -210,24 +320,58 @@ export function AddTorrentDialog(): React.JSX.Element | null {
             </p>
           )}
 
-          {preview && preview.files.length > 1 && (
-            <div className="max-h-52 overflow-y-auto rounded border border-surface-200 dark:border-surface-700">
-              {preview.files.map((f, i) => (
-                <div
-                  key={f.path}
-                  className="flex items-center gap-2 border-b border-surface-100 px-2 py-1.5 last:border-b-0 dark:border-surface-800"
-                >
-                  <Checkbox
-                    checked={!unwanted.has(i)}
-                    onCheckedChange={(v) => toggleUnwanted(i, v)}
-                    aria-label={`Download ${f.path}`}
+          {/* Per-file selection + size slider, for a single .torrent */}
+          {preview && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <span className="shrink-0 text-xs text-surface-500">Skip files under</span>
+                <input
+                  type="range"
+                  min={0}
+                  max={STOPS.length - 1}
+                  step={1}
+                  value={nearestStopIndex(thresholdMB)}
+                  onChange={(e) => applyThreshold(STOPS[Number(e.target.value)])}
+                  aria-label="Skip files under (size)"
+                  className="flex-1 accent-accent-500"
+                />
+                <span className="flex shrink-0 items-center gap-1">
+                  <Input
+                    type="number"
+                    min={0}
+                    value={thresholdMB}
+                    onChange={(e) => applyThreshold(Math.max(0, Number(e.target.value) || 0))}
+                    className="h-7 w-16 text-right text-xs"
                   />
-                  <span className="min-w-0 flex-1 truncate text-xs" title={f.path}>
-                    {f.path}
-                  </span>
-                  <span className="shrink-0 text-[11px] text-surface-500">{formatBytes(f.length)}</span>
-                </div>
-              ))}
+                  <span className="text-xs text-surface-500">MB</span>
+                </span>
+              </div>
+              {summary && (
+                <p className="text-xs text-surface-500">
+                  {thresholdMB === 0 ? 'Filter off — ' : ''}
+                  {summary.selected} of {preview.files.length} files ·{' '}
+                  {formatBytes(summary.selectedBytes)} selected
+                  {summary.skipped > 0 ? ` · ${summary.skipped} skipped` : ''}
+                </p>
+              )}
+              <div className="max-h-52 overflow-y-auto rounded border border-surface-200 dark:border-surface-700">
+                {preview.files.map((f, i) => (
+                  <div
+                    key={f.path}
+                    className="flex items-center gap-2 border-b border-surface-100 px-2 py-1.5 last:border-b-0 dark:border-surface-800"
+                  >
+                    <Checkbox
+                      checked={!unwanted.has(i)}
+                      onCheckedChange={(v) => toggleUnwanted(i, v)}
+                      aria-label={`Download ${f.path}`}
+                    />
+                    <span className="min-w-0 flex-1 truncate text-xs" title={f.path}>
+                      {f.path}
+                    </span>
+                    <span className="shrink-0 text-[11px] text-surface-500">{formatBytes(f.length)}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
@@ -263,7 +407,10 @@ export function AddTorrentDialog(): React.JSX.Element | null {
             <Button variant="secondary" onClick={close}>
               Cancel
             </Button>
-            <Button onClick={() => void submit()} disabled={adding || (isMagnetMode && !magnet.trim())}>
+            <Button
+              onClick={() => void submit()}
+              disabled={adding || (isMagnetMode ? !magnet.trim() : files.length === 0)}
+            >
               {adding ? 'Adding…' : 'Add torrent'}
             </Button>
           </div>
