@@ -71,6 +71,19 @@ If an unsupported operation is ever invoked directly, the qBittorrent adapter re
 clean `"… is not supported on qBittorrent"` error rather than crashing — but in normal use
 the capability gating means the trigger isn't shown in the first place.
 
+## Download hygiene & automation (v0.9)
+
+- **Size Filter** — `.torrent` adds filter at add time; magnets are **best-effort** (no
+  metadata-preview in the WebUI API), so the app adds the magnet, then marks sub-threshold
+  files not-wanted the moment the file list appears. A few tiny files may briefly land
+  first.
+- **Privacy & network** — DHT (`dht`), PeX (`pex`), LPD (`lsd`), and **anonymous mode**
+  (`anonymous_mode`) are supported; there's no dedicated µTP preference.
+- **Seeding** — idle-time (`max_inactive_seeding_time`) and total seed-time
+  (`max_seeding_time`) limits, plus a Pause/Remove **action** on limit (`max_ratio_act`
+  0/1). The "remove + delete files" action is deferred (its enum value is unverified).
+- **Watch folders** are client-side and daemon-agnostic.
+
 ## Under the hood
 
 The mapping lives entirely in the main process: `src/main/rpc/qbittorrent/client.ts` (HTTP

@@ -46,6 +46,14 @@ Features a server doesn't support are hidden automatically per profile (see the 
 | Detail: general, files (+ priorities), peers, trackers | ✓ | ✓ | ✓ |
 | Per-torrent limits, seed-ratio, queue reorder, free space, global speed limits | ✓ | ✓ | ✓ |
 | Sequential download | ✓ (RPC ≥ 18) | ✓ | ✓ |
+| Size filter (skip small files on add) | ✓ | ✓ *(metadata prefetch on magnets)* | ✓ |
+| Watch folder (client-side, per server) | ✓ | ✓ | ✓ |
+| Privacy: DHT / PeX / LPD | ✓ | ✓ | ✓ |
+| Privacy: µTP | ✓ | *(build-dependent)* | — |
+| Privacy: anonymous mode | — | *(build-dependent)* | ✓ |
+| Seeding: idle-time limit | ✓ | — | ✓ |
+| Seeding: total seed-time limit | — | — | ✓ |
+| Seeding: action on limit (pause / remove) | — *(pauses)* | ✓ | ✓ |
 | Labels | ✓ | ✓ *(Label plugin; single label)* | ✓ *(tags; multiple)* |
 | Pieces map | ✓ *(+ per-piece availability)* | — *(progress only)* | ✓ *(have-state; no availability)* |
 | Per-tracker swarm scrape | ✓ | approximate *(swarm totals)* | ✓ |
@@ -67,9 +75,17 @@ capabilities and unsupported controls are hidden per profile.
   tracker, and label
 - Add torrents by magnet link, `.torrent` file, or drag-and-drop, with destination
   folder, free-space check, file selection, and start-paused
+- **Size filter** — skip files below a per-server size threshold on add, so junk (tiny
+  readme/ad files) never downloads; an in-dialog slider for `.torrent` files, applied
+  automatically to magnets
+- **Watch folders** — a per-server folder the app scans while open, auto-adding dropped
+  `.torrent` files (works with remote daemons)
+- **Clipboard magnet watcher** (opt-in) — offers to add a magnet link as soon as you copy it
 - OS integration: the app registers as handler for `magnet:` links and `.torrent` files
 - Detail panel: general info, per-file wanted/priority, peers, tracker management
-- Session settings (speed limits, alt-speed turtle, seeding limits, encryption, port test)
+- Multi-select with Cmd/Ctrl-click and **Shift-click range selection**
+- Session settings (speed limits, alt-speed turtle, seeding limits incl. idle/total-time,
+  privacy — DHT/PeX/LPD/µTP/anonymous, encryption, port test)
 - Light/dark theme
 
 The app icon is original artwork for this project (a color-coded "deck" of torrent

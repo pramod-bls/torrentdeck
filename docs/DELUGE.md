@@ -83,6 +83,21 @@ If an unsupported operation is ever invoked directly, the Deluge adapter returns
 `"… is not supported on Deluge"` error rather than crashing — but in normal use the
 capability gating means the trigger isn't shown in the first place.
 
+## Download hygiene & automation (v0.9)
+
+- **Size Filter** — on a magnet, Deluge is the one daemon that filters *before* adding:
+  `core.prefetch_magnet_metadata` fetches the file list and the torrent is added with file
+  priorities already set, so sub-threshold files never download. (`.torrent` adds filter
+  at add time, like every daemon.)
+- **Privacy & network** — DHT (`dht`), PeX (`utpex`), and LPD (`lsd`) are supported. µTP
+  and anonymous mode are **build-dependent**: the adapter probes `core.get_config` and only
+  offers them when the daemon exposes those keys (the current dev build exposes neither).
+- **Seeding** — the ratio limit maps to `stop_seed_at_ratio` / `stop_seed_ratio`, and the
+  **action on limit** (Pause / Remove) maps to `remove_seed_at_ratio`. Idle-time and total
+  seed-time limits are **not** exposed (no clean session-global toggle).
+- **Watch folders** are client-side and daemon-agnostic — they work with the remote Web UI
+  because the `.torrent` bytes are sent over the connection.
+
 ## Under the hood
 
 The mapping lives entirely in the main process: `src/main/rpc/deluge/client.ts` (JSON-RPC

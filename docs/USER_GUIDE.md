@@ -177,21 +177,48 @@ Use the **Add** button (▾ for options), drag a `.torrent` file onto the window
 
 - **Add to server** — choose which server receives the torrent. Your last choice is
   remembered.
-- **Magnet link / file** — paste a magnet (the clipboard is auto-detected) or pick a
-  `.torrent`.
+- **Magnet link / .torrent file** — a toggle at the top of the dialog. In **Magnet** mode,
+  paste a link (the clipboard is auto-detected); in **.torrent** mode, click **Choose
+  .torrent…** or drag a file onto the window.
 - **Destination folder** — defaults to the server's download folder; free space is shown.
 - **Labels** — optional, comma-separated (Transmission and qBittorrent, where they're
   tags; Deluge if its Label plugin is on).
 - **Add paused** — add without starting.
 
-For a single `.torrent` you can also uncheck individual files before adding.
+For a `.torrent`, the dialog lists every file with a checkbox and size, and a **"Skip
+files under" slider** pre-unchecks small files (defaults to the server's Size Filter, see
+below). Drag the slider or type an exact size in MB; you can still tick/untick individual
+files afterwards.
+
+### Size Filter — skip junk files
+
+Set a **Size Filter** per server (in the server editor) to keep tiny files — the readme,
+ad, and sample files bundled into some releases — from ever downloading. Any file below
+the threshold is marked *not-wanted* on add.
+
+- For a **`.torrent`**, this is applied instantly (the slider above starts at the server's
+  threshold).
+- For a **magnet**, the file list isn't known until the daemon fetches metadata, so it's
+  applied *best-effort*: the moment the files appear, sub-threshold ones are skipped. On
+  **Deluge** the metadata is prefetched so the filter applies before anything downloads;
+  on Transmission/qBittorrent a few tiny files may briefly land before being skipped.
+
+The filter never skips a torrent's only file, and never leaves a torrent with nothing to
+download.
+
+### Clipboard magnet watcher
+
+In **Preferences**, enable **Watch the clipboard for magnet links**: while the app is open,
+copying a `magnet:` link opens the prefilled Add dialog automatically. It's off by default
+(it reads clipboard text while running).
 
 ---
 
 ## Working with torrents
 
-**Select** a torrent by clicking it; ⌘/Ctrl-click to multi-select within one server (a
-selection never spans servers). Selecting drives the detail panels.
+**Select** a torrent by clicking it; **⌘/Ctrl-click** toggles individual rows and
+**Shift-click** selects a range from the last click to the row you click — both within one
+server (a selection never spans servers). Selecting drives the detail panels.
 
 **Actions** — from the toolbar or the right-click context menu:
 
@@ -262,9 +289,22 @@ from one place — each tab shows only what that server supports.
 
 ![Server settings, tabbed per server](images/server-settings.png)
 
-Covers: default download folder, global speed limits, seeding (stop-at-ratio,
-start-added), peers/encryption/port, and — **Transmission only** — alternative-speed
-limits with a schedule, and the blocklist.
+Covers: default download folder, global speed limits, **seeding** (stop at ratio, and —
+where the daemon supports it — stop when idle or after a total seeding time, plus a
+Pause/Remove action when a limit is reached), **privacy & network** (DHT, PeX, LPD, and
+capability-gated µTP / anonymous mode, plus encryption), peers/port, and —
+**Transmission only** — alternative-speed limits with a schedule, and the blocklist.
+
+The server editor (**Servers → edit a server**, or **Add server**) also carries two
+client-side, per-server options:
+
+- **Size filter** — skip files smaller than *N* MB on add (0 = off). See
+  [Size Filter](#size-filter--skip-junk-files).
+- **Watch folder** — a folder on *this* computer that TorrentDeck scans (about every 10 s,
+  while the app is open) for new `.torrent` files and auto-adds them to this server. It
+  works even with a remote daemon (the file is sent over the connection). Set an optional
+  download folder, a label, and whether to add paused; the server's Size Filter applies.
+  Added files move to an `.added` subfolder (rejected ones to `.failed`).
 
 ---
 
@@ -274,9 +314,14 @@ The app hides controls a server doesn't support, so you only see what works. In 
 
 - **All three**: list, add/remove, start/pause/verify/reannounce, detail tabs, per-torrent
   limits + file priorities, queue reorder, free space, global speed limits, sequential
-  download, and labels.
-- **Transmission & qBittorrent**: path rename and per-tracker swarm scrape; both also show
-  a piece **have-map** (which pieces you have).
+  download, labels, the **Size Filter**, client-side **watch folders**, and the
+  **DHT / PeX / LPD** privacy toggles.
+- **Transmission & qBittorrent**: path rename, per-tracker swarm scrape, and an
+  **idle-time** seeding limit; both also show a piece **have-map** (which pieces you have).
+- **qBittorrent**: a **total seed-time** limit and a Pause/Remove **action** when a
+  seeding limit is reached (Deluge offers Pause/Remove too, tied to its ratio limit).
+- **Privacy extras**: µTP (Transmission; build-dependent on Deluge) and anonymous mode
+  (qBittorrent; build-dependent on Deluge) appear only where the daemon exposes them.
 - **Transmission only**: bandwidth groups, alternative-speed scheduler, blocklist, a port
   test, and per-piece **availability** (how many peers have each piece).
 - **Labels**: Transmission and qBittorrent allow **multiple** per torrent (qBittorrent
@@ -292,7 +337,8 @@ Full Deluge-vs-Transmission breakdown: **[DELUGE.md](DELUGE.md)**; qBittorrent s
 
 Shortcuts act on the **focused** Torrents panel (click a panel to focus it — it gets a
 highlighted border) and the current selection. With the mouse: **click** a row to select
-it, **⌘/Ctrl-click** to add/remove rows from the selection (within one server).
+it, **⌘/Ctrl-click** to add/remove rows, and **Shift-click** to select a range (within one
+server).
 
 | Key | Action |
 | --- | --- |
