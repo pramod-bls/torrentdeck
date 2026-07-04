@@ -197,7 +197,7 @@ Decision record: [ADR-0002](adr/0002-flexible-panel-workspace.md).
 | **0.6** ✅ | Alt-speed scheduler (S4); blocklist (S5); sequential download (S9); bandwidth groups (S10) |
 | **0.7** ✅ | Deluge support via protocol adapters (C8/C9, ADR-0004): neutral capability API, infohash identity, capability-gated UI |
 | **0.8** ✅ | Multi-daemon rework: removed default/active server (global workspace, per-panel server selection), per-server colors, renamed **TorrentDeck**; **qBittorrent** adapter (WebUI API v2) |
-| Future | rTorrent adapter (XML-RPC over /RPC2); qBittorrent categories; more per-daemon depth |
+| Future | rTorrent adapter (XML-RPC over /RPC2); Synology Download Station adapter (scoped — build gated on a live DSM to test against; reduced capabilities); qBittorrent categories; more per-daemon depth |
 | Post-1.0 | Geo-IP peer info, RSS/watch folders, completion scripts, web seeds in peers |
 
 ## 8. Success criteria
