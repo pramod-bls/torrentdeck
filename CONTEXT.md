@@ -1,6 +1,6 @@
 # Context
 
-Glossary of domain terms for Transmission Remote, a desktop client that remote-controls
+Glossary of domain terms for TorrentDeck, a desktop client that remote-controls
 Transmission and Deluge BitTorrent daemons. Terms here are the canonical language for
 code, UI copy, and discussion. Implementation details do not belong in this file.
 

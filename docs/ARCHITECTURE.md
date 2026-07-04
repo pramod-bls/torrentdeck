@@ -1,6 +1,6 @@
 # Architecture
 
-How Transmission Remote is put together. For *why* the big decisions were made, see the
+How TorrentDeck is put together. For *why* the big decisions were made, see the
 ADRs in [docs/adr/](adr/); for domain vocabulary, see [CONTEXT.md](../CONTEXT.md); for
 product scope, see [PRD.md](PRD.md).
 

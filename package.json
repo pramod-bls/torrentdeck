@@ -1,8 +1,9 @@
 {
-  "name": "transmission-remote",
+  "name": "torrentdeck",
+  "productName": "TorrentDeck",
   "version": "0.1.0",
   "type": "module",
-  "description": "A modern cross-platform remote client for the Transmission BitTorrent daemon",
+  "description": "A modern cross-platform remote dashboard for Transmission and Deluge BitTorrent daemons",
   "main": "./out/main/index.js",
   "author": "Pramod Butte",
   "license": "GPL-2.0-or-later",

@@ -1,4 +1,4 @@
-# Product Requirements — Transmission Remote
+# Product Requirements — TorrentDeck
 
 | | |
 |---|---|
@@ -15,7 +15,7 @@ It is abandoned, written in Free Pascal/Lazarus, and no longer runs on Apple Sil
 Macs. People who run Transmission headless on a NAS or seedbox and drive it from a
 desktop are left with the daemon's bare web UI or nothing.
 
-**Transmission Remote** is a maintained, cross-platform successor: transgui's
+**TorrentDeck** is a maintained, cross-platform successor: transgui's
 functionality with a modern UI, distributed as signed native installers.
 
 ## 2. Users and primary jobs

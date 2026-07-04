@@ -1,5 +1,5 @@
-appId: com.blacklightsurgical.transmission-remote
-productName: Transmission Remote
+appId: com.blacklightsurgical.torrentdeck
+productName: TorrentDeck
 directories:
   buildResources: build
   output: dist

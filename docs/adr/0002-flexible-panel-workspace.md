@@ -20,7 +20,7 @@ layout persisted per page via Redux middleware → IPC → electron-store.
 
 ## Decision
 
-Adopt the same pattern for Transmission Remote in v0.2:
+Adopt the same pattern for TorrentDeck in v0.2:
 
 - **Library:** `react-grid-layout` — proven in the reference app, actively
   maintained, no dock-tab complexity we don't need.

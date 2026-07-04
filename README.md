@@ -1,4 +1,4 @@
-# Transmission Remote
+# TorrentDeck
 
 A modern cross-platform desktop client for remote-controlling [Transmission](https://transmissionbt.com)
 and [Deluge](https://deluge-torrent.org) daemons — a successor to the abandoned
@@ -47,11 +47,12 @@ Features a server doesn't support are hidden automatically per profile (see the 
 See [docs/DELUGE.md](docs/DELUGE.md) for the full breakdown — what has full parity, what
 degrades (and to what), and why each unsupported feature is hidden.
 
-## Features (MVP)
+## Features
 
-- Multiple server profiles, one active at a time, quick switching
-- Torrent list with live polling, search, sorting (persisted per server), and
-  sidebar filters by status, tracker, and label
+- Multiple servers (Transmission and/or Deluge) shown together, each panel scoped to the
+  server(s) you choose; per-server color coding
+- Torrent list with live polling, search, sorting, and per-panel filters by status,
+  tracker, and label
 - Add torrents by magnet link, `.torrent` file, or drag-and-drop, with destination
   folder, free-space check, file selection, and start-paused
 - OS integration: the app registers as handler for `magnet:` links and `.torrent` files

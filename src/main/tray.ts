@@ -63,7 +63,7 @@ export function createTray(window: BrowserWindow): void {
     .resize({ width: 18, height: 18 })
   icon.setTemplateImage(process.platform === 'darwin')
   tray = new Tray(icon)
-  tray.setToolTip('Transmission Remote')
+  tray.setToolTip('TorrentDeck')
   tray.on('click', () => {
     if (window.isVisible()) window.focus()
     else {
@@ -79,7 +79,7 @@ export function createTray(window: BrowserWindow): void {
 
 export function updateTraySpeeds(down: number, up: number): void {
   if (!tray) return
-  tray.setToolTip(`Transmission Remote\n↓ ${formatSpeed(down)}  ↑ ${formatSpeed(up)}`)
+  tray.setToolTip(`TorrentDeck\n↓ ${formatSpeed(down)}  ↑ ${formatSpeed(up)}`)
 }
 
 export function destroyTray(): void {

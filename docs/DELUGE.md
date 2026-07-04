@@ -1,6 +1,6 @@
 # Deluge support — capabilities vs. Transmission
 
-Transmission Remote drives both Transmission and Deluge through per-daemon adapters
+TorrentDeck drives both Transmission and Deluge through per-daemon adapters
 ([ADR-0004](adr/0004-protocol-adapters.md)). The UI is the same for both; features a
 server can't honor are hidden per profile via its reported **Capabilities**. This page
 documents exactly what a Deluge profile supports, what degrades, and what is unavailable

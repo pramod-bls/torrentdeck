@@ -1,6 +1,6 @@
-# Transmission Remote — User Guide
+# TorrentDeck — User Guide
 
-Transmission Remote is a desktop app for **remote-controlling BitTorrent daemons**. It
+TorrentDeck is a desktop app for **remote-controlling BitTorrent daemons**. It
 talks to **Transmission 4.x** and **Deluge 2.x** servers, and can show several of them at
 once in a single, rearrangeable workspace.
 
