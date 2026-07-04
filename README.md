@@ -1,9 +1,14 @@
 # TorrentDeck
 
-A modern cross-platform desktop client for remote-controlling [Transmission](https://transmissionbt.com)
-and [Deluge](https://deluge-torrent.org) daemons — a successor to the abandoned
+A modern cross-platform desktop client for remote-controlling
+[Transmission](https://transmissionbt.com), [Deluge](https://deluge-torrent.org), and
+[qBittorrent](https://www.qbittorrent.org) daemons — a successor to the abandoned
 [transgui](https://github.com/transmission-remote-gui/transgui), built for Apple Silicon,
 Windows, and Linux.
+
+![TorrentDeck showing two color-coded servers in a single rearrangeable workspace](docs/images/main-window.png)
+
+> Every daemon in one rearrangeable, color-coded dashboard. *(Torrent names blurred.)*
 
 Electron + TypeScript + React, with Redux Toolkit / RTK Query for state. All RPC traffic
 runs through the Electron main process (see [ADR-0001](docs/adr/0001-rpc-via-main-process.md)),
@@ -27,6 +32,7 @@ Features a server doesn't support are hidden automatically per profile (see the 
 - [Architecture](docs/ARCHITECTURE.md) — process model, data flow, state, security, testing
 - [Domain glossary](CONTEXT.md) — the canonical vocabulary used in code and UI
 - [Deluge support](docs/DELUGE.md) — Deluge vs. Transmission capabilities, degrades, and limits
+- [qBittorrent support](docs/QBITTORRENT.md) — qBittorrent vs. Transmission capabilities, degrades, and limits
 - [Decision records](docs/adr/) — 0001 RPC-via-main-process, 0002 flexible panel workspace, 0003 server-qualified selection, 0004 protocol adapters
 
 ## Supported features by server type
@@ -46,14 +52,14 @@ Features a server doesn't support are hidden automatically per profile (see the 
 | Blocklist | ✓ | — | — |
 | Port test | ✓ | — | — |
 
-See [docs/DELUGE.md](docs/DELUGE.md) for the full Deluge-vs-Transmission breakdown; each
-server type's exact support is reported live via capabilities and unsupported controls
-are hidden per profile.
+See [docs/DELUGE.md](docs/DELUGE.md) and [docs/QBITTORRENT.md](docs/QBITTORRENT.md) for the
+full per-daemon breakdowns; each server type's exact support is reported live via
+capabilities and unsupported controls are hidden per profile.
 
 ## Features
 
-- Multiple servers (Transmission and/or Deluge) shown together, each panel scoped to the
-  server(s) you choose; per-server color coding
+- Multiple servers (any mix of Transmission, Deluge, and qBittorrent) shown together, each
+  panel scoped to the server(s) you choose; per-server color coding
 - Torrent list with live polling, search, sorting, and per-panel filters by status,
   tracker, and label
 - Add torrents by magnet link, `.torrent` file, or drag-and-drop, with destination

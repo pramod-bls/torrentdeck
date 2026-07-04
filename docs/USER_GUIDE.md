@@ -1,8 +1,8 @@
 # TorrentDeck — User Guide
 
 TorrentDeck is a desktop app for **remote-controlling BitTorrent daemons**. It
-talks to **Transmission 4.x** and **Deluge 2.x** servers, and can show several of them at
-once in a single, rearrangeable workspace.
+talks to **Transmission 4.x**, **Deluge 2.x**, and **qBittorrent 4.1+/5.x** servers, and
+can show several of them at once in a single, rearrangeable workspace.
 
 It does not download torrents itself — it's a remote control for a daemon running
 elsewhere (your NAS, a seedbox, another machine, or localhost).
@@ -20,7 +20,7 @@ elsewhere (your NAS, a seedbox, another machine, or localhost).
 - [The detail panel](#the-detail-panel)
 - [Panels](#panels)
 - [Server settings](#server-settings)
-- [Transmission vs. Deluge](#transmission-vs-deluge)
+- [What each server supports](#what-each-server-supports)
 - [Keyboard shortcuts](#keyboard-shortcuts)
 - [System tray](#system-tray)
 - [Troubleshooting](#troubleshooting)
@@ -34,7 +34,12 @@ You need a running daemon to connect to:
 - **Transmission 4.0+** with its RPC enabled (default port `9091`, path `/transmission/rpc`).
 - **Deluge 2.x** with the **Web UI** (`deluge-web`) running (default port `8112`, path
   `/json`). The app talks to the Web UI, not the `deluged` core directly, so the Web UI
-  must be running and bound to a daemon. See [Transmission vs. Deluge](#transmission-vs-deluge).
+  must be running and bound to a daemon.
+- **qBittorrent 4.1+ or 5.x** with the **Web UI** enabled (Tools → Options → Web UI;
+  default port `8080`). Use its Web UI username and password.
+
+See [What each server supports](#what-each-server-supports) for the per-daemon feature
+differences.
 
 ---
 
@@ -56,11 +61,11 @@ welcome screen. Fill in the connection details:
 | Field | Notes |
 | --- | --- |
 | **Display name** | Whatever you want to call it ("Home NAS", "Seedbox"). |
-| **Server type** | **Transmission** or **Deluge** — this sets sensible defaults and tailors the form. |
-| **Host** / **Port** | Address of the daemon. Defaults: Transmission `9091`, Deluge `8112`. |
-| **RPC path** / **Web UI path** | Default `/transmission/rpc` or `/json`. |
+| **Server type** | **Transmission**, **Deluge**, or **qBittorrent** — this sets sensible defaults and tailors the form. |
+| **Host** / **Port** | Address of the daemon. Defaults: Transmission `9091`, Deluge `8112`, qBittorrent `8080`. |
+| **RPC path** / **Web UI path** | Transmission `/transmission/rpc`, Deluge `/json`. qBittorrent needs no path (hidden). |
 | **Use HTTPS** | Enable if the daemon is behind TLS. A second checkbox lets you trust a self-signed certificate. |
-| **Username / Password** | Transmission uses both. **Deluge uses only a Web UI password** (no username). |
+| **Username / Password** | Transmission and **qBittorrent** use both. **Deluge uses only a Web UI password** (no username). |
 
 Click **Test connection** to verify before saving — it reports the connected daemon's
 version, or an actionable error (auth vs. TLS vs. network). Then **Save**.
@@ -174,7 +179,8 @@ Use the **Add** button (▾ for options), drag a `.torrent` file onto the window
 - **Magnet link / file** — paste a magnet (the clipboard is auto-detected) or pick a
   `.torrent`.
 - **Destination folder** — defaults to the server's download folder; free space is shown.
-- **Labels** — optional, comma-separated (Transmission; Deluge if its Label plugin is on).
+- **Labels** — optional, comma-separated (Transmission and qBittorrent, where they're
+  tags; Deluge if its Label plugin is on).
 - **Add paused** — add without starting.
 
 For a single `.torrent` you can also uncheck individual files before adding.
@@ -261,19 +267,23 @@ limits with a schedule, and the blocklist.
 
 ---
 
-## Transmission vs. Deluge
+## What each server supports
 
 The app hides controls a server doesn't support, so you only see what works. In short:
 
-- **Both**: list, add/remove, start/pause/verify/reannounce, detail tabs, per-torrent
+- **All three**: list, add/remove, start/pause/verify/reannounce, detail tabs, per-torrent
   limits + file priorities, queue reorder, free space, global speed limits, sequential
-  download.
-- **Transmission only**: bandwidth groups, alternative-speed scheduler, blocklist,
-  per-piece availability, per-tracker swarm scrape, path rename, port test.
-- **Deluge**: labels require the Label plugin (one label per torrent); the pieces map
-  shows progress only.
+  download, and labels.
+- **Transmission & qBittorrent**: path rename and per-tracker swarm scrape; both also show
+  a piece **have-map** (which pieces you have).
+- **Transmission only**: bandwidth groups, alternative-speed scheduler, blocklist, a port
+  test, and per-piece **availability** (how many peers have each piece).
+- **Labels**: Transmission and qBittorrent allow **multiple** per torrent (qBittorrent
+  calls them *tags*); Deluge needs its **Label plugin** and allows **one** per torrent.
+- **Deluge**: the pieces map shows overall progress only (no per-piece map).
 
-Full breakdown: **[DELUGE.md](DELUGE.md)**.
+Full Deluge-vs-Transmission breakdown: **[DELUGE.md](DELUGE.md)**; qBittorrent specifics:
+**[QBITTORRENT.md](QBITTORRENT.md)**.
 
 ---
 
@@ -317,5 +327,9 @@ Enable **close-to-tray** in Preferences to keep it running when you close the wi
   running** and bound to a `deluged` host. The app auto-binds when there's a single host;
   if your Web UI knows several daemons and none is connected, connect one in the Deluge
   Web UI first.
+- **qBittorrent: "login refused / IP banned"** — qBittorrent temporarily **bans your IP
+  after several failed logins** (default: 1 hour). Fix the username/password, then wait for
+  the ban to lapse or restart the qBittorrent daemon to clear it immediately. Also make
+  sure the **Web UI is enabled** (Tools → Options → Web UI).
 - **A feature is missing** — it's likely hidden because the connected server doesn't
-  support it (see [Transmission vs. Deluge](#transmission-vs-deluge)).
+  support it (see [What each server supports](#what-each-server-supports)).
