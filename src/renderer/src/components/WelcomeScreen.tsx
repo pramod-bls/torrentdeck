@@ -12,8 +12,8 @@ export function WelcomeScreen(): React.JSX.Element {
     <div className="flex h-full flex-col items-center justify-center gap-4">
       <Logo size={72} className="drop-shadow-sm" />
       <div className="text-center">
-        <h1 className="text-2xl font-bold tracking-tight">
-          Torrent<span className="text-accent-600 dark:text-accent-400">Deck</span>
+        <h1 className="text-2xl font-light tracking-wide text-surface-900 dark:text-white">
+          Torrent<span className="font-normal text-accent-500 dark:text-accent-400">Deck</span>
         </h1>
         <p className="mt-1 text-sm text-surface-500">
           Add a Transmission, Deluge, or qBittorrent server to get started.

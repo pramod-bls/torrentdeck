@@ -10,17 +10,17 @@
  * charcoal (not black) dark mode.
  */
 @theme {
-  --color-accent-50: #fff4ec;
-  --color-accent-100: #ffe4d3;
-  --color-accent-200: #fecba7;
-  --color-accent-300: #fba86f;
-  --color-accent-400: #f6813c;
-  --color-accent-500: #ec6318;
-  --color-accent-600: #d64e0f;
-  --color-accent-700: #b23c11;
-  --color-accent-800: #8d3115;
-  --color-accent-900: #722a15;
-  --color-accent-950: #3e1207;
+  --color-accent-50: #f9f2ed;
+  --color-accent-100: #f1e2d6;
+  --color-accent-200: #e3c4ae;
+  --color-accent-300: #d09f7e;
+  --color-accent-400: #bd7d54;
+  --color-accent-500: #a96437;
+  --color-accent-600: #92522c;
+  --color-accent-700: #774227;
+  --color-accent-800: #613626;
+  --color-accent-900: #522f23;
+  --color-accent-950: #2c1811;
 
   --color-success-50: #edf7f1;
   --color-success-100: #d8efe2;

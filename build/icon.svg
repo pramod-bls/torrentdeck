@@ -1,46 +1,31 @@
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-  <!-- TorrentDeck app icon: a "deck" of color-coded torrent panels (the app's
-       multi-server workspace) with a download arrow, on the app's violet accent.
+  <!-- TorrentDeck app icon: a flat, wireframe "deck" of torrent panels (download
+       arrow, torrent rows, a seeding ring) on a muted-orange tile.
        Original artwork for this project (GPL-2.0-or-later). -->
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1024" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FB8B3D"/>
-      <stop offset="1" stop-color="#E24E0B"/>
-    </linearGradient>
-    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1024" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#ffffff" stop-opacity="0.18"/>
-      <stop offset="0.5" stop-color="#ffffff" stop-opacity="0"/>
-    </linearGradient>
-    <filter id="ds" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#1c1348" flood-opacity="0.28"/>
-    </filter>
-  </defs>
+  <rect x="0" y="0" width="1024" height="1024" rx="232" fill="#b06336"/>
 
-  <!-- app tile -->
-  <rect x="0" y="0" width="1024" height="1024" rx="232" fill="url(#bg)"/>
-  <rect x="0" y="0" width="1024" height="1024" rx="232" fill="url(#sheen)"/>
+  <g fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round">
+    <!-- four wireframe panels -->
+    <rect x="176" y="176" width="316" height="316" rx="48" stroke-width="18"/>
+    <rect x="532" y="176" width="316" height="316" rx="48" stroke-width="18"/>
+    <rect x="176" y="532" width="316" height="316" rx="48" stroke-width="18"/>
+    <rect x="532" y="532" width="316" height="316" rx="48" stroke-width="18"/>
 
-  <!-- deck of four color-coded panels (the multi-server workspace) -->
-  <g filter="url(#ds)">
-    <!-- TL: mint panel with a download arrow -->
-    <rect x="176" y="176" width="316" height="316" rx="54" fill="#A6E7C0"/>
-    <path d="M304 246 h60 v86 h56 L334 442 L248 332 h56 z" fill="#2FA96A"/>
+    <!-- TL: download arrow -->
+    <path d="M334 250 V404" stroke-width="26"/>
+    <path d="M282 352 L334 406 L386 352" stroke-width="26"/>
 
-    <!-- TR: peach panel with torrent rows -->
-    <rect x="532" y="176" width="316" height="316" rx="54" fill="#FBCF8C"/>
-    <rect x="572" y="248" width="236" height="30" rx="15" fill="#ffffff" fill-opacity="0.92"/>
-    <rect x="572" y="312" width="196" height="30" rx="15" fill="#ffffff" fill-opacity="0.78"/>
-    <rect x="572" y="376" width="216" height="30" rx="15" fill="#ffffff" fill-opacity="0.62"/>
+    <!-- TR: torrent rows -->
+    <path d="M580 258 H800" stroke-width="20"/>
+    <path d="M580 322 H748" stroke-width="20"/>
+    <path d="M580 386 H784" stroke-width="20"/>
 
-    <!-- BL: sky panel with torrent rows -->
-    <rect x="176" y="532" width="316" height="316" rx="54" fill="#9CCDF6"/>
-    <rect x="216" y="604" width="236" height="30" rx="15" fill="#ffffff" fill-opacity="0.92"/>
-    <rect x="216" y="668" width="176" height="30" rx="15" fill="#ffffff" fill-opacity="0.78"/>
-    <rect x="216" y="732" width="216" height="30" rx="15" fill="#ffffff" fill-opacity="0.62"/>
+    <!-- BL: torrent rows -->
+    <path d="M224 614 H444" stroke-width="20"/>
+    <path d="M224 678 H392" stroke-width="20"/>
+    <path d="M224 742 H428" stroke-width="20"/>
 
-    <!-- BR: lavender panel with a seed/progress ring -->
-    <rect x="532" y="532" width="316" height="316" rx="54" fill="#C9B7F7"/>
-    <circle cx="690" cy="690" r="86" fill="none" stroke="#ffffff" stroke-opacity="0.5" stroke-width="26"/>
-    <path d="M690 604 a86 86 0 0 1 74 130" fill="none" stroke="#B23C11" stroke-width="26" stroke-linecap="round"/>
+    <!-- BR: seeding ring -->
+    <circle cx="690" cy="690" r="80" stroke-width="20"/>
   </g>
 </svg>
