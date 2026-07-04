@@ -4,8 +4,8 @@
        Original artwork for this project (GPL-2.0-or-later). -->
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1024" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#6E5DF6"/>
-      <stop offset="1" stop-color="#4433C9"/>
+      <stop offset="0" stop-color="#FB8B3D"/>
+      <stop offset="1" stop-color="#E24E0B"/>
     </linearGradient>
     <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1024" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#ffffff" stop-opacity="0.18"/>
@@ -41,6 +41,6 @@
     <!-- BR: lavender panel with a seed/progress ring -->
     <rect x="532" y="532" width="316" height="316" rx="54" fill="#C9B7F7"/>
     <circle cx="690" cy="690" r="86" fill="none" stroke="#ffffff" stroke-opacity="0.5" stroke-width="26"/>
-    <path d="M690 604 a86 86 0 0 1 74 130" fill="none" stroke="#5B45D6" stroke-width="26" stroke-linecap="round"/>
+    <path d="M690 604 a86 86 0 0 1 74 130" fill="none" stroke="#B23C11" stroke-width="26" stroke-linecap="round"/>
   </g>
 </svg>

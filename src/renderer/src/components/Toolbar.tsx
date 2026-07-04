@@ -37,6 +37,7 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown'
 import { AddPanelMenu } from '@/components/workspace/AddPanelMenu'
+import { Logo } from '@/components/Logo'
 
 /**
  * Global chrome. The server switcher selects the DEFAULT server (add-torrent
@@ -63,6 +64,8 @@ export function Toolbar(): React.JSX.Element {
 
   return (
     <div className="titlebar-drag flex items-center gap-2 border-b border-surface-200 bg-surface-50 py-2 pr-3 pl-20 dark:border-surface-700 dark:bg-surface-800/60">
+      <Logo size={22} withWordmark className="mr-1 select-none" />
+      <div className="mx-1 h-5 w-px bg-surface-300 dark:bg-surface-600" />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button size="sm">

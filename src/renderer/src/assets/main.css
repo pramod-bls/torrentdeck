@@ -5,22 +5,22 @@
 /*
  * Semantic color system. All component classes use these tokens (accent,
  * success, danger, warning, surface) — never raw Tailwind hues — so the whole
- * app's character is tuned here. The palette is deliberately soft: muted
- * indigo accent, sage success, dusty rose danger, warm gray surfaces, and a
+ * app's character is tuned here. The palette is deliberately soft: warm
+ * orange accent, sage success, dusty rose danger, warm gray surfaces, and a
  * charcoal (not black) dark mode.
  */
 @theme {
-  --color-accent-50: #eef1fb;
-  --color-accent-100: #dfe4f7;
-  --color-accent-200: #c3cdf0;
-  --color-accent-300: #9dade4;
-  --color-accent-400: #7c8fd8;
-  --color-accent-500: #6478cb;
-  --color-accent-600: #5163b4;
-  --color-accent-700: #445292;
-  --color-accent-800: #3a4577;
-  --color-accent-900: #333c62;
-  --color-accent-950: #23294a;
+  --color-accent-50: #fff4ec;
+  --color-accent-100: #ffe4d3;
+  --color-accent-200: #fecba7;
+  --color-accent-300: #fba86f;
+  --color-accent-400: #f6813c;
+  --color-accent-500: #ec6318;
+  --color-accent-600: #d64e0f;
+  --color-accent-700: #b23c11;
+  --color-accent-800: #8d3115;
+  --color-accent-900: #722a15;
+  --color-accent-950: #3e1207;
 
   --color-success-50: #edf7f1;
   --color-success-100: #d8efe2;

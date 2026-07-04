@@ -1,7 +1,8 @@
-import { Server, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { useAppDispatch } from '@/app/hooks'
 import { openProfileEditor } from '@/features/ui/uiSlice'
 import { Button } from '@/components/ui/button'
+import { Logo } from '@/components/Logo'
 
 /** Shown only when no servers are configured yet. */
 export function WelcomeScreen(): React.JSX.Element {
@@ -9,11 +10,13 @@ export function WelcomeScreen(): React.JSX.Element {
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-4">
-      <Server size={40} className="text-surface-400" />
+      <Logo size={72} className="drop-shadow-sm" />
       <div className="text-center">
-        <h1 className="text-lg font-semibold">TorrentDeck</h1>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Torrent<span className="text-accent-600 dark:text-accent-400">Deck</span>
+        </h1>
         <p className="mt-1 text-sm text-surface-500">
-          Add a Transmission or Deluge server to get started.
+          Add a Transmission, Deluge, or qBittorrent server to get started.
         </p>
       </div>
       <Button onClick={() => dispatch(openProfileEditor(null))}>

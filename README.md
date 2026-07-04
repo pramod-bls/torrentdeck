@@ -1,4 +1,4 @@
-<p align="center"><img src="build/icon.png" width="132" alt="TorrentDeck"></p>
+<p align="center"><img src="docs/images/wordmark.png" width="460" alt="TorrentDeck"></p>
 
 # TorrentDeck
 
