@@ -16,7 +16,13 @@ export interface ConnectionState {
 const initialState: ConnectionState = {
   loaded: false,
   profiles: [],
-  prefs: { theme: 'system', pollingIntervalMs: 3000, notifyOnComplete: true, closeToTray: false }
+  prefs: {
+    theme: 'system',
+    pollingIntervalMs: 3000,
+    notifyOnComplete: true,
+    closeToTray: false,
+    askedTorrentDefault: false
+  }
 }
 
 export const bootstrap = createAsyncThunk('connection/bootstrap', async () => {

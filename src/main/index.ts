@@ -18,6 +18,7 @@ import { createTray, destroyTray, updateTraySpeeds } from './tray'
 import { getPrefs } from './profiles'
 import { initLogging, log } from './logger'
 import { initAutoUpdater, checkForUpdatesManually } from './updater'
+import { maybePromptTorrentDefault } from './torrentDefault'
 import { isQuitting, setQuitting } from './appState'
 import type { TorrentFilePayload } from '@shared/types'
 
@@ -124,7 +125,7 @@ if (!gotTheLock) {
 
   app.whenReady().then(() => {
     initLogging()
-    electronApp.setAppUserModelId('com.blacklightsurgical.torrentdeck')
+    electronApp.setAppUserModelId('com.torrentdeck.app')
     if (!app.isPackaged) {
       // Packaged builds get the icon from the installer; dev runs show
       // Electron's default unless we set it explicitly.
@@ -158,6 +159,13 @@ if (!gotTheLock) {
 
     createWindow()
     if (mainWindow) createTray(mainWindow)
+
+    // First-run offer to become the default .torrent handler (macOS, packaged).
+    if (mainWindow) {
+      mainWindow.webContents.once('did-finish-load', () => {
+        setTimeout(() => void maybePromptTorrentDefault(mainWindow), 1200)
+      })
+    }
 
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) createWindow()

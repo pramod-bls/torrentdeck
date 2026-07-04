@@ -29,7 +29,13 @@ const store = new Store<StoreSchema>({
   defaults: {
     profiles: [],
     passwords: {},
-    prefs: { theme: 'system', pollingIntervalMs: 3000, notifyOnComplete: true, closeToTray: false },
+    prefs: {
+      theme: 'system',
+      pollingIntervalMs: 3000,
+      notifyOnComplete: true,
+      closeToTray: false,
+      askedTorrentDefault: false
+    },
     workspace: null
   }
 })
@@ -147,6 +153,7 @@ export function getPrefs(): AppPrefs {
     pollingIntervalMs: 3000,
     notifyOnComplete: true,
     closeToTray: false,
+    askedTorrentDefault: false,
     ...stored
   }
 }

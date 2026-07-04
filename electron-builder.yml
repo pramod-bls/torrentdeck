@@ -1,5 +1,8 @@
-appId: com.blacklightsurgical.torrentdeck
+appId: com.torrentdeck.app
 productName: TorrentDeck
+# Compiles + bundles the macOS set-default-torrent helper (build/mac/*.swift)
+# so the app can offer to become the default .torrent handler on first launch.
+afterPack: build/afterPack.cjs
 directories:
   buildResources: build
   output: dist

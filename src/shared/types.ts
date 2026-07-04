@@ -151,6 +151,8 @@ export interface AppPrefs {
   notifyOnComplete: boolean
   /** When true, closing the window hides it to the tray instead of quitting. */
   closeToTray: boolean
+  /** Whether we've already offered to become the default .torrent handler (macOS). */
+  askedTorrentDefault: boolean
 }
 
 export interface TorrentFilePayload {
