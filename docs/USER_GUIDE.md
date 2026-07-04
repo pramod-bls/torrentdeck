@@ -123,7 +123,8 @@ A fully-loaded workspace, with every control numbered:
 4. **Set labels** on the selection.
 5. **Remove** the selection (optionally deleting downloaded data).
 6. **Servers** — list, add, and edit your servers.
-7. **Settings** — Server settings, Bandwidth groups, Preferences, and Keyboard shortcuts.
+7. **Settings** — Server settings, Bandwidth groups, Preferences, Keyboard shortcuts, and
+   Check for updates.
 8. **Panels** — add a panel, or reset the layout.
 
 **Torrents panel**

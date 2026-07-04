@@ -42,6 +42,9 @@ const api: Api & { getPathForFile: (file: File) => string; rendererReady: () => 
     get: () => ipcRenderer.invoke('workspace:get'),
     set: (layout: WorkspaceLayout) => ipcRenderer.invoke('workspace:set', layout)
   },
+  updates: {
+    check: () => ipcRenderer.invoke('updates:check')
+  },
   pickTorrentFiles: () => ipcRenderer.invoke('dialog:pickTorrentFiles'),
   readDroppedTorrents: (paths: string[]) => ipcRenderer.invoke('fs:readDroppedTorrents', paths),
   readClipboardText: () => ipcRenderer.invoke('clipboard:readText'),

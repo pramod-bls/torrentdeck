@@ -12,7 +12,8 @@ import {
   Pencil,
   SlidersHorizontal,
   Keyboard,
-  Gauge
+  Gauge,
+  RefreshCw
 } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { serverColor } from '@/features/connection/serverColor'
@@ -155,6 +156,10 @@ export function Toolbar(): React.JSX.Element {
           </DropdownMenuItem>
           <DropdownMenuItem onSelect={() => dispatch(setShortcutsOpen(true))}>
             <Keyboard size={14} /> Keyboard shortcuts
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onSelect={() => void window.api.updates.check()}>
+            <RefreshCw size={14} /> Check for updates…
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

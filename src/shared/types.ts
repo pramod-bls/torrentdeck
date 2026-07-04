@@ -274,6 +274,10 @@ export interface Api {
     get: () => Promise<WorkspaceLayout | null>
     set: (layout: WorkspaceLayout) => Promise<void>
   }
+  /** Auto-update: trigger a user-initiated check (reports the result natively). */
+  updates: {
+    check: () => Promise<void>
+  }
   pickTorrentFiles: () => Promise<TorrentFilePayload[]>
   readDroppedTorrents: (paths: string[]) => Promise<TorrentFilePayload[]>
   readClipboardText: () => Promise<string>

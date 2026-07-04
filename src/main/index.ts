@@ -17,10 +17,9 @@ import { registerIpc } from './ipc'
 import { createTray, destroyTray, updateTraySpeeds } from './tray'
 import { getPrefs } from './profiles'
 import { initLogging, log } from './logger'
-import { initAutoUpdater } from './updater'
+import { initAutoUpdater, checkForUpdatesManually } from './updater'
+import { isQuitting, setQuitting } from './appState'
 import type { TorrentFilePayload } from '@shared/types'
-
-let isQuitting = false
 
 let mainWindow: BrowserWindow | null = null
 let rendererReady = false
@@ -74,7 +73,7 @@ function createWindow(): void {
   // Close-to-tray: intercept the close and hide instead of quitting, unless
   // the user is actually quitting the app (Cmd-Q / menu / tray Quit).
   mainWindow.on('close', (e) => {
-    if (!isQuitting && getPrefs().closeToTray) {
+    if (!isQuitting() && getPrefs().closeToTray) {
       e.preventDefault()
       mainWindow?.hide()
     }
@@ -155,6 +154,7 @@ if (!gotTheLock) {
       }
     })
     ipcMain.on('tray:setSpeeds', (_e, down: number, up: number) => updateTraySpeeds(down, up))
+    ipcMain.handle('updates:check', () => checkForUpdatesManually())
 
     createWindow()
     if (mainWindow) createTray(mainWindow)
@@ -166,7 +166,7 @@ if (!gotTheLock) {
   })
 
   app.on('before-quit', () => {
-    isQuitting = true
+    setQuitting(true)
     log.info('shutting down')
     destroyTray()
   })
