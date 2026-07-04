@@ -6,8 +6,10 @@
 import type { ServerProfile } from '@shared/types'
 import { TransmissionClient } from '../client'
 import { DelugeClient } from '../deluge/client'
+import { QbittorrentClient } from '../qbittorrent/client'
 import { TransmissionAdapter } from './transmission'
 import { DelugeAdapter } from './deluge'
+import { QbittorrentAdapter } from './qbittorrent'
 import type { TorrentClient } from './types'
 
 export type { TorrentClient } from './types'
@@ -20,6 +22,17 @@ export function createAdapter(
   password?: string
 ): TorrentClient {
   switch (profile.serverType) {
+    case 'qbittorrent':
+      return new QbittorrentAdapter(
+        new QbittorrentClient({
+          host: profile.host,
+          port: profile.port,
+          useTls: profile.useTls,
+          allowSelfSignedCert: profile.allowSelfSignedCert,
+          username: profile.username || undefined,
+          password
+        })
+      )
     case 'deluge':
       return new DelugeAdapter(
         new DelugeClient({

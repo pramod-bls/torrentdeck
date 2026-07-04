@@ -1,0 +1,17 @@
+services:
+  qbittorrent:
+    image: linuxserver/qbittorrent:latest
+    container_name: qbittorrent-remote-dev
+    environment:
+      - PUID=506
+      - PGID=20
+      - TZ=Etc/UTC
+      - WEBUI_PORT=8080
+    volumes:
+      - ./config:/config
+      - ./downloads:/downloads
+    ports:
+      - '8080:8080'   # WebUI + API (/api/v2)
+      - '6882:6882'
+      - '6882:6882/udp'
+    restart: unless-stopped
