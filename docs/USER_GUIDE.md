@@ -13,6 +13,7 @@ elsewhere (your NAS, a seedbox, another machine, or localhost).
 - [Launching the app](#launching-the-app)
 - [Adding a server](#adding-a-server)
 - [The main window](#the-main-window)
+- [Interface reference](#interface-reference)
 - [Managing servers](#managing-servers)
 - [Adding torrents](#adding-torrents)
 - [Working with torrents](#working-with-torrents)
@@ -100,6 +101,55 @@ every launch). It shows as small **squares next to a panel's title** — one per
 panel displays, so a multi-server Torrents panel reads as a little swatch row — and as
 **dots** beside server names in menus and group headers. Same server, same color
 everywhere, so you always know whose data you're looking at.
+
+---
+
+## Interface reference
+
+A fully-loaded workspace, with every control numbered:
+
+![Numbered interface reference](images/workspace-overview.png)
+
+**Toolbar**
+
+1. **Add** — add a torrent; the ▾ opens options (paste a magnet, choose a `.torrent`).
+2. **Start** the selected torrent(s).
+3. **Pause** the selected torrent(s).
+4. **Set labels** on the selection.
+5. **Remove** the selection (optionally deleting downloaded data).
+6. **Servers** — list, add, and edit your servers.
+7. **Settings** — Server settings, Bandwidth groups, Preferences, and Keyboard shortcuts.
+8. **Panels** — add a panel, or reset the layout.
+
+**Torrents panel**
+
+9. **Server scope** — show all servers or pick which ones this panel lists.
+10. **Status filter** — All / Downloading / Seeding / Paused / Verifying / Error.
+11. **Tracker filter** — narrow to one tracker.
+12. **Label filter** — narrow to one label/tag.
+13. **Sort** — choose the sort field and direction.
+14. **View toggle** — switch between card and table views.
+15. **Search** — filter the visible list by name.
+16. **Columns** — choose which columns show (table view).
+17. **Panel title + server swatches** — the panel's server(s), color-coded; drag the
+    header to move the panel, drag its edge to resize.
+18. **Close panel** (✕) — remove this panel from the workspace.
+
+**Session stats & Speed graph**
+
+19. **Stats server** — which server the statistics are for.
+20. **Graph server** — which server the speed graph plots.
+21. **Graph window** — the time span shown (1 / 5 / 15 min).
+
+**Status bar**
+
+22. **Speeds** — download / upload for the status-bar server.
+23. **Alt-speed (turtle)** — toggle alternative speed limits (Transmission).
+24. **Torrent count · free space** — for the status-bar server.
+25. **Status-bar server** — which server the status bar reflects.
+
+The **Torrent detail** panel (top-right) fills in when you select a torrent — see
+[The detail panel](#the-detail-panel).
 
 ---
 
