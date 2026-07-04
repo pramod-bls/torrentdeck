@@ -8,7 +8,7 @@ A modern cross-platform desktop client for remote-controlling
 [transgui](https://github.com/transmission-remote-gui/transgui), built for Apple Silicon,
 Windows, and Linux.
 
-![TorrentDeck showing two color-coded servers in a single rearrangeable workspace](docs/images/main-window.png)
+![TorrentDeck — Transmission, Deluge, and qBittorrent in one dashboard](docs/images/demo.gif)
 
 > Every daemon in one rearrangeable, color-coded dashboard. *(Torrent names blurred.)*
 
