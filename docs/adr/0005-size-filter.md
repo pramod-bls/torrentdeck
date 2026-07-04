@@ -35,7 +35,7 @@ dependency.
    default Off/0) stored on the profile (not the daemon), edited in the server editor.
    Files below it are set not-wanted. It never skips a torrent's only file and never
    leaves a torrent with nothing to download. New adds only — no retroactive "apply to
-   existing torrent" action.
+   existing torrent" action. *(Amended in v0.1.5 — see below.)*
 
 2. **Best-effort filtering, not a hard guarantee.** For magnets on Transmission and
    qBittorrent we **add → poll for the file list → unwant** sub-threshold files the instant
@@ -67,6 +67,17 @@ dependency.
   (capability-gated), but all three support it today.
 - Revisiting "strict" later is a localized change (add-paused + a metadata wait) gated on
   the Transmission test; nothing here precludes it.
+
+## Update — v0.1.5: retroactive apply in the Files tab
+
+The "new adds only" scope in decision 1 was relaxed. The detail **Files** tab gained a
+"Skip files under" slider that applies the same `unwantedBySizeThreshold` computation to an
+*already-added* torrent. It's a **local preview** (dragging only changes what the tree
+shows) committed on **Apply** in a single `setTorrent` call — deliberately explicit rather
+than live-firing daemon calls per drag. This reuses the existing per-file wanted plumbing
+and the shared helper, so it carries no new risk; the original "no retroactive action"
+stance was simply conservative, and the preview-then-apply model addresses the concern
+(accidental bulk changes) that motivated it.
 
 ## Alternatives considered
 

@@ -75,9 +75,10 @@ capabilities and unsupported controls are hidden per profile.
   tracker, and label
 - Add torrents by magnet link, `.torrent` file, or drag-and-drop, with destination
   folder, free-space check, file selection, and start-paused
-- **Size filter** — skip files below a per-server size threshold on add, so junk (tiny
-  readme/ad files) never downloads; an in-dialog slider for `.torrent` files, applied
-  automatically to magnets
+- **Size filter** — skip files below a per-server size threshold so junk (tiny readme/ad
+  files) never downloads: a server default, an in-dialog slider for `.torrent` adds
+  (applied automatically to magnets), and a retroactive "skip files under…" slider in a
+  torrent's Files tab
 - **Watch folders** — a per-server folder the app scans while open, auto-adding dropped
   `.torrent` files (works with remote daemons)
 - **Clipboard magnet watcher** (opt-in) — offers to add a magnet link as soon as you copy it

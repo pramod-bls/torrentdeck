@@ -257,7 +257,10 @@ Select a torrent to populate the **Torrent detail** panel. Its tabs:
   **Speed & limits** section for per-torrent download/upload caps, seed-ratio, connection
   limit, and (Transmission) priority, bandwidth group, and sequential download.
 - **Files** — per-file sizes and progress in a collapsible tree; set file priorities or
-  deselect files you don't want.
+  deselect files you don't want. A **"Skip files under" slider** at the top applies the
+  Size Filter to *this* torrent retroactively: drag it to preview which files stay (the
+  checkboxes update live, nothing is sent yet — you can also tick/untick rows), then
+  **Apply** to commit, or **Reset** to discard.
 - **Peers** — connected peers.
 - **Trackers** — the torrent's trackers.
 - **Pieces** — a piece map (on Transmission, with per-piece availability; on Deluge it

@@ -103,9 +103,10 @@ badge/column — 100% means the download can finish with the current swarm).
 ### Size Filter
 A rule that keeps a Torrent's smaller Files from being downloaded, so junk bundled into
 a release (tiny readme, ad, or sample files) never lands on disk. Applies per Server
-Profile as the default for every add, and can be overridden for a single add in the Add
-dialog. Files below the Size Threshold are set not-wanted; the daemon skips them. Never
-skips a Torrent's only File, and never leaves a Torrent with nothing to download.
+Profile as the default for every add, can be overridden for a single add in the Add
+dialog, and can be applied retroactively to an existing Torrent from its Files tab. Files
+below the Size Threshold are set not-wanted; the daemon skips them. Never skips a
+Torrent's only File, and never leaves a Torrent with nothing to download.
 
 ### Size Threshold
 The minimum File size the Size Filter keeps: Files at or above it download, Files below
