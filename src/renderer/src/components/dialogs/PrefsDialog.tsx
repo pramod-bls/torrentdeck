@@ -57,6 +57,15 @@ export function PrefsDialog(): React.JSX.Element | null {
             onCheckedChange={(v) => update({ closeToTray: v })}
             label="Keep running in the tray when the window is closed"
           />
+          <LabeledCheckbox
+            checked={prefs.watchClipboardMagnets}
+            onCheckedChange={(v) => update({ watchClipboardMagnets: v })}
+            label="Watch the clipboard for magnet links"
+          />
+          <p className="pl-6 text-xs text-surface-500">
+            Offers to add a magnet link as soon as you copy it. Reads clipboard text while
+            the app is open.
+          </p>
         </div>
       </DialogContent>
     </Dialog>

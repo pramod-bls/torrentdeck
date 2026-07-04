@@ -19,6 +19,7 @@ import { getPrefs } from './profiles'
 import { initLogging, log } from './logger'
 import { initAutoUpdater, checkForUpdatesManually } from './updater'
 import { maybePromptTorrentDefault } from './torrentDefault'
+import { startClipboardWatch } from './clipboardWatch'
 import { isQuitting, setQuitting } from './appState'
 import type { TorrentFilePayload } from '@shared/types'
 
@@ -159,6 +160,7 @@ if (!gotTheLock) {
 
     createWindow()
     if (mainWindow) createTray(mainWindow)
+    startClipboardWatch(() => mainWindow)
 
     // First-run offer to become the default .torrent handler (macOS, packaged).
     if (mainWindow) {

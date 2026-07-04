@@ -189,6 +189,8 @@ export interface AppPrefs {
   closeToTray: boolean
   /** Whether we've already offered to become the default .torrent handler (macOS). */
   askedTorrentDefault: boolean
+  /** Poll the clipboard while open and offer to add copied magnet links. */
+  watchClipboardMagnets: boolean
 }
 
 export interface TorrentFilePayload {

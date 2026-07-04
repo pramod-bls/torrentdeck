@@ -21,7 +21,8 @@ const initialState: ConnectionState = {
     pollingIntervalMs: 3000,
     notifyOnComplete: true,
     closeToTray: false,
-    askedTorrentDefault: false
+    askedTorrentDefault: false,
+    watchClipboardMagnets: false
   }
 }
 

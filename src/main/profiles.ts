@@ -34,7 +34,8 @@ const store = new Store<StoreSchema>({
       pollingIntervalMs: 3000,
       notifyOnComplete: true,
       closeToTray: false,
-      askedTorrentDefault: false
+      askedTorrentDefault: false,
+      watchClipboardMagnets: false
     },
     workspace: null
   }
@@ -158,6 +159,7 @@ export function getPrefs(): AppPrefs {
     notifyOnComplete: true,
     closeToTray: false,
     askedTorrentDefault: false,
+    watchClipboardMagnets: false,
     ...stored
   }
 }
