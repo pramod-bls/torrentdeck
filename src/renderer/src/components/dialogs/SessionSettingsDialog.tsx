@@ -202,17 +202,6 @@ function ServerSettingsForm({
               />
             </Field>
           </div>
-          <Field label="Encryption">
-            <select
-              value={draft.encryption ?? 'preferred'}
-              onChange={(e) => set('encryption', e.target.value as SessionInfo['encryption'])}
-              className="h-8 w-full rounded-md border border-surface-300 bg-surface-50 px-2 text-sm dark:border-surface-600 dark:bg-surface-800"
-            >
-              <option value="required">Required</option>
-              <option value="preferred">Preferred</option>
-              <option value="tolerated">Tolerated</option>
-            </select>
-          </Field>
           <div className="flex items-end gap-2">
             <Field label="Peer port" className="flex-1">
               <Input
@@ -238,6 +227,50 @@ function ServerSettingsForm({
               {portResult}
             </p>
           )}
+        </div>
+
+        <div className="space-y-2">
+          <p className="text-xs font-semibold text-surface-500 uppercase">Privacy &amp; network</p>
+          <LabeledCheckbox
+            checked={draft['dht-enabled'] ?? false}
+            onCheckedChange={(v) => set('dht-enabled', v)}
+            label="DHT (distributed hash table)"
+          />
+          <LabeledCheckbox
+            checked={draft['pex-enabled'] ?? false}
+            onCheckedChange={(v) => set('pex-enabled', v)}
+            label="Peer exchange (PeX)"
+          />
+          <LabeledCheckbox
+            checked={draft['lpd-enabled'] ?? false}
+            onCheckedChange={(v) => set('lpd-enabled', v)}
+            label="Local peer discovery (LPD)"
+          />
+          {can(caps, 'utp') && (
+            <LabeledCheckbox
+              checked={draft['utp-enabled'] ?? false}
+              onCheckedChange={(v) => set('utp-enabled', v)}
+              label="µTP (micro transport protocol)"
+            />
+          )}
+          {can(caps, 'anonymousMode') && (
+            <LabeledCheckbox
+              checked={draft['anonymous-mode'] ?? false}
+              onCheckedChange={(v) => set('anonymous-mode', v)}
+              label="Anonymous mode"
+            />
+          )}
+          <Field label="Encryption">
+            <select
+              value={draft.encryption ?? 'preferred'}
+              onChange={(e) => set('encryption', e.target.value as SessionInfo['encryption'])}
+              className="h-8 w-full rounded-md border border-surface-300 bg-surface-50 px-2 text-sm dark:border-surface-600 dark:bg-surface-800"
+            >
+              <option value="required">Required</option>
+              <option value="preferred">Preferred</option>
+              <option value="tolerated">Tolerated</option>
+            </select>
+          </Field>
         </div>
 
         {can(caps, 'altSpeedScheduler') && (

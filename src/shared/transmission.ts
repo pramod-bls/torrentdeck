@@ -222,6 +222,13 @@ export interface SessionInfo {
   'peer-port': number
   'peer-port-random-on-start': boolean
   'port-forwarding-enabled': boolean
+  // Privacy & network (canonical = Transmission field names; other adapters normalize)
+  'dht-enabled': boolean
+  'pex-enabled': boolean
+  'lpd-enabled': boolean
+  'utp-enabled': boolean
+  /** Deluge/qBittorrent only (Transmission has no anonymous mode). */
+  'anonymous-mode'?: boolean
   encryption: 'required' | 'preferred' | 'tolerated'
   'start-added-torrents': boolean
   // Alt-speed schedule

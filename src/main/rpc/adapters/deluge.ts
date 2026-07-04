@@ -69,6 +69,10 @@ export class DelugeAdapter implements TorrentClient {
     if (this.caps) return { ok: true, data: this.caps }
     // Label plugin presence → labels capability. get_enabled_plugins is cheap.
     const plugins = await this.client.rpc<string[]>('core.get_enabled_plugins', [])
+    // Some privacy toggles vary by Deluge build; probe the config for their keys
+    // rather than assuming (e.g. this daemon exposes neither utp nor anonymous_mode).
+    const cfg = await this.client.rpc<Record<string, unknown>>('core.get_config', [])
+    const hasKey = (k: string): boolean => cfg.ok && !!cfg.data && k in cfg.data
     const base: Capabilities = {
       bandwidthGroups: false,
       altSpeedScheduler: false,
@@ -80,8 +84,8 @@ export class DelugeAdapter implements TorrentClient {
       labels: plugins.ok && Array.isArray(plugins.data) && plugins.data.includes('Label'),
       renamePath: false,
       portTest: false,
-      anonymousMode: true, // core config anonymous_mode
-      utp: true, // core config utp
+      anonymousMode: hasKey('anonymous_mode'), // present only on some builds
+      utp: hasKey('utp'), // not exposed by the Web UI config on some builds
       idleSeedingLimit: false, // no idle-based seeding stop
       totalSeedTimeLimit: true, // seed_time_limit (minutes)
       seedLimitAction: true, // stop_seed_at_ratio / remove_seed_at_ratio
@@ -89,7 +93,7 @@ export class DelugeAdapter implements TorrentClient {
     }
     // Only cache once the probe actually succeeded, so a failure while the
     // server is briefly unreachable doesn't pin `labels:false` forever.
-    if (plugins.ok) this.caps = base
+    if (plugins.ok && cfg.ok) this.caps = base
     return { ok: true, data: base }
   }
 
@@ -124,6 +128,11 @@ export class DelugeAdapter implements TorrentClient {
       'peer-port': num('listen_ports'),
       'peer-port-random-on-start': bool('random_port'),
       'port-forwarding-enabled': bool('upnp'),
+      'dht-enabled': bool('dht'),
+      'pex-enabled': bool('utpex'),
+      'lpd-enabled': bool('lsd'),
+      'utp-enabled': bool('utp'),
+      'anonymous-mode': bool('anonymous_mode'),
       encryption: 'preferred',
       'start-added-torrents': !bool('add_paused'),
       'alt-speed-time-enabled': false,
@@ -154,6 +163,11 @@ export class DelugeAdapter implements TorrentClient {
     if ('peer-limit-per-torrent' in fields)
       cfg['max_connections_per_torrent'] = fields['peer-limit-per-torrent']
     if ('start-added-torrents' in fields) cfg['add_paused'] = !fields['start-added-torrents']
+    if ('dht-enabled' in fields) cfg['dht'] = fields['dht-enabled']
+    if ('pex-enabled' in fields) cfg['utpex'] = fields['pex-enabled']
+    if ('lpd-enabled' in fields) cfg['lsd'] = fields['lpd-enabled']
+    if ('utp-enabled' in fields) cfg['utp'] = fields['utp-enabled']
+    if ('anonymous-mode' in fields) cfg['anonymous_mode'] = fields['anonymous-mode']
     if (Object.keys(cfg).length === 0) return Promise.resolve({ ok: true, data: {} })
     return this.client.rpc('core.set_config', [cfg])
   }

@@ -106,6 +106,11 @@ export class QbittorrentAdapter implements TorrentClient {
       'peer-port': num(p.listen_port),
       'peer-port-random-on-start': p.random_port === true,
       'port-forwarding-enabled': p.upnp === true,
+      'dht-enabled': p.dht === true,
+      'pex-enabled': p.pex === true,
+      'lpd-enabled': p.lsd === true,
+      'utp-enabled': false, // no dedicated µTP preference in the WebUI
+      'anonymous-mode': p.anonymous_mode === true,
       encryption: enc === 1 ? 'required' : enc === 2 ? 'tolerated' : 'preferred',
       'start-added-torrents': !(p.add_stopped_enabled === true || p.start_paused_enabled === true),
       'alt-speed-time-enabled': false,
@@ -131,6 +136,10 @@ export class QbittorrentAdapter implements TorrentClient {
     if ('peer-limit-global' in fields) prefs.max_connec = fields['peer-limit-global']
     if ('peer-limit-per-torrent' in fields) prefs.max_connec_per_torrent = fields['peer-limit-per-torrent']
     if ('start-added-torrents' in fields) prefs.add_stopped_enabled = !fields['start-added-torrents']
+    if ('dht-enabled' in fields) prefs.dht = fields['dht-enabled']
+    if ('pex-enabled' in fields) prefs.pex = fields['pex-enabled']
+    if ('lpd-enabled' in fields) prefs.lsd = fields['lpd-enabled']
+    if ('anonymous-mode' in fields) prefs.anonymous_mode = fields['anonymous-mode']
     if (Object.keys(prefs).length === 0) return Promise.resolve({ ok: true, data: {} })
     return this.client.post('/app/setPreferences', { json: JSON.stringify(prefs) })
   }
