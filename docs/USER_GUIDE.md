@@ -77,13 +77,29 @@ The window is a **workspace of panels** you can rearrange freely. A typical layo
 
 - **Toolbar** (top): quick actions for the selection (start, pause, labels, remove), the
   **Add** menu, the **Servers** menu, and **Panels**.
-- **Panels**: drag a panel by its header to move it; drag the bottom/corner edge to
-  resize. New panels drop into the first free spot. Add panels from **Panels → Add
-  panel**; remove one with the **✕** on its header. Your layout is saved automatically.
-- **Server colors**: each server gets a stable pastel color, shown as small **squares next
-  to a panel's title** (a Torrents panel showing several servers gets one square per
-  server) and as **dots** next to server names. Same server, same color everywhere — so
-  you always know whose data you're looking at.
+- **Workspace**: a single, app-wide arrangement of panels (saved automatically). There's
+  no single "active" server — each panel chooses the server(s) it shows.
+
+### Arranging panels
+
+Open the **Panels** menu (top-right) to add a panel; every type is grouped by category:
+
+![The Panels / Add-panel menu](images/panels-menu.png)
+
+- **Add** — pick a panel from the menu; it drops into the first free spot on the grid.
+  (Single-instance panels like the tabbed *Torrent detail* are greyed out once present.)
+- **Move** — drag a panel by its header.
+- **Resize** — drag its bottom or bottom-right edge.
+- **Remove** — click the **✕** on the panel's header.
+- **Reset layout** — restores the default arrangement from the bottom of the Panels menu.
+
+### Server colors
+
+Each server gets a **stable pastel color** (derived from the server, so it's the same
+every launch). It shows as small **squares next to a panel's title** — one per server the
+panel displays, so a multi-server Torrents panel reads as a little swatch row — and as
+**dots** beside server names in menus and group headers. Same server, same color
+everywhere, so you always know whose data you're looking at.
 
 ---
 
@@ -135,9 +151,17 @@ tracker, or label, type in **Search**, and click a column header (table view) or
 toggle. In table view you can reorder and resize columns, and — when sorted by queue
 position — drag rows to reorder the queue.
 
-**Multiple servers in one panel** — open the panel's server selector (the "All servers" /
-server-count button) to show all servers or pick a specific set. Torrents are grouped
-under a collapsible header per server; an unreachable server only errors its own section.
+**Choosing which servers a panel shows** — click the Torrents panel's server selector (the
+left-most button in its filter bar, e.g. **All servers**) to show every server or tick a
+specific set:
+
+![The Torrents panel server selector](images/server-select.png)
+
+Torrents are grouped under a collapsible header (with the server's color dot) per server;
+an unreachable server only errors its own section. The **Session stats** and **Speed
+graph** panels have their own single-server picker in their header, and the detail panels
+follow whatever torrent you select — so each panel is independently pointed at a server
+(see the [Panels](#panels) table).
 
 ---
 
@@ -205,16 +229,21 @@ Full breakdown: **[DELUGE.md](DELUGE.md)**.
 
 ## Keyboard shortcuts
 
-Work on the focused Torrents panel / current selection:
+Shortcuts act on the **focused** Torrents panel (click a panel to focus it — it gets a
+highlighted border) and the current selection. With the mouse: **click** a row to select
+it, **⌘/Ctrl-click** to add/remove rows from the selection (within one server).
 
 | Key | Action |
 | --- | --- |
-| **↑ / ↓** | Move selection up / down |
-| **Shift + ↑ / ↓** | Extend selection (within one server) |
-| **⌘/Ctrl + A** | Select all in a server |
+| **↑ / ↓** | Move the selection up / down the list |
+| **Shift + ↑ / ↓** | Extend the selection (within one server) |
+| **⌘/Ctrl + A** | Select all torrents in a server |
 | **Space** | Start / pause the selection |
-| **Delete** (or ⌘/Ctrl + Backspace) | Remove… |
-| **Esc** | Clear selection |
+| **Delete** (or **⌘/Ctrl + Backspace**) | Remove… (opens the confirm dialog) |
+| **Esc** | Clear the selection |
+
+A selection never spans servers: selecting in one server's group replaces a selection held
+in another.
 
 ---
 
