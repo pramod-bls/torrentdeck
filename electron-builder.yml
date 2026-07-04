@@ -19,6 +19,9 @@ mac:
   category: public.app-category.utilities
   hardenedRuntime: true
   gatekeeperAssess: false
+  # Hardened-runtime entitlements Electron needs, or the notarized app crashes on launch.
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
   # Signing/notarization pick up CSC_LINK / CSC_KEY_PASSWORD and
   # APPLE_ID / APPLE_APP_SPECIFIC_PASSWORD / APPLE_TEAM_ID from the environment.
   notarize: true
@@ -33,7 +36,10 @@ mac:
         - x64
 win:
   target:
-    - nsis
+    - target: nsis
+      arch:
+        - x64
+        - arm64
 linux:
   category: Network
   target:
@@ -47,3 +53,5 @@ nsis:
   deleteAppDataOnUninstall: false
 publish:
   provider: github
+  owner: pramod-bls
+  repo: torrentdeck
