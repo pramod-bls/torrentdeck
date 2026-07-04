@@ -35,6 +35,7 @@ Features a server doesn't support are hidden automatically per profile (see the 
 - [Domain glossary](CONTEXT.md) — the canonical vocabulary used in code and UI
 - [Deluge support](docs/DELUGE.md) — Deluge vs. Transmission capabilities, degrades, and limits
 - [qBittorrent support](docs/QBITTORRENT.md) — qBittorrent vs. Transmission capabilities, degrades, and limits
+- [Releasing](docs/RELEASING.md) — how to build, sign/notarize, and publish a release; auto-update
 - [Decision records](docs/adr/) — 0001 RPC-via-main-process, 0002 flexible panel workspace, 0003 server-qualified selection, 0004 protocol adapters
 
 ## Supported features by server type
@@ -89,30 +90,17 @@ Run tests with `npm test`, typecheck with `npm run typecheck`.
 
 ## Release
 
-Releases publish to GitHub and are consumed by the in-app auto-updater
-(electron-updater reads each release's `latest*.yml`).
+macOS & Windows are built + signed **locally**; Linux (AppImage + deb) is built by **CI**;
+everything publishes to one GitHub Release that the in-app auto-updater consumes. After the
+[one-time setup](docs/RELEASING.md#one-time-setup) (`gh auth login` + a git-ignored
+`.env.release` with your Apple creds):
 
-**One-time setup:** copy `.env.release.example` → `.env.release` (git-ignored) and fill in
-your GitHub token + Apple notarization creds. Or run `gh auth login` and leave `GH_TOKEN`
-blank — the script reads it from `gh`.
+```sh
+npm version <ver> --no-git-tag-version && git commit -am "chore(release): <ver>" && git push
+scripts/release.sh mac && scripts/release.sh win     # signed/notarized mac + win → draft
+git tag v<ver> && git push origin v<ver>             # Linux via CI → same release
+gh release edit v<ver> --repo pramod-bls/torrentdeck --draft=false --latest
+```
 
-- **macOS & Windows — built locally** (macOS signs + notarizes with the developer's
-  keychain; the `.p12` import into a keychain is unreliable on CI runners). Bump the
-  version in `package.json`, then:
-
-  ```sh
-  scripts/release.sh mac    # signed + notarized dmg/zip → GitHub draft release
-  scripts/release.sh win    # NSIS x64/arm64 → same release
-  # (or `scripts/release.sh all` for both)
-  ```
-
-  The script loads `.env.release`, pre-creates the draft release (so multi-arch
-  publishers don't race into duplicate drafts), builds, and publishes. The lower-level
-  `npm run release:mac` / `release:win` still work if you export the env vars yourself.
-
-- **Linux (AppImage + deb) — built by CI**, which needs a Linux host: push a `v*` tag (or
-  run the *Release (Linux)* workflow manually) and it publishes to the same release.
-
-Tag the commit first (`git tag v1.2.3 && git push origin v1.2.3`) so all artifacts attach
-to one release. electron-builder creates it as a **draft** — review and publish it on
-GitHub.
+Full procedure, platform/signing matrix, auto-update details, and troubleshooting:
+**[docs/RELEASING.md](docs/RELEASING.md)**.
