@@ -8,9 +8,12 @@ import { Dialog, DialogContent } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input, Field } from '@/components/ui/input'
 import { Checkbox, LabeledCheckbox } from '@/components/ui/checkbox'
+import { useServerCapabilities, can } from '@/features/connection/useCapabilities'
 
 /** Remembers the last server a torrent was added to, across restarts. */
 const LAST_ADD_KEY = 'lastAddProfileId'
+/** Per-server remembered destination folder (presence = "remember" is on). */
+const rememberDirKey = (profileId: string): string => `rememberAddDir:${profileId}`
 
 export function AddTorrentDialog(): React.JSX.Element | null {
   const dispatch = useAppDispatch()
@@ -22,11 +25,16 @@ export function AddTorrentDialog(): React.JSX.Element | null {
     skip: !profileId
   })
   const [addTorrent, { isLoading: adding }] = useAddTorrentMutation()
+  const caps = useServerCapabilities(profileId)
 
   const [magnet, setMagnet] = useState('')
   const [dir, setDir] = useState('')
   const [labels, setLabels] = useState('')
   const [paused, setPaused] = useState(false)
+  const [sequential, setSequential] = useState(false)
+  const [topOfQueue, setTopOfQueue] = useState(false)
+  const [skipHash, setSkipHash] = useState(false)
+  const [rememberDir, setRememberDir] = useState(false)
   const [unwanted, setUnwanted] = useState<Set<number>>(new Set())
   const [error, setError] = useState<string | null>(null)
 
@@ -39,17 +47,33 @@ export function AddTorrentDialog(): React.JSX.Element | null {
     [files]
   )
 
+  const applyServer = (id: string): void => {
+    setProfileId(id)
+    // Prefill the remembered folder for this server, if the user opted in before.
+    const saved = localStorage.getItem(rememberDirKey(id))
+    if (saved) {
+      setDir(saved)
+      setRememberDir(true)
+    } else {
+      setDir('') // the session effect fills the server's default download folder
+      setRememberDir(false)
+    }
+  }
+
   useEffect(() => {
     if (open) {
       // Default to the last server added to (if it still exists), else the current server.
       const last = localStorage.getItem(LAST_ADD_KEY)
-      setProfileId(
+      const chosen =
         last && profiles.some((p) => p.id === last) ? last : (firstProfileId ?? profiles[0]?.id ?? null)
-      )
+      if (chosen) applyServer(chosen)
+      else setProfileId(null)
       setMagnet(payload?.magnet ?? '')
-      setDir('')
       setLabels('')
       setPaused(false)
+      setSequential(false)
+      setTopOfQueue(false)
+      setSkipHash(false)
       setUnwanted(new Set())
       setError(null)
       // Convenience: a magnet link sitting in the clipboard prefills the field
@@ -79,14 +103,17 @@ export function AddTorrentDialog(): React.JSX.Element | null {
   }
 
   const changeServer = (id: string): void => {
-    setProfileId(id)
+    applyServer(id)
     localStorage.setItem(LAST_ADD_KEY, id)
-    setDir('') // refill from the newly chosen server's default download folder
   }
 
   const submit = async (): Promise<void> => {
     setError(null)
-    if (profileId) localStorage.setItem(LAST_ADD_KEY, profileId)
+    if (profileId) {
+      localStorage.setItem(LAST_ADD_KEY, profileId)
+      if (rememberDir && dir) localStorage.setItem(rememberDirKey(profileId), dir)
+      else localStorage.removeItem(rememberDirKey(profileId))
+    }
     const labelList = labels
       .split(',')
       .map((s) => s.trim())
@@ -95,7 +122,10 @@ export function AddTorrentDialog(): React.JSX.Element | null {
       profileId,
       downloadDir: dir || undefined,
       paused,
-      labels: labelList.length ? labelList : undefined
+      labels: labelList.length ? labelList : undefined,
+      sequentialDownload: sequential || undefined,
+      addToTopOfQueue: topOfQueue || undefined,
+      skipHashCheck: skipHash || undefined
     }
     try {
       if (isMagnetMode) {
@@ -206,6 +236,26 @@ export function AddTorrentDialog(): React.JSX.Element | null {
           </Field>
 
           <LabeledCheckbox checked={paused} onCheckedChange={setPaused} label="Add paused" />
+          {can(caps, 'sequentialDownload') && (
+            <LabeledCheckbox
+              checked={sequential}
+              onCheckedChange={setSequential}
+              label="Download in sequential order"
+            />
+          )}
+          <LabeledCheckbox
+            checked={topOfQueue}
+            onCheckedChange={setTopOfQueue}
+            label="Add to top of queue"
+          />
+          {can(caps, 'skipHashCheck') && (
+            <LabeledCheckbox checked={skipHash} onCheckedChange={setSkipHash} label="Skip hash check" />
+          )}
+          <LabeledCheckbox
+            checked={rememberDir}
+            onCheckedChange={setRememberDir}
+            label="Remember this folder for this server"
+          />
 
           {error && <p className="text-xs text-danger-600 dark:text-danger-400">{error}</p>}
 

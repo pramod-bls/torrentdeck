@@ -46,6 +46,8 @@ export interface Capabilities {
   altSpeedScheduler: boolean
   blocklist: boolean
   sequentialDownload: boolean
+  /** Add-time "skip hash check" (recheck of existing data) — qBittorrent only. */
+  skipHashCheck: boolean
   perPieceAvailability: boolean
   perTrackerSwarm: boolean
   labels: boolean

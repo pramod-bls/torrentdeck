@@ -55,6 +55,7 @@ export class TransmissionAdapter implements TorrentClient {
         blocklist: true,
         // sequentialDownload landed in rpc-version 18 (Transmission 4.1+)
         sequentialDownload: this.rpcVersion >= 18,
+        skipHashCheck: false, // torrent-add has no skip-verify option
         perPieceAvailability: true,
         perTrackerSwarm: true,
         labels: true,
@@ -157,6 +158,16 @@ export class TransmissionAdapter implements TorrentClient {
     if (!res.ok) return res
     const added = res.data['torrent-added']
     const dup = res.data['torrent-duplicate']
+    // torrent-add can't set these, so apply them to the new torrent afterward.
+    const hash = added?.hashString ?? dup?.hashString
+    if (hash) {
+      if (params.sequentialDownload) {
+        await this.client.call('torrent-set', { ids: [hash], sequentialDownload: true }).catch(() => undefined)
+      }
+      if (params.addToTopOfQueue) {
+        await this.client.call('queue-move-top', { ids: [hash] }).catch(() => undefined)
+      }
+    }
     return {
       ok: true,
       data: {

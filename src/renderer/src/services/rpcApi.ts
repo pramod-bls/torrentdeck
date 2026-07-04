@@ -44,6 +44,9 @@ export interface AddTorrentArgs {
   paused?: boolean
   unwantedIndices?: number[]
   labels?: string[]
+  sequentialDownload?: boolean
+  addToTopOfQueue?: boolean
+  skipHashCheck?: boolean
 }
 
 export const rpcApi = createApi({
@@ -123,10 +126,31 @@ export const rpcApi = createApi({
       invalidatesTags: ['Torrents']
     }),
     addTorrent: build.mutation<AddResult, AddTorrentArgs>({
-      query: ({ profileId, magnet, metainfoBase64, downloadDir, paused, unwantedIndices, labels }) => ({
+      query: ({
+        profileId,
+        magnet,
+        metainfoBase64,
+        downloadDir,
+        paused,
+        unwantedIndices,
+        labels,
+        sequentialDownload,
+        addToTopOfQueue,
+        skipHashCheck
+      }) => ({
         profileId,
         op: 'addTorrent',
-        params: { magnet, metainfoBase64, downloadDir, paused, unwantedIndices, labels }
+        params: {
+          magnet,
+          metainfoBase64,
+          downloadDir,
+          paused,
+          unwantedIndices,
+          labels,
+          sequentialDownload,
+          addToTopOfQueue,
+          skipHashCheck
+        }
       }),
       invalidatesTags: ['Torrents']
     }),

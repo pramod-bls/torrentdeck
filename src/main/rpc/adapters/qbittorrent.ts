@@ -62,6 +62,7 @@ export class QbittorrentAdapter implements TorrentClient {
         altSpeedScheduler: false,
         blocklist: false,
         sequentialDownload: true,
+        skipHashCheck: true, // /torrents/add supports skip_checking
         perPieceAvailability: false,
         perTrackerSwarm: true,
         labels: true,
@@ -306,6 +307,9 @@ export class QbittorrentAdapter implements TorrentClient {
       savepath: params.downloadDir,
       paused: params.paused ? 'true' : undefined,
       tags: params.labels?.length ? params.labels.join(',') : undefined,
+      sequentialDownload: params.sequentialDownload ? 'true' : undefined,
+      skip_checking: params.skipHashCheck ? 'true' : undefined,
+      addToTopOfQueue: params.addToTopOfQueue ? 'true' : undefined,
       urls: params.magnet
     }
     const files = params.metainfoBase64

@@ -72,6 +72,7 @@ export class DelugeAdapter implements TorrentClient {
       altSpeedScheduler: false,
       blocklist: false,
       sequentialDownload: true,
+      skipHashCheck: false, // Deluge's seed_mode differs semantically; not exposed
       perPieceAvailability: false,
       perTrackerSwarm: false,
       labels: plugins.ok && Array.isArray(plugins.data) && plugins.data.includes('Label'),
@@ -298,6 +299,7 @@ export class DelugeAdapter implements TorrentClient {
     const options: Record<string, unknown> = {}
     if (params.downloadDir) options['download_location'] = params.downloadDir
     if (params.paused !== undefined) options['add_paused'] = params.paused
+    if (params.sequentialDownload) options['sequential_download'] = true
     let res: RpcResult<string | null>
     if (params.magnet) {
       res = await this.client.rpc<string | null>('core.add_torrent_magnet', [params.magnet, options])
@@ -319,6 +321,9 @@ export class DelugeAdapter implements TorrentClient {
     }
     const hash = res.data
     if (!hash) return { ok: true, data: { duplicate: { id: '', name: '' } } }
+    if (params.addToTopOfQueue) {
+      await this.client.rpc('core.queue_top', [[hash]]).catch(() => undefined)
+    }
     // Apply a label after add if the plugin is present and one was requested.
     if (params.labels?.length && this.caps?.labels) {
       await this.client.rpc('label.set_torrent', [hash, params.labels[0]]).catch(() => undefined)

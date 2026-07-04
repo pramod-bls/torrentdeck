@@ -43,6 +43,12 @@ export interface AddTorrentParams {
   paused?: boolean
   unwantedIndices?: number[]
   labels?: string[]
+  /** Download pieces in order (gated by the sequentialDownload capability). */
+  sequentialDownload?: boolean
+  /** Place the torrent at the front of the queue after adding. */
+  addToTopOfQueue?: boolean
+  /** Skip the initial recheck of existing data (gated by skipHashCheck; qBittorrent). */
+  skipHashCheck?: boolean
 }
 
 export type { AddResult } from '@shared/types'
