@@ -2,11 +2,15 @@
 
 # TorrentDeck
 
-A modern cross-platform desktop client for remote-controlling
+**One desktop app for all your torrent servers.** TorrentDeck manages
 [Transmission](https://transmissionbt.com), [Deluge](https://deluge-torrent.org), and
-[qBittorrent](https://www.qbittorrent.org) daemons — a successor to the abandoned
-[transgui](https://github.com/transmission-remote-gui/transgui), built for Apple Silicon,
-Windows, and Linux.
+[qBittorrent](https://www.qbittorrent.org) — **several servers at once, side by side** in
+one rearrangeable, color-coded dashboard — on macOS (Apple Silicon), Windows, and Linux.
+
+Mix a Transmission NAS, a Deluge seedbox, and a local qBittorrent in the same window; each
+server shows only the controls it actually supports. It's also a maintained,
+Apple-Silicon-native successor to the abandoned
+[transgui](https://github.com/transmission-remote-gui/transgui).
 
 ![TorrentDeck — Transmission, Deluge, and qBittorrent in one dashboard](docs/images/demo.gif)
 
