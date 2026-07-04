@@ -19,6 +19,7 @@ import type {
   WorkspaceLayout
 } from '@shared/types'
 import { createAdapter, type TorrentClient } from './rpc/adapters'
+import { clientFor, evictClient } from './clients'
 import { scheduleMagnetSizeFilter } from './sizeFilterWatch'
 import type {
   AddTorrentParams,
@@ -27,18 +28,6 @@ import type {
 } from './rpc/adapters/types'
 import type { BandwidthGroup, SessionInfo } from '@shared/transmission'
 import * as profiles from './profiles'
-
-const clients = new Map<string, TorrentClient>()
-
-function clientFor(profileId: string): TorrentClient | null {
-  const cached = clients.get(profileId)
-  if (cached) return cached
-  const profile = profiles.getProfile(profileId)
-  if (!profile) return null
-  const client = createAdapter(profile, profiles.getPassword(profileId))
-  clients.set(profileId, client)
-  return client
-}
 
 /** Route one intent-level op to the active profile's adapter. Params are the
  * loose renderer payload; each case narrows them to the adapter's signature. */
@@ -146,12 +135,12 @@ export function registerIpc(): void {
   ipcMain.handle('profiles:list', () => profiles.listProfiles())
   ipcMain.handle('profiles:save', (_e, input: ProfileInput) => {
     const saved = profiles.saveProfile(input)
-    clients.delete(saved.id)
+    evictClient(saved.id)
     return saved
   })
   ipcMain.handle('profiles:delete', (_e, id: string) => {
     profiles.deleteProfile(id)
-    clients.delete(id)
+    evictClient(id)
   })
   ipcMain.handle('profiles:setSort', (_e, id: string, sort: SortPref) =>
     profiles.setProfileSort(id, sort)
@@ -171,6 +160,14 @@ export function registerIpc(): void {
     })
     if (res.canceled) return []
     return readTorrentFiles(res.filePaths)
+  })
+
+  ipcMain.handle('dialog:pickDirectory', async (): Promise<string | null> => {
+    const res = await dialog.showOpenDialog({
+      title: 'Choose a folder',
+      properties: ['openDirectory', 'createDirectory']
+    })
+    return res.canceled ? null : (res.filePaths[0] ?? null)
   })
 
   ipcMain.handle('fs:readDroppedTorrents', (_e, paths: string[]) => readTorrentFiles(paths))

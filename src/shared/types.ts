@@ -319,6 +319,7 @@ export interface Api {
     check: () => Promise<void>
   }
   pickTorrentFiles: () => Promise<TorrentFilePayload[]>
+  pickDirectory: () => Promise<string | null>
   readDroppedTorrents: (paths: string[]) => Promise<TorrentFilePayload[]>
   readClipboardText: () => Promise<string>
   focusWindow: () => Promise<void>

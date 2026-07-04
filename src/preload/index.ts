@@ -46,6 +46,7 @@ const api: Api & { getPathForFile: (file: File) => string; rendererReady: () => 
     check: () => ipcRenderer.invoke('updates:check')
   },
   pickTorrentFiles: () => ipcRenderer.invoke('dialog:pickTorrentFiles'),
+  pickDirectory: () => ipcRenderer.invoke('dialog:pickDirectory'),
   readDroppedTorrents: (paths: string[]) => ipcRenderer.invoke('fs:readDroppedTorrents', paths),
   readClipboardText: () => ipcRenderer.invoke('clipboard:readText'),
   focusWindow: () => ipcRenderer.invoke('app:focusWindow'),

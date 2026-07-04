@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { ProfileInput, ServerType } from '@shared/types'
+import type { ProfileInput, ServerType, WatchFolderConfig } from '@shared/types'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { deleteProfile, saveProfile } from '@/features/connection/connectionSlice'
 import { closeProfileEditor } from '@/features/ui/uiSlice'
@@ -70,6 +70,10 @@ export function ProfileDialog(): React.JSX.Element | null {
         : f.rpcPath
       return { ...f, serverType, port, rpcPath }
     })
+
+  const wf = form.watchFolder
+  const setWatch = (patch: Partial<WatchFolderConfig>): void =>
+    set('watchFolder', { enabled: false, path: '', paused: false, ...wf, ...patch })
 
   const isDeluge = form.serverType === 'deluge'
   // qBittorrent's API base is fixed (/api/v2) — no user-editable path.
@@ -193,6 +197,60 @@ export function ProfileDialog(): React.JSX.Element | null {
               }}
             />
           </Field>
+
+          <div className="space-y-2 border-t border-surface-200 pt-3 dark:border-surface-700">
+            <LabeledCheckbox
+              checked={wf?.enabled ?? false}
+              onCheckedChange={(v) => setWatch({ enabled: v })}
+              label="Watch a folder for .torrent files"
+            />
+            {wf?.enabled && (
+              <>
+                <div className="flex items-end gap-2">
+                  <Field label="Watch folder" className="flex-1">
+                    <Input
+                      value={wf.path}
+                      onChange={(e) => setWatch({ path: e.target.value })}
+                      placeholder="/path/to/watch"
+                    />
+                  </Field>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={async () => {
+                      const d = await window.api.pickDirectory()
+                      if (d) setWatch({ path: d })
+                    }}
+                  >
+                    Browse…
+                  </Button>
+                </div>
+                <Field label="Download folder for watched torrents (optional)">
+                  <Input
+                    value={wf.downloadDir ?? ''}
+                    onChange={(e) => setWatch({ downloadDir: e.target.value || undefined })}
+                    placeholder="server default"
+                  />
+                </Field>
+                <Field label="Label for watched torrents (optional)">
+                  <Input
+                    value={wf.label ?? ''}
+                    onChange={(e) => setWatch({ label: e.target.value || undefined })}
+                    placeholder="watch"
+                  />
+                </Field>
+                <LabeledCheckbox
+                  checked={wf.paused ?? false}
+                  onCheckedChange={(v) => setWatch({ paused: v })}
+                  label="Add watched torrents paused"
+                />
+                <p className="text-xs text-surface-500">
+                  Scanned only while TorrentDeck is open. Added files move to an{' '}
+                  <code>.added</code> subfolder; the server&apos;s size filter applies.
+                </p>
+              </>
+            )}
+          </div>
 
           {testResult && (
             <p
