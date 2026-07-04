@@ -11,12 +11,13 @@
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { join } from 'node:path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import electronUpdater from 'electron-updater'
 import { readFile } from 'node:fs/promises'
 import { basename } from 'node:path'
 import { registerIpc } from './ipc'
 import { createTray, destroyTray, updateTraySpeeds } from './tray'
 import { getPrefs } from './profiles'
+import { initLogging, log } from './logger'
+import { initAutoUpdater } from './updater'
 import type { TorrentFilePayload } from '@shared/types'
 
 let isQuitting = false
@@ -123,7 +124,8 @@ if (!gotTheLock) {
   })
 
   app.whenReady().then(() => {
-    electronApp.setAppUserModelId('com.blacklightsurgical.transmission-remote')
+    initLogging()
+    electronApp.setAppUserModelId('com.blacklightsurgical.torrentdeck')
     if (!app.isPackaged) {
       // Packaged builds get the icon from the installer; dev runs show
       // Electron's default unless we set it explicitly.
@@ -133,9 +135,7 @@ if (!gotTheLock) {
     }
     if (app.isPackaged) {
       app.setAsDefaultProtocolClient('magnet')
-      electronUpdater.autoUpdater.checkForUpdatesAndNotify().catch(() => {
-        // update check failures (offline, no release yet) are not fatal
-      })
+      initAutoUpdater()
     }
 
     app.on('browser-window-created', (_e, window) => {
@@ -167,6 +167,7 @@ if (!gotTheLock) {
 
   app.on('before-quit', () => {
     isQuitting = true
+    log.info('shutting down')
     destroyTray()
   })
 

@@ -1,22 +1,18 @@
-name: Release
+name: Release (Linux)
 
+# macOS and Windows are built and published locally (they sign with the
+# developer's keychain / are unsigned NSIS) — see the `release:mac` / `release:win`
+# npm scripts. Linux AppImage + deb need a Linux host, so CI builds and publishes
+# them to the same GitHub release for the tag. Runs on `v*` tags, or manually.
 on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        include:
-          - os: macos-latest
-            args: --mac
-          - os: ubuntu-latest
-            args: --linux
-          - os: windows-latest
-            args: --win
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -31,24 +27,7 @@ jobs:
 
       - run: npm test
 
-      # Import the Developer ID cert into a keychain with the dedicated action.
-      # electron-builder's own `security import` is unreliable on the macOS
-      # runners ("SecKeychainItemImport: parameters not valid"); this imports
-      # cleanly, and electron-builder then signs via keychain auto-discovery
-      # (CSC_LINK is intentionally unset so it isn't misread as a path).
-      # CSC_LINK holds the base64 of the .p12; CSC_KEY_PASSWORD its password.
-      - name: Import Apple signing certificate (macOS)
-        if: runner.os == 'macOS'
-        uses: apple-actions/import-codesign-certs@v3
-        with:
-          p12-file-base64: ${{ secrets.CSC_LINK }}
-          p12-password: ${{ secrets.CSC_KEY_PASSWORD }}
-
-      - name: Build and publish
-        run: npx electron-vite build && npx electron-builder ${{ matrix.args }} --publish always
+      - name: Build and publish (Linux)
+        run: npx electron-vite build && npx electron-builder --linux --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # macOS notarization (signing uses the keychain identity imported above)
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}

@@ -89,7 +89,22 @@ Run tests with `npm test`, typecheck with `npm run typecheck`.
 
 ## Release
 
-Tag `v*` and push; GitHub Actions builds signed artifacts for macOS (DMG, notarized),
-Windows (NSIS), and Linux (AppImage + deb) and publishes a GitHub release consumed by
-the in-app auto-updater. Required repo secrets: `CSC_LINK`, `CSC_KEY_PASSWORD`,
-`APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID`.
+Releases publish to GitHub and are consumed by the in-app auto-updater
+(electron-updater reads each release's `latest*.yml`).
+
+- **macOS & Windows — built locally** (macOS signs + notarizes with the developer's
+  keychain; the `.p12` import into a keychain is unreliable on CI runners):
+
+  ```sh
+  export GH_TOKEN=…                         # token with repo scope
+  export APPLE_ID=… APPLE_APP_SPECIFIC_PASSWORD=… APPLE_TEAM_ID=3U86H8PJF6   # notarization
+  npm run release:mac                        # signed + notarized dmg/zip → GitHub release
+  npm run release:win                        # NSIS x64/arm64 → same release
+  ```
+
+- **Linux (AppImage + deb) — built by CI**, which needs a Linux host: push a `v*` tag (or
+  run the *Release (Linux)* workflow manually) and it publishes to the same release.
+
+Tag the commit first (`git tag v1.2.3 && git push origin v1.2.3`) so all artifacts attach
+to one release. electron-builder creates it as a **draft** — review and publish it on
+GitHub.
