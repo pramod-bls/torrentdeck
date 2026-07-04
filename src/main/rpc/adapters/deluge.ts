@@ -9,6 +9,8 @@
  * probed live — Deluge labels come from the optional Label plugin.
  */
 import type { Capabilities, RpcResult } from '@shared/types'
+import { parseInfoDictFiles } from '@shared/bencode'
+import { unwantedBySizeThreshold } from '@shared/sizeFilter'
 import type {
   BandwidthGroup,
   Peer,
@@ -306,6 +308,34 @@ export class DelugeAdapter implements TorrentClient {
     if (params.downloadDir) options['download_location'] = params.downloadDir
     if (params.paused !== undefined) options['add_paused'] = params.paused
     if (params.sequentialDownload) options['sequential_download'] = true
+
+    // Size Filter, Deluge-perfect path: fetch the magnet's metadata WITHOUT
+    // adding it, compute the not-wanted set, and add with file priorities
+    // already applied so junk never downloads. Best-effort — any failure
+    // (timeout on a seederless magnet, missing method) falls through to a
+    // normal add, and the main-process watcher filters once metadata arrives.
+    if (params.magnet && params.sizeThresholdBytes && params.sizeThresholdBytes > 0) {
+      try {
+        const meta = await this.client.rpc<[string, string]>('core.prefetch_magnet_metadata', [
+          params.magnet,
+          10
+        ])
+        if (meta.ok && Array.isArray(meta.data) && typeof meta.data[1] === 'string') {
+          const preview = parseInfoDictFiles(meta.data[1])
+          if (preview && preview.files.length > 1) {
+            const unwanted = new Set(unwantedBySizeThreshold(preview.files, params.sizeThresholdBytes))
+            if (unwanted.size > 0) {
+              options['file_priorities'] = preview.files.map((_, i) =>
+                unwanted.has(i) ? PRIO.SKIP : PRIO.NORMAL
+              )
+            }
+          }
+        }
+      } catch {
+        // fall through: normal add + post-add watcher
+      }
+    }
+
     let res: RpcResult<string | null>
     if (params.magnet) {
       res = await this.client.rpc<string | null>('core.add_torrent_magnet', [params.magnet, options])

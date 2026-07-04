@@ -49,6 +49,10 @@ export interface AddTorrentParams {
   addToTopOfQueue?: boolean
   /** Skip the initial recheck of existing data (gated by skipHashCheck; qBittorrent). */
   skipHashCheck?: boolean
+  /** Size Filter threshold (bytes) injected by main from the profile. Adapters
+   *  that can filter before adding (Deluge prefetch) use it; others rely on the
+   *  post-add watcher. 0/undefined = Off. */
+  sizeThresholdBytes?: number
 }
 
 export type { AddResult } from '@shared/types'

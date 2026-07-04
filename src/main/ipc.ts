@@ -19,6 +19,7 @@ import type {
   WorkspaceLayout
 } from '@shared/types'
 import { createAdapter, type TorrentClient } from './rpc/adapters'
+import { scheduleMagnetSizeFilter } from './sizeFilterWatch'
 import type {
   AddTorrentParams,
   QueueDirection,
@@ -41,7 +42,12 @@ function clientFor(profileId: string): TorrentClient | null {
 
 /** Route one intent-level op to the active profile's adapter. Params are the
  * loose renderer payload; each case narrows them to the adapter's signature. */
-function dispatch(client: TorrentClient, op: InvokeRequest['op'], p: Record<string, unknown>): Promise<RpcResult> {
+function dispatch(
+  client: TorrentClient,
+  profileId: string,
+  op: InvokeRequest['op'],
+  p: Record<string, unknown>
+): Promise<RpcResult> {
   switch (op) {
     case 'getCapabilities':
       return client.getCapabilities()
@@ -72,7 +78,7 @@ function dispatch(client: TorrentClient, op: InvokeRequest['op'], p: Record<stri
     case 'removeTorrent':
       return client.removeTorrent(p.ids as string[], p.deleteData as boolean)
     case 'addTorrent':
-      return client.addTorrent(p as AddTorrentParams)
+      return handleAddTorrent(client, profileId, p as AddTorrentParams)
     case 'setTorrent':
       return client.setTorrent(p.ids as string[], p.fields as Record<string, unknown>)
     case 'renamePath':
@@ -82,6 +88,24 @@ function dispatch(client: TorrentClient, op: InvokeRequest['op'], p: Record<stri
     default:
       return Promise.resolve({ ok: false, error: { kind: 'unknown', message: `Unknown op: ${op}` } })
   }
+}
+
+/** Add a torrent, injecting the profile's Size Threshold and, for magnets on a
+ *  threshold-enabled server, scheduling the best-effort post-add size filter. */
+async function handleAddTorrent(
+  client: TorrentClient,
+  profileId: string,
+  params: AddTorrentParams
+): Promise<RpcResult> {
+  const threshold = profiles.getProfile(profileId)?.sizeThresholdBytes ?? 0
+  const res = await client.addTorrent({ ...params, sizeThresholdBytes: threshold || undefined })
+  // Magnets have no file list at add time; filter once metadata arrives. (For
+  // a .torrent the renderer already sent the unwanted set; the daemon knows the
+  // files immediately, so no watcher is needed.)
+  if (res.ok && res.data.added && params.magnet && !params.metainfoBase64 && threshold > 0) {
+    scheduleMagnetSizeFilter(client, res.data.added.id, threshold)
+  }
+  return res
 }
 
 async function readTorrentFiles(paths: string[]): Promise<TorrentFilePayload[]> {
@@ -104,7 +128,7 @@ export function registerIpc(): void {
       return { ok: false, error: { kind: 'unknown', message: 'Unknown server profile' } }
     }
     try {
-      return await dispatch(client, req.op, req.params ?? {})
+      return await dispatch(client, req.profileId, req.op, req.params ?? {})
     } catch (err) {
       return { ok: false, error: { kind: 'unknown', message: (err as Error).message } }
     }
