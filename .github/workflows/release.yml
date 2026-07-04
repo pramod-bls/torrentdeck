@@ -31,25 +31,24 @@ jobs:
 
       - run: npm test
 
-      # Materialize the Developer ID cert to a real .p12 file. electron-builder
-      # would otherwise mistake the base64 CSC_LINK for a path (base64 contains
-      # '/'), so we decode it and point CSC_LINK at the file. macOS only —
-      # Windows/Linux must not receive CSC_LINK at all.
-      - name: Decode signing certificate (macOS)
+      # Import the Developer ID cert into a keychain with the dedicated action.
+      # electron-builder's own `security import` is unreliable on the macOS
+      # runners ("SecKeychainItemImport: parameters not valid"); this imports
+      # cleanly, and electron-builder then signs via keychain auto-discovery
+      # (CSC_LINK is intentionally unset so it isn't misread as a path).
+      # CSC_LINK holds the base64 of the .p12; CSC_KEY_PASSWORD its password.
+      - name: Import Apple signing certificate (macOS)
         if: runner.os == 'macOS'
-        run: |
-          echo "$CSC_LINK_BASE64" | base64 --decode > "$RUNNER_TEMP/certificate.p12"
-          echo "CSC_LINK=$RUNNER_TEMP/certificate.p12" >> "$GITHUB_ENV"
-        env:
-          CSC_LINK_BASE64: ${{ secrets.CSC_LINK }}
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.CSC_LINK }}
+          p12-password: ${{ secrets.CSC_KEY_PASSWORD }}
 
       - name: Build and publish
         run: npx electron-vite build && npx electron-builder ${{ matrix.args }} --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # CSC_LINK is provided on macOS via $GITHUB_ENV (decoded above); it is
-          # intentionally absent on Windows/Linux so it isn't misread as a cert.
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          # macOS notarization (signing uses the keychain identity imported above)
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
