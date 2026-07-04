@@ -10,6 +10,10 @@ on:
       - 'v*'
   workflow_dispatch:
 
+# electron-builder needs to create/upload the GitHub release with GITHUB_TOKEN.
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
