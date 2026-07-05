@@ -21,6 +21,7 @@ import { initAutoUpdater, checkForUpdatesManually, installUpdateNow } from './up
 import { maybePromptTorrentDefault } from './torrentDefault'
 import { startClipboardWatch } from './clipboardWatch'
 import { startWatchFolders } from './watchFolders'
+import { initGeoip } from './geoip'
 import { isQuitting, setQuitting } from './appState'
 import type { TorrentFilePayload } from '@shared/types'
 
@@ -164,6 +165,7 @@ if (!gotTheLock) {
     if (mainWindow) createTray(mainWindow)
     startClipboardWatch(() => mainWindow)
     startWatchFolders()
+    void initGeoip()
 
     // First-run offer to become the default .torrent handler (macOS, packaged).
     if (mainWindow) {

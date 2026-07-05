@@ -113,6 +113,8 @@ export interface Peer {
   rateToClient: number
   rateToPeer: number
   isEncrypted: boolean
+  /** ISO-3166 alpha-2 country code, resolved locally from the IP via GeoIP. */
+  country?: string
 }
 
 export interface TrackerStat {

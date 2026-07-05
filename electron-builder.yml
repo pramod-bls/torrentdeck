@@ -9,6 +9,10 @@ directories:
 files:
   - out/**
   - package.json
+extraResources:
+  # Offline GeoIP database for peer country flags (read at runtime by maxmind).
+  - from: build/geoip
+    to: geoip
 protocols:
   - name: Magnet link
     schemes:

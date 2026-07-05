@@ -1,6 +1,12 @@
 import type { TorrentDetail } from '@shared/transmission'
 import { formatPercent, formatSpeed } from '@/lib/format'
 
+/** ISO alpha-2 country code → flag emoji (regional indicator letters). */
+function flagEmoji(cc?: string): string {
+  if (!cc || cc.length !== 2 || !/^[a-z]{2}$/i.test(cc)) return ''
+  return String.fromCodePoint(...[...cc.toUpperCase()].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65))
+}
+
 export function PeersTab({ torrent }: { torrent: TorrentDetail }): React.JSX.Element {
   if (!torrent.peers.length) {
     return <p className="p-4 text-center text-sm text-surface-500">No connected peers</p>
@@ -19,7 +25,8 @@ export function PeersTab({ torrent }: { torrent: TorrentDetail }): React.JSX.Ele
       <tbody className="divide-y divide-surface-100 dark:divide-surface-800">
         {torrent.peers.map((p) => (
           <tr key={`${p.address}:${p.port}`}>
-            <td className="truncate px-3 py-1.5" title={p.flagStr}>
+            <td className="truncate px-3 py-1.5" title={p.country ? `${p.country} · ${p.flagStr}` : p.flagStr}>
+              {p.country && <span className="mr-1.5">{flagEmoji(p.country)}</span>}
               {p.address}
             </td>
             <td className="max-w-28 truncate px-2 py-1.5" title={p.clientName}>

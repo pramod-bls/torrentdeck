@@ -22,6 +22,7 @@ import { createAdapter, type TorrentClient } from './rpc/adapters'
 import { clientFor, evictClient } from './clients'
 import { scheduleMagnetSizeFilter } from './sizeFilterWatch'
 import { logFilePath } from './logger'
+import { countryOf } from './geoip'
 import type {
   AddTorrentParams,
   QueueDirection,
@@ -60,7 +61,7 @@ function dispatch(
     case 'getTorrents':
       return client.getTorrents()
     case 'getTorrentDetail':
-      return client.getTorrentDetail(p.id as string)
+      return getDetailWithGeo(client, p.id as string)
     case 'torrentAction':
       return client.torrentAction(p.action as TorrentActionKind, p.ids as string[])
     case 'queueMove':
@@ -78,6 +79,15 @@ function dispatch(
     default:
       return Promise.resolve({ ok: false, error: { kind: 'unknown', message: `Unknown op: ${op}` } })
   }
+}
+
+/** Fetch a torrent's detail and tag each peer with its country (local GeoIP). */
+async function getDetailWithGeo(client: TorrentClient, id: string): Promise<RpcResult> {
+  const res = await client.getTorrentDetail(id)
+  if (res.ok && res.data && Array.isArray(res.data.peers)) {
+    res.data.peers = res.data.peers.map((peer) => ({ ...peer, country: countryOf(peer.address) }))
+  }
+  return res
 }
 
 /** Add a torrent, injecting the profile's Size Threshold and, for magnets on a

@@ -96,6 +96,11 @@ capabilities and unsupported controls are hidden per profile.
 The app icon is original artwork for this project (a color-coded "deck" of torrent
 panels) see `build/icon.svg` (GPL-2.0-or-later, like the rest of the project).
 
+Peer country flags use the bundled **DB-IP IP-to-Country Lite** database — IP
+Geolocation by [DB-IP](https://db-ip.com), licensed under
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Lookups are fully offline;
+no peer IP ever leaves your machine.
+
 ## Development
 
 ```sh
