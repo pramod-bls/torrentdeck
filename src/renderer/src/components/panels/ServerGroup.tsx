@@ -1,9 +1,18 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronRight, ServerCrash } from 'lucide-react'
+import {
+  AlertTriangle,
+  ArrowDown,
+  ArrowUp,
+  ChevronDown,
+  ChevronRight,
+  Pause,
+  RefreshCw,
+  ServerCrash
+} from 'lucide-react'
 import type { TorrentsPanelConfig } from '@shared/types'
 import { useAppSelector, usePollingInterval } from '@/app/hooks'
 import { useGetTorrentsQuery, useSetTorrentMutation } from '@/services/rpcApi'
-import { applyPanelFilters, sortTorrents } from '@/features/torrents/derive'
+import { applyPanelFilters, deriveSidebar, sortTorrents } from '@/features/torrents/derive'
 import { serverColor } from '@/features/connection/serverColor'
 import { TorrentRow, type RowReorder } from './TorrentRow'
 import { TorrentTableRow } from './TorrentTable'
@@ -16,6 +25,16 @@ import { cn } from '@/lib/cn'
  * the panel scroll element via scrollMargin.
  */
 const ROW_RENDER_CAP = 400
+
+/** Status breakdown shown in a server group's header: icon + color per status,
+ *  matching the row status coding. Keyed to deriveSidebar's counts. */
+const STATUS_CHIPS = [
+  { key: 'downloading', Icon: ArrowDown, cls: 'text-accent-600 dark:text-accent-400', label: 'Downloading' },
+  { key: 'seeding', Icon: ArrowUp, cls: 'text-success-600 dark:text-success-400', label: 'Seeding' },
+  { key: 'paused', Icon: Pause, cls: 'text-surface-500', label: 'Paused' },
+  { key: 'checking', Icon: RefreshCw, cls: 'text-warning-600 dark:text-warning-400', label: 'Verifying' },
+  { key: 'error', Icon: AlertTriangle, cls: 'text-danger-600 dark:text-danger-400', label: 'Error' }
+] as const
 
 /**
  * One server's section inside a Torrents panel: fetches (and polls) that
@@ -47,6 +66,7 @@ export function ServerGroup({
   const collapsed = config.collapsedServers?.includes(profileId) ?? false
 
   const visible = sortTorrents(applyPanelFilters(torrents, config.filters), config.sort)
+  const counts = deriveSidebar(visible)
 
   // Drag-to-reorder is only meaningful when the visual order IS the queue order.
   const reorderable = config.sort.key === 'queuePosition' && !config.sort.desc
@@ -91,9 +111,22 @@ export function ServerGroup({
             aria-hidden
           />
           <span className="truncate">{profileName}</span>
-          <span className="font-normal text-surface-400">
-            {error ? '' : `${visible.length}${visible.length !== torrents.length ? ` of ${torrents.length}` : ''}`}
-          </span>
+          {!error && (
+            <span className="flex items-center gap-2 font-normal text-surface-400">
+              <span title="Total">
+                {visible.length}
+                {visible.length !== torrents.length ? ` of ${torrents.length}` : ''}
+              </span>
+              {STATUS_CHIPS.map(({ key, Icon, cls, label }) =>
+                counts[key] > 0 ? (
+                  <span key={key} className={cn('flex items-center gap-0.5', cls)} title={label}>
+                    <Icon size={11} />
+                    {counts[key]}
+                  </span>
+                ) : null
+              )}
+            </span>
+          )}
           {error && <ServerCrash size={12} className="text-danger-500" />}
         </button>
       )}
