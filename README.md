@@ -4,15 +4,15 @@
 
 **One desktop app for all your torrent servers.** TorrentDeck manages
 [Transmission](https://transmissionbt.com), [Deluge](https://deluge-torrent.org), and
-[qBittorrent](https://www.qbittorrent.org) — **several servers at once, side by side** in
-one rearrangeable, color-coded dashboard — on macOS (Apple Silicon), Windows, and Linux.
+[qBittorrent](https://www.qbittorrent.org), **several servers at once, side by side** in
+one rearrangeable, color-coded dashboard on macOS (Apple Silicon), Windows, and Linux.
 
 Mix a Transmission NAS, a Deluge seedbox, and a local qBittorrent in the same window; each
 server shows only the controls it actually supports. It's also a maintained,
 Apple-Silicon-native successor to the abandoned
 [transgui](https://github.com/transmission-remote-gui/transgui).
 
-![TorrentDeck — Transmission, Deluge, and qBittorrent in one dashboard](docs/images/demo.gif)
+![TorrentDeck -> Transmission, Deluge, and qBittorrent in one dashboard](docs/images/demo.gif)
 
 > Every daemon in one rearrangeable, color-coded dashboard. *(Torrent names blurred.)*
 
@@ -79,11 +79,11 @@ capabilities and unsupported controls are hidden per profile.
   tracker, and label
 - Add torrents by magnet link, `.torrent` file, or drag-and-drop, with destination
   folder, free-space check, file selection, and start-paused
-- **Size filter** — skip files below a per-server size threshold so junk (tiny readme/ad
+- **Size filter**: skip files below a per-server size threshold so junk (tiny readme/ad
   files) never downloads: a server default, an in-dialog slider for `.torrent` adds
   (applied automatically to magnets), and a retroactive "skip files under…" slider in a
   torrent's Files tab
-- **Watch folders** — a per-server folder the app scans while open, auto-adding dropped
+- **Watch folders**: a per-server folder the app scans while open, auto-adding dropped
   `.torrent` files (works with remote daemons)
 - **Clipboard magnet watcher** (opt-in) — offers to add a magnet link as soon as you copy it
 - OS integration: the app registers as handler for `magnet:` links and `.torrent` files
@@ -94,7 +94,7 @@ capabilities and unsupported controls are hidden per profile.
 - Light/dark theme
 
 The app icon is original artwork for this project (a color-coded "deck" of torrent
-panels) — see `build/icon.svg` (GPL-2.0-or-later, like the rest of the project).
+panels) see `build/icon.svg` (GPL-2.0-or-later, like the rest of the project).
 
 ## Development
 
