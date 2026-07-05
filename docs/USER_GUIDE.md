@@ -302,7 +302,9 @@ Covers: default download folder, global speed limits, **seeding** (stop at ratio
 where the daemon supports it — stop when idle or after a total seeding time, plus a
 Pause/Remove action when a limit is reached), **privacy & network** (DHT, PeX, LPD, and
 capability-gated µTP / anonymous mode, plus encryption), peers/port, and —
-**Transmission only** — alternative-speed limits with a schedule, and the blocklist.
+**Transmission only** — alternative-speed limits with a schedule, and the blocklist (when
+the daemon still has Transmission's `example.com` placeholder URL, the dialog offers a
+working community list — Naunter's BT_BlockLists — which is saved only when you hit Save).
 
 The server editor (**Servers → edit a server**, or **Add server**) also carries two
 client-side, per-server options:
@@ -377,9 +379,10 @@ Enable **close-to-tray** in Preferences to keep it running when you close the wi
   panel** showing the app's log; the text is selectable and there's a **Copy** button and
   **Open file** (reveals it on disk) so you can share it. The installed **version** is shown
   at the bottom of the Settings menu.
-- **Updates** — when an update has downloaded, the Settings menu shows **Restart to install
-  vX** and a notification appears; it's non-blocking, so you can keep working and restart
-  when convenient (it also applies automatically on the next quit).
+- **Updates** — when an update has downloaded, a dot appears on the Settings (⚙) button and
+  the menu shows **Restart to install vX** (plus a one-time notification per version). It's
+  entirely non-blocking: keep working, quit, or restart on the old version as long as you
+  like — the update installs **only** when you explicitly pick *Restart to install*.
 - **"Authentication failed"** — check the username/password (Deluge: the Web UI
   password). Use **Test connection** in the server editor.
 - **"Certificate rejected"** — the server uses a self-signed cert; enable **Use HTTPS →

@@ -132,6 +132,8 @@ window, fed by the same polling that drives the stats displays.
 The peers available for a Torrent across its trackers. The list shows the best
 seeder/leecher counts any tracker reports, with a health tint (none/few/plenty).
 
-### Workspace
-The user-composed arrangement of Panels in the main window, saved per Server Profile.
-The classic three-zone arrangement is just the default Workspace.
+### Pending Update
+An app update that has been downloaded and verified in the background and is ready to
+install. It is applied only when the user explicitly chooses to install it — quitting or
+restarting the app never applies it. Its presence is signaled quietly: a one-time
+notification per version and a persistent badge; the user may defer indefinitely.

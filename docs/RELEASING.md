@@ -79,8 +79,10 @@ for updates…**).
   `owner: pramod-bls`, `repo: torrentdeck`) is baked into `app-update.yml` in the packaged
   app. Public repo → clients need no token.
 - Behavior (`src/main/updater.ts`): checks **on launch**, **every 6 h**, and **manually**
-  from the Settings menu. Background checks are silent unless an update is found; a download
-  prompts *Restart now / Later* (else installs on quit). All stages are logged to the app
+  from the Settings menu. Background checks are silent unless an update is found; a downloaded
+  update is a **Pending Update** — a one-time notification per version plus a badge on the
+  Settings menu, installed only when the user explicitly picks *Restart to install* (quitting
+  or restarting never applies it). All stages are logged to the app
   log (`~/Library/Logs/TorrentDeck/main.log`, etc.).
 - macOS auto-update requires the app be **signed** (it is) and the release contain the
   **`.zip`** (electron-updater updates from the zip, not the dmg) — both are shipped.

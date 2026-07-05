@@ -195,6 +195,8 @@ export interface AppPrefs {
   askedTorrentDefault: boolean
   /** Poll the clipboard while open and offer to add copied magnet links. */
   watchClipboardMagnets: boolean
+  /** Last app version we showed an "update ready" notification for (notify once per version). */
+  lastUpdateNotifiedVersion?: string
 }
 
 export interface TorrentFilePayload {

@@ -11,15 +11,18 @@
  *  3. manually via the "Check for updates…" menu item (reports the result).
  *
  * Background checks (1, 2) are silent unless an update is found; a manual check
- * always tells the user the outcome. When an update is downloaded the user is
- * prompted to restart now (else it installs on the next quit). macOS requires
- * the app to be signed + notarized for updates to apply, which release builds
- * are. All stages are logged for post-hoc diagnosis.
+ * always tells the user the outcome. A downloaded update is a Pending Update:
+ * it installs ONLY when the user explicitly asks (menu item / notification
+ * click) — quitting or restarting never applies it. The nudge is quiet: one
+ * notification per version, then just the badge on the app menu. macOS
+ * requires the app to be signed + notarized for updates to apply, which
+ * release builds are. All stages are logged for post-hoc diagnosis.
  */
 import electronUpdater from 'electron-updater'
 import { app, dialog, BrowserWindow, Notification } from 'electron'
 import { log } from './logger'
 import { setQuitting } from './appState'
+import { getPrefs, setPrefs } from './profiles'
 
 const { autoUpdater } = electronUpdater
 const PERIODIC_MS = 6 * 60 * 60 * 1000 // 6 hours
@@ -40,7 +43,9 @@ function messageBox(options: Electron.MessageBoxOptions): Promise<Electron.Messa
 export function initAutoUpdater(): void {
   autoUpdater.logger = log
   autoUpdater.autoDownload = true
-  autoUpdater.autoInstallOnAppQuit = true
+  // A quit or restart must never silently apply a Pending Update — install is
+  // always an explicit user action (menu / notification click).
+  autoUpdater.autoInstallOnAppQuit = false
 
   autoUpdater.on('checking-for-update', () => log.info('updater: checking for update'))
 
@@ -52,7 +57,7 @@ export function initAutoUpdater(): void {
         type: 'info',
         title: 'Update available',
         message: `TorrentDeck ${info.version} is available.`,
-        detail: "It's downloading in the background — you'll be prompted to restart when it's ready.",
+        detail: "It's downloading in the background — install it from the app menu (badge) whenever you like.",
         buttons: ['OK']
       })
     }
@@ -78,14 +83,15 @@ export function initAutoUpdater(): void {
   autoUpdater.on('update-downloaded', (info) => {
     log.info(`updater: ${info.version} downloaded — ready to install (deferred)`)
     manualCheck = false
-    // Non-blocking: tell the renderer (menu item + "Restart to install") and
-    // show a dismissible notification. The user installs whenever they like;
-    // if they never do, autoInstallOnAppQuit applies it on the next quit.
+    // Non-blocking: tell the renderer (menu badge + "Restart to install") and
+    // notify once per version. The user installs whenever they like; deferring
+    // forever just means the badge is back next session.
     activeWindow()?.webContents.send('update-downloaded', { version: info.version })
-    if (Notification.isSupported()) {
+    if (Notification.isSupported() && getPrefs().lastUpdateNotifiedVersion !== info.version) {
+      setPrefs({ lastUpdateNotifiedVersion: info.version })
       const n = new Notification({
         title: 'Update ready',
-        body: `TorrentDeck ${info.version} will install when you restart. Click to restart now.`
+        body: `TorrentDeck ${info.version} is ready. Click to install and restart now, or keep working — it stays available in the app menu.`
       })
       n.on('click', () => installUpdateNow())
       n.show()

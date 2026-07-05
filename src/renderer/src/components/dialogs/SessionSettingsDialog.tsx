@@ -26,6 +26,10 @@ import { cn } from '@/lib/cn'
 
 type Draft = Partial<SessionInfo>
 
+/** Working default offered in place of Transmission's example.com placeholder. */
+const DEFAULT_BLOCKLIST_URL =
+  'https://raw.githubusercontent.com/Naunter/BT_BlockLists/master/bt_blocklists.gz'
+
 /**
  * Session settings for ONE server. Rendered inside the tabbed dialog, keyed by
  * profileId so switching tabs remounts with a fresh draft. Capability-gated
@@ -49,7 +53,11 @@ function ServerSettingsForm({
 
   useEffect(() => {
     if (session) {
-      setDraft(session)
+      // Transmission ships with a placeholder blocklist URL (example.com);
+      // offer a working default in the draft — persisted only on Save.
+      const url = session['blocklist-url']
+      const prefill = 'blocklist-url' in session && (!url || url.includes('example.com'))
+      setDraft(prefill ? { ...session, 'blocklist-url': DEFAULT_BLOCKLIST_URL } : session)
       setPortResult(null)
     }
   }, [session])
@@ -387,6 +395,15 @@ function ServerSettingsForm({
                 onChange={(e) => set('blocklist-url', e.target.value)}
               />
             </Field>
+            {draft['blocklist-url'] !== DEFAULT_BLOCKLIST_URL && (
+              <button
+                type="button"
+                className="text-xs text-accent-600 hover:underline dark:text-accent-400"
+                onClick={() => set('blocklist-url', DEFAULT_BLOCKLIST_URL)}
+              >
+                Use default list
+              </button>
+            )}
             <div className="flex items-center gap-2">
               <span className="flex-1 text-xs text-surface-500 dark:text-surface-400">
                 {num(draft['blocklist-size']).toLocaleString()} rules

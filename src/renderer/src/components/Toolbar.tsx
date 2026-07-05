@@ -145,8 +145,14 @@ export function Toolbar(): React.JSX.Element {
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" aria-label="Settings">
+          <Button variant="ghost" size="icon" aria-label="Settings" className="relative">
             <Settings2 size={15} />
+            {updateReady && (
+              <span
+                className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full bg-accent-500"
+                title={`Update ${updateReady} ready to install`}
+              />
+            )}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
