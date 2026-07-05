@@ -11,12 +11,16 @@ runs in the renderer ([ADR-0001](adr/0001-rpc-via-main-process.md)).
 
 ```
 ┌────────────────────────────  Main process (Node)  ───────────────────────────┐
-│  src/main/index.ts      app lifecycle, window, single-instance lock,         │
-│                         magnet:/.torrent OS handoff, auto-updater            │
-│  src/main/ipc.ts        ipcMain.handle() endpoints (the only IPC surface)    │
-│  src/main/profiles.ts   profile store (electron-store) + safeStorage         │
-│  src/main/rpc/client.ts HTTP client per profile: 409 handshake, basic auth,  │
-│                         per-profile TLS trust, error normalization           │
+│  src/main/index.ts        app lifecycle, window, single-instance lock,       │
+│                           magnet:/.torrent OS handoff                        │
+│  src/main/ipc.ts          ipcMain.handle() endpoints (the only IPC surface)  │
+│  src/main/profiles.ts     profile store (electron-store) + safeStorage       │
+│  src/main/rpc/adapters/*  per–server-type adapter (Transmission / Deluge /   │
+│                           qBittorrent): native HTTP client + normalization   │
+│  supporting modules:      updater.ts (auto-update, Pending Update),          │
+│                           logger.ts (file log + logs IPC), geoip.ts (offline │
+│                           peer→country lookup), tray.ts, watchFolders.ts,    │
+│                           clipboardWatch.ts, sizeFilterWatch.ts              │
 └──────────────────────────────────┬────────────────────────────────────────---┘
                                    │ contextBridge (typed, promise-based)
 ┌──────────────────────────  Preload (sandboxed)  ─────────────────────────────┐
@@ -34,17 +38,20 @@ runs in the renderer ([ADR-0001](adr/0001-rpc-via-main-process.md)).
 ## Data flow: one polling cycle
 
 1. A component calls `useGetTorrentsQuery({ profileId }, { pollingInterval })`.
-2. RTK Query invokes `ipcBaseQuery`, which calls `window.api.rpc({ profileId, method:
-   'torrent-get', arguments: { fields, format: 'table' } })`.
-3. Preload forwards over the `rpc:call` channel; `src/main/ipc.ts` resolves the cached
-   `TransmissionClient` for that profile (creating it with the decrypted password if
-   needed) and performs the HTTP POST.
-4. The client transparently redoes the `X-Transmission-Session-Id` handshake on 409 and
+2. RTK Query invokes `ipcBaseQuery`, which calls `window.api.rpc.invoke({ profileId,
+   op: 'getTorrents' })` — ops are protocol-neutral intents, never daemon RPC names
+   ([ADR-0004](adr/0004-protocol-adapters.md)).
+3. Preload forwards over the `rpc:invoke` channel; `src/main/ipc.ts` resolves the cached
+   adapter for that profile's Server Type (creating it with the decrypted password if
+   needed) and dispatches the op.
+4. The adapter speaks its daemon's native protocol (Transmission JSON-RPC with the 409
+   session-id handshake, Deluge Web-UI JSON with cookie auth, qBittorrent WebUI with SID
+   cookie), normalizes the reply into the shared `Torrent`/`TorrentDetail` shapes, and
    returns a discriminated `RpcResult` — `{ ok: true, data }` or `{ ok: false, error }`.
-   Errors are *values*, never thrown across IPC.
-5. `transformResponse` converts Transmission's compact `table` rows into `Torrent[]`
-   (`tableToObjects` in `src/shared/transmission.ts`).
-6. Components derive the visible list with pure functions from
+   Errors are *values*, never thrown across IPC. (For `getTorrentDetail`, `ipc.ts` also
+   enriches each peer with an ISO country code via the bundled offline GeoIP database in
+   `src/main/geoip.ts` — flags render in the UI, no peer IP ever leaves the machine.)
+5. Components derive the visible list with pure functions from
    `src/renderer/src/features/torrents/derive.ts` (filter → sort), memoized on inputs.
 
 ## The shared contract (`src/shared/`)
@@ -52,9 +59,10 @@ runs in the renderer ([ADR-0001](adr/0001-rpc-via-main-process.md)).
 The only code imported by all three worlds. It has no runtime dependencies on Electron,
 Node, or React, which is what keeps it unit-testable and reusable:
 
-- `types.ts` — `ServerProfile`, `ProfileInput`, `RpcRequest`, `RpcResult`/`RpcError`
-  (discriminated by `kind`: network/timeout/auth/tls/http/rpc), `SortPref`, and the
-  `Api` interface implemented by the preload bridge.
+- `types.ts` — `ServerProfile` (incl. the per-server `color` override), `ProfileInput`,
+  `InvokeRequest` (profileId + neutral op + params), `RpcResult`/`RpcError`
+  (discriminated by `kind`: network/timeout/auth/tls/http/rpc), `SortPref`, `AppPrefs`,
+  and the `Api` interface implemented by the preload bridge.
 - `transmission.ts` — Transmission 4.x RPC entities (`Torrent`, `TorrentDetail`,
   `SessionInfo`, …), the field lists requested from the daemon, and `tableToObjects`.
 

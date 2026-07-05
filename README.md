@@ -48,6 +48,7 @@ Features a server doesn't support are hidden automatically per profile (see the 
 | --- | --- | --- | --- |
 | List / add (magnet + file) / remove / start / pause / verify / reannounce | ✓ | ✓ | ✓ |
 | Detail: general, files (+ priorities), peers, trackers | ✓ | ✓ | ✓ |
+| Peer country flags (offline GeoIP, client-side) | ✓ | ✓ | ✓ |
 | Per-torrent limits, seed-ratio, queue reorder, free space, global speed limits | ✓ | ✓ | ✓ |
 | Sequential download | ✓ (RPC ≥ 18) | ✓ | ✓ |
 | Size filter (skip small files on add) | ✓ | ✓ *(metadata prefetch on magnets)* | ✓ |
@@ -74,9 +75,15 @@ capabilities and unsupported controls are hidden per profile.
 ## Features
 
 - Multiple servers (any mix of Transmission, Deluge, and qBittorrent) shown together, each
-  panel scoped to the server(s) you choose; per-server color coding
+  panel scoped to the server(s) you choose; per-server color coding with a custom color
+  per profile
+- **Flexible panel workspace** — add, remove, resize, and rearrange panels (torrent
+  lists, detail tabs, speed graph, session stats, pieces map, logs); run several
+  instances of the same panel watching different servers side by side
 - Torrent list with live polling, search, sorting, and per-panel filters by status,
-  tracker, and label
+  tracker, and label — as cards or a **multi-column table** (pick columns, click to
+  sort); server group headers show each server's **live ↓/↑ speeds and a
+  downloading/seeding/paused breakdown**
 - Add torrents by magnet link, `.torrent` file, or drag-and-drop, with destination
   folder, free-space check, file selection, and start-paused
 - **Size filter**: skip files below a per-server size threshold so junk (tiny readme/ad
@@ -86,11 +93,21 @@ capabilities and unsupported controls are hidden per profile.
 - **Watch folders**: a per-server folder the app scans while open, auto-adding dropped
   `.torrent` files (works with remote daemons)
 - **Clipboard magnet watcher** (opt-in) — offers to add a magnet link as soon as you copy it
-- OS integration: the app registers as handler for `magnet:` links and `.torrent` files
-- Detail panel: general info, per-file wanted/priority, peers, tracker management
-- Multi-select with Cmd/Ctrl-click and **Shift-click range selection**
-- Session settings (speed limits, alt-speed turtle, seeding limits incl. idle/total-time,
-  privacy — DHT/PeX/LPD/µTP/anonymous, encryption, port test)
+- OS integration: registers as handler for `magnet:` links and `.torrent` files; system
+  tray with live speeds and close-to-tray; download-complete notifications
+- Detail panel: general info, files as a collapsible tree with per-file wanted/priority,
+  **peers with country flags** (offline GeoIP — no IP ever leaves your machine), tracker
+  management with per-tracker swarm stats, and a **pieces map** with availability overlay
+- Per-torrent speed limits and seeding limits, queue reordering (drag-to-reorder
+  included), labels, path rename, and set-location
+- Multi-select with Cmd/Ctrl-click and **Shift-click range selection**; keyboard
+  shortcuts throughout
+- Session settings (speed limits, alt-speed turtle with scheduler, seeding limits incl.
+  idle/total-time, privacy — DHT/PeX/LPD/µTP/anonymous, encryption, port test, blocklist
+  with a one-click default list, bandwidth groups)
+- **Logs panel** with copy and reveal-on-disk; app version shown in the Settings menu
+- Updates download in the background and install **only when you choose** — a badge marks
+  the pending update; quitting or restarting never force-installs
 - Light/dark theme
 
 The app icon is original artwork for this project (a color-coded "deck" of torrent

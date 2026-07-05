@@ -4,7 +4,7 @@
 |---|---|
 | Status | Living document |
 | Owner | Pramod Butte |
-| Last updated | 2026-07-02 |
+| Last updated | 2026-07-05 |
 | Related | [ARCHITECTURE.md](ARCHITECTURE.md) · [CONTEXT.md](../CONTEXT.md) · [ADRs](adr/) |
 
 ## 1. Problem
@@ -198,8 +198,9 @@ Decision record: [ADR-0002](adr/0002-flexible-panel-workspace.md).
 | **0.7** ✅ | Deluge support via protocol adapters (C8/C9, ADR-0004): neutral capability API, infohash identity, capability-gated UI |
 | **0.8** ✅ | Multi-daemon rework: removed default/active server (global workspace, per-panel server selection), per-server colors, renamed **TorrentDeck**; **qBittorrent** adapter (WebUI API v2) |
 | **0.9** ✅ | Download hygiene & automation: **Size Filter** (per-server, ADR-0005) with in-dialog slider, Deluge magnet prefetch, and a retroactive per-torrent slider in the Files tab (v0.1.5); **watch folders** (client-side per server, ADR-0006); **privacy & network** settings (DHT/PeX/LPD/µTP/anonymous); **extended seeding limits** (idle/total time, action on limit); **clipboard magnet watcher** (opt-in); **Shift-click** range selection; Add-dialog Magnet/File toggle |
+| **0.10** ✅ | Observability & QoL (shipped as app release v0.1.6): **peer country flags** via bundled offline GeoIP (DB-IP Lite); **Logs panel** (copy, reveal on disk) + version display; per-server **color override**; per-server **↓/↑ speeds and status breakdown** in group headers; **Pending Update** semantics — background download, explicit install only, never on quit; blocklist **default list** prefill |
 | Future | rTorrent adapter (XML-RPC over /RPC2); Synology Download Station adapter (scoped — build gated on a live DSM to test against; reduced capabilities); qBittorrent categories; more per-daemon depth |
-| Post-1.0 | Geo-IP peer info, RSS feeds, completion scripts, web seeds in peers |
+| Post-1.0 | RSS feeds, completion scripts, web seeds in peers |
 
 ## 8. Success criteria
 

@@ -267,7 +267,8 @@ Select a torrent to populate the **Torrent detail** panel. Its tabs:
   Size Filter to *this* torrent retroactively: drag it to preview which files stay (the
   checkboxes update live, nothing is sent yet — you can also tick/untick rows), then
   **Apply** to commit, or **Reset** to discard.
-- **Peers** — connected peers.
+- **Peers** — connected peers, each with a country flag resolved from a bundled offline
+  GeoIP database (no peer IP ever leaves your machine).
 - **Trackers** — the torrent's trackers.
 - **Pieces** — a piece map (on Transmission, with per-piece availability; on Deluge it
   shows overall progress).
@@ -284,6 +285,7 @@ You can also add **individual** detail tabs (General, Files, …) as standalone 
 | **Torrent detail** (and single tabs) | The selected torrent | Follows your selection |
 | **Session stats** | Totals: speeds, counts, all-time, free space | Its own picker |
 | **Speed graph** | Live ↓/↑ throughput | Its own picker |
+| **Logs** | The app's own activity log, with Copy and Open file | Global (the app, not a server) |
 
 Add any of these from **Panels → Add panel**. Server-reading panels (Session stats, Speed
 graph) each carry a small server picker in their header.
