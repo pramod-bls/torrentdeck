@@ -107,6 +107,10 @@ panel displays, so a multi-server Torrents panel reads as a little swatch row �
 **dots** beside server names in menus and group headers. Same server, same color
 everywhere, so you always know whose data you're looking at.
 
+To **override** a server's color, open the server editor (Servers ▾ → edit) and pick one
+under **Server color** (or **Reset to default** to go back to the derived color). The
+choice is saved with the server profile.
+
 ---
 
 ## Interface reference
@@ -369,9 +373,10 @@ Enable **close-to-tray** in Preferences to keep it running when you close the wi
 
 ## Troubleshooting
 
-- **View logs** — the Settings (⚙) menu has **View logs…**, an in-app viewer for the app's
-  log file (with **Open log file** to reveal it on disk). The installed **version** is shown
-  at the bottom of that menu.
+- **View logs** — Settings (⚙) → **View logs** (or Panels → Tools → Logs) opens a **Logs
+  panel** showing the app's log; the text is selectable and there's a **Copy** button and
+  **Open file** (reveals it on disk) so you can share it. The installed **version** is shown
+  at the bottom of the Settings menu.
 - **Updates** — when an update has downloaded, the Settings menu shows **Restart to install
   vX** and a notification appears; it's non-blocking, so you can keep working and restart
   when convenient (it also applies automatically on the next quit).

@@ -90,6 +90,7 @@ export function saveProfile(input: ProfileInput): ServerProfile {
     username: input.username,
     hasPassword: passwords[id] !== undefined,
     sort: existing?.sort,
+    color: input.color,
     // Size Filter threshold comes straight from the editor (0/undefined = Off).
     sizeThresholdBytes: input.sizeThresholdBytes,
     // Watch folder isn't in the editor yet (T6); preserve any existing value.

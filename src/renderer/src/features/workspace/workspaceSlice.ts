@@ -21,7 +21,7 @@ import type {
   WorkspaceItemConfig,
   WorkspaceLayout
 } from '@shared/types'
-import { defaultLayout, normalizeLayout, placeNewItem } from './panels'
+import { defaultLayout, normalizeLayout, placeNewItem, PANELS } from './panels'
 
 export interface WorkspaceState {
   /** Layout being shown; null until the first loadWorkspace resolves */
@@ -58,7 +58,11 @@ const workspaceSlice = createSlice({
     },
     panelAdded(state, action: PayloadAction<PanelTypeId>) {
       if (!state.layout) return
-      state.layout.items.push(placeNewItem(action.payload, state.layout.items))
+      const type = action.payload
+      // Single-instance panels are added at most once (keeps "View logs…" and
+      // the Panels menu idempotent).
+      if (!PANELS[type].multiInstance && state.layout.items.some((it) => it.type === type)) return
+      state.layout.items.push(placeNewItem(type, state.layout.items))
     },
     panelRemoved(state, action: PayloadAction<string>) {
       if (!state.layout) return

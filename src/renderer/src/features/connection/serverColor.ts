@@ -21,7 +21,31 @@ function hashId(id: string): number {
  * high lightness keep every result a soft pastel that reads on light and dark
  * surfaces alike.
  */
-export function serverColor(profileId: string): string {
+export function deriveServerColor(profileId: string): string {
   const hue = Math.round((hashId(profileId) * 137.508) % 360)
   return `hsl(${hue} 62% 72%)`
+}
+
+/**
+ * User color overrides, keyed by profile id. Kept in sync with the persisted
+ * profiles (see connectionSlice) so `serverColor` stays a plain synchronous
+ * lookup usable anywhere in render. Empty = everyone uses their derived color.
+ */
+const overrides: Record<string, string> = {}
+
+/** Replace the whole override map (e.g. after profiles load). */
+export function setServerColorOverrides(profiles: { id: string; color?: string }[]): void {
+  for (const k of Object.keys(overrides)) delete overrides[k]
+  for (const p of profiles) if (p.color) overrides[p.id] = p.color
+}
+
+/** Set or clear one server's override. */
+export function setServerColorOverride(id: string, color?: string): void {
+  if (color) overrides[id] = color
+  else delete overrides[id]
+}
+
+/** The color to display for a server: its override if set, else derived. */
+export function serverColor(profileId: string): string {
+  return overrides[profileId] ?? deriveServerColor(profileId)
 }

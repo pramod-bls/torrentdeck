@@ -26,9 +26,9 @@ import {
   setGroupsOpen,
   setPrefsOpen,
   setSessionSettingsOpen,
-  setShortcutsOpen,
-  setLogsOpen
+  setShortcutsOpen
 } from '@/features/ui/uiSlice'
+import { panelAdded } from '@/features/workspace/workspaceSlice'
 import { useTorrentActionMutation } from '@/services/rpcApi'
 import { useAppVersion } from '@/lib/useAppVersion'
 import { Button } from '@/components/ui/button'
@@ -162,8 +162,8 @@ export function Toolbar(): React.JSX.Element {
           <DropdownMenuItem onSelect={() => dispatch(setShortcutsOpen(true))}>
             <Keyboard size={14} /> Keyboard shortcuts
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => dispatch(setLogsOpen(true))}>
-            <ScrollText size={14} /> View logs…
+          <DropdownMenuItem onSelect={() => dispatch(panelAdded('logs'))}>
+            <ScrollText size={14} /> View logs
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           {updateReady ? (

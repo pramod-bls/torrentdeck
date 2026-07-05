@@ -6,6 +6,7 @@
  */
 import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import type { AppPrefs, ProfileInput, ServerProfile } from '@shared/types'
+import { setServerColorOverride, setServerColorOverrides } from './serverColor'
 
 export interface ConnectionState {
   loaded: boolean
@@ -59,15 +60,18 @@ const connectionSlice = createSlice({
         state.loaded = true
         state.profiles = action.payload.profiles
         state.prefs = action.payload.prefs
+        setServerColorOverrides(action.payload.profiles)
       })
       .addCase(saveProfile.fulfilled, (state, action) => {
         const saved = action.payload
         const idx = state.profiles.findIndex((p) => p.id === saved.id)
         if (idx >= 0) state.profiles[idx] = saved
         else state.profiles.push(saved)
+        setServerColorOverride(saved.id, saved.color)
       })
       .addCase(deleteProfile.fulfilled, (state, action) => {
         state.profiles = state.profiles.filter((p) => p.id !== action.payload)
+        setServerColorOverride(action.payload, undefined)
       })
       .addCase(savePrefs.fulfilled, (state, action) => {
         state.prefs = action.payload

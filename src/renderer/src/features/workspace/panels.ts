@@ -15,7 +15,7 @@ import type {
   WorkspaceLayout
 } from '@shared/types'
 
-export type PanelCategory = 'Torrents' | 'Torrent detail' | 'Server'
+export type PanelCategory = 'Torrents' | 'Torrent detail' | 'Server' | 'Tools'
 
 export interface PanelMeta {
   type: PanelTypeId
@@ -123,10 +123,20 @@ export const PANELS: Record<PanelTypeId, PanelMeta> = {
     minW: 3,
     minH: 4,
     multiInstance: true
+  },
+  logs: {
+    type: 'logs',
+    title: 'Logs',
+    category: 'Tools',
+    w: 6,
+    h: 8,
+    minW: 3,
+    minH: 4,
+    multiInstance: false
   }
 }
 
-export const PANEL_CATEGORIES: PanelCategory[] = ['Torrents', 'Torrent detail', 'Server']
+export const PANEL_CATEGORIES: PanelCategory[] = ['Torrents', 'Torrent detail', 'Server', 'Tools']
 
 export const CURRENT_LAYOUT_VERSION = 2
 

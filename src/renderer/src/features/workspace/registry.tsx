@@ -9,6 +9,7 @@ import { TorrentsPanel } from '@/components/panels/TorrentsPanel'
 import { DetailTabsPanel, SingleDetailTab } from '@/components/DetailPanel'
 import { StatsPanel } from '@/components/panels/StatsPanel'
 import { SpeedGraphPanel } from '@/components/panels/SpeedGraphPanel'
+import { LogsPanel } from '@/components/panels/LogsPanel'
 
 export const PANEL_COMPONENTS: Record<
   PanelTypeId,
@@ -22,5 +23,6 @@ export const PANEL_COMPONENTS: Record<
   'detail-trackers': () => <SingleDetailTab tab="trackers" />,
   'detail-pieces': () => <SingleDetailTab tab="pieces" />,
   stats: (item) => <StatsPanel item={item} />,
-  'speed-graph': (item) => <SpeedGraphPanel item={item} />
+  'speed-graph': (item) => <SpeedGraphPanel item={item} />,
+  logs: () => <LogsPanel />
 }

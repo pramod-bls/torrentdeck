@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input, Field } from '@/components/ui/input'
 import { LabeledCheckbox } from '@/components/ui/checkbox'
 import { MB } from '@shared/sizeFilter'
+import { deriveServerColor } from '@/features/connection/serverColor'
 
 /** Per-server-type connection defaults, applied when the type is switched. */
 const TYPE_DEFAULTS: Record<ServerType, { port: number; rpcPath: string; label: string }> = {
@@ -185,6 +186,36 @@ export function ProfileDialog(): React.JSX.Element | null {
               />
             </Field>
           </div>
+
+          <Field label="Server color">
+            <div className="flex items-center gap-2">
+              <span
+                className="h-6 w-6 shrink-0 rounded-full border border-surface-300 dark:border-surface-600"
+                style={{
+                  backgroundColor: form.color ?? (editing ? deriveServerColor(editing.id) : '#5b8def')
+                }}
+                aria-hidden
+              />
+              <input
+                type="color"
+                value={form.color?.startsWith('#') ? form.color : '#5b8def'}
+                onChange={(e) => set('color', e.target.value)}
+                aria-label="Custom server color"
+                className="h-8 w-12 cursor-pointer rounded border border-surface-300 bg-surface-50 dark:border-surface-600 dark:bg-surface-800"
+              />
+              {form.color ? (
+                <button
+                  type="button"
+                  onClick={() => set('color', undefined)}
+                  className="text-xs text-accent-600 hover:underline dark:text-accent-400"
+                >
+                  Reset to default
+                </button>
+              ) : (
+                <span className="text-xs text-surface-400">Auto (derived from server)</span>
+              )}
+            </div>
+          </Field>
 
           <Field label="Size filter — skip files smaller than (MB, 0 = off)">
             <Input

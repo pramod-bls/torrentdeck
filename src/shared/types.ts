@@ -85,6 +85,8 @@ export interface ServerProfile {
   username: string
   hasPassword: boolean
   sort?: SortPref
+  /** Custom color override (CSS color) for this server; unset = derived from id. */
+  color?: string
   /** Size Filter: skip files smaller than this many bytes on add. 0/undefined = Off. */
   sizeThresholdBytes?: number
   /** Client-side Watch Folder for this server (see docs/adr/0006-watch-folders.md). */
@@ -117,6 +119,8 @@ export interface ProfileInput {
   username: string
   /** New password to store; undefined = keep existing, empty string = clear */
   password?: string
+  /** Custom color override (CSS color); unset = derived from id. */
+  color?: string
   /** Size Filter threshold in bytes; undefined/0 = Off. */
   sizeThresholdBytes?: number
   /** Client-side watch folder config. */
@@ -211,6 +215,7 @@ export type PanelTypeId =
   | 'detail-pieces'
   | 'stats'
   | 'speed-graph'
+  | 'logs'
 
 /** Coarse status groups used by list filtering (see derive.ts for the mapping). */
 export type StatusFilter = 'all' | 'downloading' | 'seeding' | 'paused' | 'checking' | 'error'
