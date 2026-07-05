@@ -35,7 +35,7 @@ export const COLUMNS: Record<ColumnKey, ColumnDef> = {
     align: 'left',
     sortKey: 'name',
     cell: (t) => (
-      <span className="truncate" title={t.name}>
+      <span className="torrent-name truncate" title={t.name}>
         {t.name}
       </span>
     )

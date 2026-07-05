@@ -337,7 +337,7 @@ export function TorrentRow({
         >
           #{torrent.queuePosition + 1}
         </span>
-        <span className={cn('min-w-0 flex-1 truncate text-sm', selected && 'font-medium')}>
+        <span className={cn('torrent-name min-w-0 flex-1 truncate text-sm', selected && 'font-medium')}>
           {torrent.name}
         </span>
         <LabelChips labels={torrent.labels} onLabelClick={onLabelClick} />

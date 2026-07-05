@@ -11,6 +11,11 @@ if (import.meta.env.DEV) {
   ;(window as unknown as Record<string, unknown>).__store = store
 }
 
+// Privacy blur for recordings/screenshots (see main.css .blur-names)
+if (localStorage.getItem('blurNames') === '1') {
+  document.body.classList.add('blur-names')
+}
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Provider store={store}>

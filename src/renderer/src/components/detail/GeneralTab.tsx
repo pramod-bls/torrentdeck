@@ -56,7 +56,7 @@ export function GeneralTab({
     <div className="space-y-4 p-3">
       <div>
         <p className="flex items-start gap-1.5 text-sm font-medium break-all">
-          <span className="min-w-0">{torrent.name}</span>
+          <span className="torrent-name min-w-0">{torrent.name}</span>
           <button
             type="button"
             aria-label="Rename torrent"

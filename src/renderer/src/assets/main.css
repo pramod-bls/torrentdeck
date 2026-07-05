@@ -106,6 +106,14 @@ textarea {
   border-radius: 0.5rem;
 }
 
+/* Recording/screenshot privacy: blur torrent + file names app-wide.
+   Toggle with localStorage.blurNames = '1' (read at boot in main.tsx). */
+body.blur-names .torrent-name {
+  filter: blur(5px);
+  /* no hover tooltips (title=) leaking the real name; clicks fall through to the row */
+  pointer-events: none;
+}
+
 /* macOS hiddenInset title bar: make the top strip draggable */
 .titlebar-drag {
   -webkit-app-region: drag;

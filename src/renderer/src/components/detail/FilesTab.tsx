@@ -154,7 +154,7 @@ export function FilesTab({
               className="flex min-w-0 flex-1 items-center gap-1 text-left"
             >
               {isCollapsed ? <ChevronRight size={13} /> : <ChevronDown size={13} />}
-              <span className="truncate text-xs font-medium">{node.name}</span>
+              <span className="torrent-name truncate text-xs font-medium">{node.name}</span>
               <span className="shrink-0 text-[11px] text-surface-400">
                 {formatBytes(folderSize(node))} · {formatPercent(folderProgress(node))}
               </span>
@@ -188,7 +188,7 @@ export function FilesTab({
           aria-label={`Download ${node.name}`}
         />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-xs" title={node.name}>
+          <p className="torrent-name truncate text-xs" title={node.name}>
             {node.name}
           </p>
           <p className="text-[11px] text-surface-500">
