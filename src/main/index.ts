@@ -17,7 +17,7 @@ import { registerIpc } from './ipc'
 import { createTray, destroyTray, updateTraySpeeds } from './tray'
 import { getPrefs } from './profiles'
 import { initLogging, log } from './logger'
-import { initAutoUpdater, checkForUpdatesManually } from './updater'
+import { initAutoUpdater, checkForUpdatesManually, installUpdateNow } from './updater'
 import { maybePromptTorrentDefault } from './torrentDefault'
 import { startClipboardWatch } from './clipboardWatch'
 import { startWatchFolders } from './watchFolders'
@@ -158,6 +158,7 @@ if (!gotTheLock) {
     })
     ipcMain.on('tray:setSpeeds', (_e, down: number, up: number) => updateTraySpeeds(down, up))
     ipcMain.handle('updates:check', () => checkForUpdatesManually())
+    ipcMain.handle('updates:install', () => installUpdateNow())
 
     createWindow()
     if (mainWindow) createTray(mainWindow)

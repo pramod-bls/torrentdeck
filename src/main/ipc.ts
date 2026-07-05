@@ -7,7 +7,7 @@
  * across calls; editing a profile evicts its cache entry (credentials or TLS
  * settings may have changed).
  */
-import { clipboard, dialog, ipcMain } from 'electron'
+import { app, clipboard, dialog, ipcMain, shell } from 'electron'
 import { readFile } from 'node:fs/promises'
 import { basename } from 'node:path'
 import type {
@@ -21,6 +21,7 @@ import type {
 import { createAdapter, type TorrentClient } from './rpc/adapters'
 import { clientFor, evictClient } from './clients'
 import { scheduleMagnetSizeFilter } from './sizeFilterWatch'
+import { logFilePath } from './logger'
 import type {
   AddTorrentParams,
   QueueDirection,
@@ -173,4 +174,22 @@ export function registerIpc(): void {
   ipcMain.handle('fs:readDroppedTorrents', (_e, paths: string[]) => readTorrentFiles(paths))
 
   ipcMain.handle('clipboard:readText', () => clipboard.readText())
+  ipcMain.handle('app:version', () => app.getVersion())
+
+  ipcMain.handle('logs:read', async (): Promise<string> => {
+    try {
+      const path = logFilePath()
+      if (!path) return ''
+      const buf = await readFile(path)
+      // last ~64 KB is plenty for a viewer; avoids loading a rotated 5 MB file
+      const slice = buf.subarray(Math.max(0, buf.length - 64 * 1024)).toString('utf8')
+      return buf.length > 64 * 1024 ? slice.slice(slice.indexOf('\n') + 1) : slice
+    } catch {
+      return ''
+    }
+  })
+  ipcMain.handle('logs:reveal', () => {
+    const path = logFilePath()
+    if (path) shell.showItemInFolder(path)
+  })
 }

@@ -13,7 +13,8 @@ import {
   SlidersHorizontal,
   Keyboard,
   Gauge,
-  RefreshCw
+  RefreshCw,
+  ScrollText
 } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { serverColor } from '@/features/connection/serverColor'
@@ -25,9 +26,11 @@ import {
   setGroupsOpen,
   setPrefsOpen,
   setSessionSettingsOpen,
-  setShortcutsOpen
+  setShortcutsOpen,
+  setLogsOpen
 } from '@/features/ui/uiSlice'
 import { useTorrentActionMutation } from '@/services/rpcApi'
+import { useAppVersion } from '@/lib/useAppVersion'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -51,6 +54,8 @@ export function Toolbar(): React.JSX.Element {
   const profiles = useAppSelector((s) => s.connection.profiles)
   const selection = useAppSelector((s) => s.ui.selection)
   const [torrentAction] = useTorrentActionMutation()
+  const version = useAppVersion()
+  const updateReady = useAppSelector((s) => s.ui.updateReadyVersion)
 
   const hasSelection = selection !== null && selection.ids.length > 0
 
@@ -157,10 +162,25 @@ export function Toolbar(): React.JSX.Element {
           <DropdownMenuItem onSelect={() => dispatch(setShortcutsOpen(true))}>
             <Keyboard size={14} /> Keyboard shortcuts
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => void window.api.updates.check()}>
-            <RefreshCw size={14} /> Check for updates…
+          <DropdownMenuItem onSelect={() => dispatch(setLogsOpen(true))}>
+            <ScrollText size={14} /> View logs…
           </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          {updateReady ? (
+            <DropdownMenuItem onSelect={() => void window.api.updates.install()}>
+              <RefreshCw size={14} />
+              <span className="text-accent-600 dark:text-accent-400">
+                Restart to install {updateReady}
+              </span>
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem onSelect={() => void window.api.updates.check()}>
+              <RefreshCw size={14} /> Check for updates…
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuLabel>
+            <span className="font-normal text-surface-400">TorrentDeck {version ?? '…'}</span>
+          </DropdownMenuLabel>
         </DropdownMenuContent>
       </DropdownMenu>
 

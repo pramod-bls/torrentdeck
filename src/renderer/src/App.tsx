@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '@/app/hooks'
 import { bootstrap } from '@/features/connection/connectionSlice'
-import { openAddTorrent } from '@/features/ui/uiSlice'
+import { openAddTorrent, setUpdateReady } from '@/features/ui/uiSlice'
 import { loadWorkspace } from '@/features/workspace/workspaceSlice'
 import { useShortcuts } from '@/app/useShortcuts'
 import { Toolbar } from '@/components/Toolbar'
@@ -18,6 +18,7 @@ import { ShortcutsDialog } from '@/components/dialogs/ShortcutsDialog'
 import { RenameDialog } from '@/components/dialogs/RenameDialog'
 import { GroupsDialog } from '@/components/dialogs/GroupsDialog'
 import { QueueDialog } from '@/components/dialogs/QueueDialog'
+import { LogsDialog } from '@/components/dialogs/LogsDialog'
 
 /** Applies the theme pref by toggling `.dark` on <html>; tracks the OS scheme when set to "system". */
 function useTheme(): void {
@@ -45,10 +46,12 @@ function useOsOpenHandlers(): void {
   useEffect(() => {
     const offMagnet = window.api.onOpenMagnet((url) => dispatch(openAddTorrent({ magnet: url })))
     const offFiles = window.api.onOpenTorrentFiles((files) => dispatch(openAddTorrent({ files })))
+    const offUpdate = window.api.onUpdateDownloaded((info) => dispatch(setUpdateReady(info.version)))
     window.api.rendererReady()
     return () => {
       offMagnet()
       offFiles()
+      offUpdate()
     }
   }, [dispatch])
 }
@@ -117,6 +120,7 @@ export default function App(): React.JSX.Element {
       <RenameDialog />
       <GroupsDialog />
       <QueueDialog />
+      <LogsDialog />
     </div>
   )
 }

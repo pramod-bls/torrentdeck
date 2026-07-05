@@ -17,7 +17,7 @@
  * are. All stages are logged for post-hoc diagnosis.
  */
 import electronUpdater from 'electron-updater'
-import { app, dialog, BrowserWindow } from 'electron'
+import { app, dialog, BrowserWindow, Notification } from 'electron'
 import { log } from './logger'
 import { setQuitting } from './appState'
 
@@ -76,22 +76,20 @@ export function initAutoUpdater(): void {
   )
 
   autoUpdater.on('update-downloaded', (info) => {
-    log.info(`updater: ${info.version} downloaded — prompting to install`)
+    log.info(`updater: ${info.version} downloaded — ready to install (deferred)`)
     manualCheck = false
-    void messageBox({
-      type: 'info',
-      title: 'Update ready',
-      message: `TorrentDeck ${info.version} has been downloaded.`,
-      detail: 'Restart now to install it, or it will be applied the next time you quit.',
-      buttons: ['Restart now', 'Later'],
-      defaultId: 0,
-      cancelId: 1
-    }).then(({ response }) => {
-      if (response === 0) {
-        setQuitting(true)
-        autoUpdater.quitAndInstall()
-      }
-    })
+    // Non-blocking: tell the renderer (menu item + "Restart to install") and
+    // show a dismissible notification. The user installs whenever they like;
+    // if they never do, autoInstallOnAppQuit applies it on the next quit.
+    activeWindow()?.webContents.send('update-downloaded', { version: info.version })
+    if (Notification.isSupported()) {
+      const n = new Notification({
+        title: 'Update ready',
+        body: `TorrentDeck ${info.version} will install when you restart. Click to restart now.`
+      })
+      n.on('click', () => installUpdateNow())
+      n.show()
+    }
   })
 
   autoUpdater.on('error', (err) => {
@@ -110,6 +108,12 @@ export function initAutoUpdater(): void {
 
   void runCheck('launch')
   setInterval(() => void runCheck('periodic'), PERIODIC_MS)
+}
+
+/** Quit and apply a downloaded update now (from the menu / notification). */
+export function installUpdateNow(): void {
+  setQuitting(true)
+  autoUpdater.quitAndInstall()
 }
 
 function runCheck(reason: string): Promise<unknown> {

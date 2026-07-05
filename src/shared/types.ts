@@ -317,13 +317,17 @@ export interface Api {
   /** Auto-update: trigger a user-initiated check (reports the result natively). */
   updates: {
     check: () => Promise<void>
+    install: () => Promise<void>
   }
   pickTorrentFiles: () => Promise<TorrentFilePayload[]>
   pickDirectory: () => Promise<string | null>
+  appVersion: () => Promise<string>
+  logs: { read: () => Promise<string>; reveal: () => Promise<void> }
   readDroppedTorrents: (paths: string[]) => Promise<TorrentFilePayload[]>
   readClipboardText: () => Promise<string>
   focusWindow: () => Promise<void>
   setTraySpeeds: (down: number, up: number) => void
   onOpenMagnet: (cb: (url: string) => void) => () => void
   onOpenTorrentFiles: (cb: (files: TorrentFilePayload[]) => void) => () => void
+  onUpdateDownloaded: (cb: (info: { version: string }) => void) => () => void
 }

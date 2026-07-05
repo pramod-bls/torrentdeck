@@ -43,17 +43,25 @@ const api: Api & { getPathForFile: (file: File) => string; rendererReady: () => 
     set: (layout: WorkspaceLayout) => ipcRenderer.invoke('workspace:set', layout)
   },
   updates: {
-    check: () => ipcRenderer.invoke('updates:check')
+    check: () => ipcRenderer.invoke('updates:check'),
+    install: () => ipcRenderer.invoke('updates:install')
   },
   pickTorrentFiles: () => ipcRenderer.invoke('dialog:pickTorrentFiles'),
   pickDirectory: () => ipcRenderer.invoke('dialog:pickDirectory'),
   readDroppedTorrents: (paths: string[]) => ipcRenderer.invoke('fs:readDroppedTorrents', paths),
   readClipboardText: () => ipcRenderer.invoke('clipboard:readText'),
+  appVersion: () => ipcRenderer.invoke('app:version'),
+  logs: {
+    read: () => ipcRenderer.invoke('logs:read'),
+    reveal: () => ipcRenderer.invoke('logs:reveal')
+  },
   focusWindow: () => ipcRenderer.invoke('app:focusWindow'),
   setTraySpeeds: (down: number, up: number) => ipcRenderer.send('tray:setSpeeds', down, up),
   onOpenMagnet: (cb: (url: string) => void) => subscribe('open-magnet', cb),
   onOpenTorrentFiles: (cb: (files: TorrentFilePayload[]) => void) =>
     subscribe('open-torrent-files', cb),
+  onUpdateDownloaded: (cb: (info: { version: string }) => void) =>
+    subscribe('update-downloaded', cb),
   getPathForFile: (file: File) => webUtils.getPathForFile(file),
   rendererReady: () => void ipcRenderer.invoke('app:rendererReady')
 }

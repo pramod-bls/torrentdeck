@@ -33,4 +33,13 @@ export function initLogging(): typeof log {
   return log
 }
 
+/** Absolute path of the current log file, for the in-app viewer / "reveal". */
+export function logFilePath(): string | undefined {
+  try {
+    return log.transports.file.getFile().path
+  } catch {
+    return undefined
+  }
+}
+
 export { log }

@@ -14,6 +14,7 @@ import { useAppSelector, usePollingInterval } from '@/app/hooks'
 import { useGetTorrentsQuery, useSetTorrentMutation } from '@/services/rpcApi'
 import { applyPanelFilters, deriveSidebar, sortTorrents } from '@/features/torrents/derive'
 import { serverColor } from '@/features/connection/serverColor'
+import { formatSpeed } from '@/lib/format'
 import { TorrentRow, type RowReorder } from './TorrentRow'
 import { TorrentTableRow } from './TorrentTable'
 import { cn } from '@/lib/cn'
@@ -67,6 +68,8 @@ export function ServerGroup({
 
   const visible = sortTorrents(applyPanelFilters(torrents, config.filters), config.sort)
   const counts = deriveSidebar(visible)
+  const down = visible.reduce((s, t) => s + (t.rateDownload || 0), 0)
+  const up = visible.reduce((s, t) => s + (t.rateUpload || 0), 0)
 
   // Drag-to-reorder is only meaningful when the visual order IS the queue order.
   const reorderable = config.sort.key === 'queuePosition' && !config.sort.desc
@@ -124,6 +127,24 @@ export function ServerGroup({
                     {counts[key]}
                   </span>
                 ) : null
+              )}
+              {(down > 0 || up > 0) && (
+                <span className="flex items-center gap-1.5 border-l border-surface-300 pl-2 dark:border-surface-600">
+                  <span
+                    className="flex items-center gap-0.5 text-accent-600 dark:text-accent-400"
+                    title="Download speed"
+                  >
+                    <ArrowDown size={11} />
+                    {formatSpeed(down)}
+                  </span>
+                  <span
+                    className="flex items-center gap-0.5 text-success-600 dark:text-success-400"
+                    title="Upload speed"
+                  >
+                    <ArrowUp size={11} />
+                    {formatSpeed(up)}
+                  </span>
+                </span>
               )}
             </span>
           )}

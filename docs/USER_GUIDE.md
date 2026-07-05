@@ -242,7 +242,9 @@ specific set:
 ![The Torrents panel server selector](images/server-select.png)
 
 Torrents are grouped under a collapsible header (with the server's color dot) per server;
-an unreachable server only errors its own section. The **Session stats** and **Speed
+each header shows a **status breakdown** (total, plus downloading / seeding / paused /
+verifying / error counts) and the server's current **↓/↑ speed**. An unreachable server
+only errors its own section. The **Session stats** and **Speed
 graph** panels have their own single-server picker in their header, and the detail panels
 follow whatever torrent you select — so each panel is independently pointed at a server
 (see the [Panels](#panels) table).
@@ -367,6 +369,12 @@ Enable **close-to-tray** in Preferences to keep it running when you close the wi
 
 ## Troubleshooting
 
+- **View logs** — the Settings (⚙) menu has **View logs…**, an in-app viewer for the app's
+  log file (with **Open log file** to reveal it on disk). The installed **version** is shown
+  at the bottom of that menu.
+- **Updates** — when an update has downloaded, the Settings menu shows **Restart to install
+  vX** and a notification appears; it's non-blocking, so you can keep working and restart
+  when convenient (it also applies automatically on the next quit).
 - **"Authentication failed"** — check the username/password (Deluge: the Web UI
   password). Use **Test connection** in the server editor.
 - **"Certificate rejected"** — the server uses a self-signed cert; enable **Use HTTPS →

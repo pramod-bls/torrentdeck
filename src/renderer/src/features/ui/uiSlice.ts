@@ -49,6 +49,9 @@ export interface UiState {
   prefsOpen: boolean
   shortcutsOpen: boolean
   groupsOpen: boolean
+  logsOpen: boolean
+  /** Version of a downloaded, ready-to-install update (null = none). */
+  updateReadyVersion: string | null
 }
 
 const initialState: UiState = {
@@ -65,7 +68,9 @@ const initialState: UiState = {
   sessionSettingsOpen: false,
   prefsOpen: false,
   shortcutsOpen: false,
-  groupsOpen: false
+  groupsOpen: false,
+  logsOpen: false,
+  updateReadyVersion: null
 }
 
 const uiSlice = createSlice({
@@ -159,6 +164,12 @@ const uiSlice = createSlice({
     },
     setGroupsOpen(state, action: PayloadAction<boolean>) {
       state.groupsOpen = action.payload
+    },
+    setLogsOpen(state, action: PayloadAction<boolean>) {
+      state.logsOpen = action.payload
+    },
+    setUpdateReady(state, action: PayloadAction<string>) {
+      state.updateReadyVersion = action.payload
     }
   }
 })
@@ -185,6 +196,8 @@ export const {
   setSessionSettingsOpen,
   setPrefsOpen,
   setShortcutsOpen,
-  setGroupsOpen
+  setGroupsOpen,
+  setLogsOpen,
+  setUpdateReady
 } = uiSlice.actions
 export default uiSlice.reducer
