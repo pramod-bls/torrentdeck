@@ -8,9 +8,10 @@
 one rearrangeable, color-coded dashboard on macOS (Apple Silicon), Windows, and Linux.
 
 Mix a Transmission NAS, a Deluge seedbox, and a local qBittorrent in the same window; each
-server shows only the controls it actually supports. It's also a maintained,
-Apple-Silicon-native successor to the abandoned
-[transgui](https://github.com/transmission-remote-gui/transgui).
+server shows only the controls it actually supports. If you're looking for a
+**transgui alternative** — [transgui](https://github.com/transmission-remote-gui/transgui)
+is unmaintained and never ran natively on Apple Silicon — TorrentDeck is a maintained,
+Apple-Silicon-native successor that also speaks Deluge and qBittorrent.
 
 ![TorrentDeck -> Transmission, Deluge, and qBittorrent in one dashboard](docs/images/demo.gif)
 
