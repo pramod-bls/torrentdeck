@@ -106,10 +106,14 @@ textarea {
   border-radius: 0.5rem;
 }
 
-/* Recording/screenshot privacy: blur torrent + file names app-wide.
-   Toggle with localStorage.blurNames = '1' (read at boot in main.tsx). */
+/* Recording/screenshot privacy: redact torrent + file names app-wide.
+   Toggle with localStorage.blurNames = '1' (read at boot in main.tsx).
+   Solid opaque bar, NOT blur — blurred/pixelated text can be partially
+   recovered by deblurring tools; an opaque cover leaves zero signal. */
 body.blur-names .torrent-name {
-  filter: blur(5px);
+  color: transparent !important;
+  background: #7d8796;
+  border-radius: 3px;
   /* no hover tooltips (title=) leaking the real name; clicks fall through to the row */
   pointer-events: none;
 }
